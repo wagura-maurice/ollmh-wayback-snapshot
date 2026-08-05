@@ -1,0 +1,153 @@
+#advanced-search {
+	text-align:left;
+	width:100%;
+	padding:5px 0 15px;
+}
+
+#advanced-search-toggle {
+	cursor:pointer;
+}
+
+#search-query-explained {
+	padding:10px 0;
+}
+
+#search-query-explained span.term,
+#search-query-explained span.date,
+#search-query-explained span.when,
+#search-query-explained span.branch,
+#search-query-explained span.node,
+#search-query-explained span.op {
+	font-weight:bold;
+}
+
+#search-query-explained span.op {
+	text-transform:uppercase;
+}
+
+#search-results li.search-result .mime-pdf {
+	padding-left:20px;
+	background:url(https://web.archive.org/web/20220413094316im_/http://ourladyoflourdesmweahospital.org/media/system/images/pdf_button.png) no-repeat;
+}
+
+#search-results .search-pagination,
+#search-results .pagination,
+#search-results .search-pages-counter {
+	clear:both;
+	margin:0 auto;
+}
+
+#highlighter-start, #highlighter-end {
+	display:none;
+	height:0;
+	opacity:0;
+}
+
+span.highlight {
+	background-color:#FFFFCC;
+	font-weight:bold;
+	padding:1px 4px;
+}
+
+ul.autocompleter-choices {
+	position:absolute;
+	margin:0;
+	padding:0;
+	list-style:none;
+	border:1px solid #EEEEEE;
+	background-color:white;
+	border-right-color:#DDDDDD;
+	border-bottom-color:#DDDDDD;
+	text-align:left;
+	font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+	z-index:50;
+}
+
+ul.autocompleter-choices li {
+	background:none;
+	position:relative;
+	padding:0.1em 1.5em 0.1em 1em;
+	cursor:pointer;
+	font-weight:normal;
+	font-size:1em;
+}
+
+ul.autocompleter-choices li.autocompleter-selected {
+	background-color:#444;
+	color:#fff;
+}
+
+ul.autocompleter-choices span.autocompleter-queried {
+	font-weight:bold;
+}
+
+ul.autocompleter-choices li.autocompleter-selected span.autocompleter-queried {
+	color:#9FCFFF;
+}
+
+.autocomplete-suggestions {
+	border: 1px solid #999;
+	background: #FFF; cursor: default;
+	overflow: auto;
+	-webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+	-moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+	box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+}
+
+.autocomplete-suggestion {
+	padding: 2px 5px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.autocomplete-no-suggestion {
+	padding: 2px 5px;
+}
+
+.autocomplete-selected {
+	background: #F0F0F0;
+}
+
+.autocomplete-suggestions strong {
+	font-weight: bold; color: #000;
+}
+
+.autocomplete-group {
+	padding: 2px 5px;
+}
+
+.autocomplete-group strong {
+	font-weight: bold;
+	font-size: 16px;
+	color: #000;
+	display: block;
+	border-bottom: 1px solid #000;
+}
+
+ul#finder-filter-select-list {
+	top: 4em !important;
+}
+
+.finder-selects .inputbox {
+	width: 180px;
+}
+
+div#finder-filter-window .filter-branch .finder-selects {
+	float: left;
+}
+
+/*
+     FILE ARCHIVED ON 09:43:16 Apr 13, 2022 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 21:55:34 Aug 05, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+*/
+/*
+playback timings (ms):
+  capture_cache.get: 0.496
+  load_resource: 170.235
+  PetaboxLoader3.resolve: 81.632
+  PetaboxLoader3.datanode: 87.931
+*/
