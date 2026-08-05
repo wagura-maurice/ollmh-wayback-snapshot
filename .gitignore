@@ -1,6 +1,0 @@
-# Wayback Machine downloader retry logs
-fetch.log
-
-# Downloaded site files (uncomment if you don't want to track snapshots)
-# index.html
-# *.html
