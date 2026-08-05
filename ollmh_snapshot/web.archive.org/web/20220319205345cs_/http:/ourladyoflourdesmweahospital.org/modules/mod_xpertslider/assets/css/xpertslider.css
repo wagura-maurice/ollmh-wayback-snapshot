@@ -1,0 +1,476 @@
+/**
+ * @package Xpert Slider
+ * @version 1.4
+ * @author ThemeXpert http://www.themexpert.com
+ * @copyright Copyright (C) 2009 - 2011 ThemeXpert
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
+ *
+ */
+
+/**************************
+*
+*	GENERAL
+*
+**************************/
+.xslider_wrap a, .xslider_wrap img, 
+.xslider_wrap ol, .xslider_wrap ul, .xslider_wrap li,
+.xslider_wrap table, .xslider_wrap tbody, .xslider_wrap tfoot, .xslider_wrap thead, .xslider_wrap tr, .xslider_wrap th, .xslider_wrap td
+.xslider_thumbs_wrap a, .xslider_thumbs_wrap img, 
+.xslider_thumbs_wrap ol, .xslider_thumbs_wrap ul, .xslider_thumbs_wrap li,
+.xslider_thumbs_wrap table, .xslider_thumbs_wrap tbody, .xslider_thumbs_wrap tfoot, .xslider_thumbs_wrap thead, .xslider_thumbs_wrap tr, .xslider_thumbs_wrap th, .xslider_thumbs_wrap td {
+	background: none;
+	border: 0;
+	font: inherit;
+	font-size: 100%;
+	margin: 0;
+	padding: 0;
+	vertical-align: baseline;
+	list-style: none
+}
+.xslider_wrap {
+	display: none;
+	float: left;
+	position: relative;
+	z-index: 0;
+}
+.xslider_wrap img {
+	max-width: none!important;
+}
+.xslider_fakehover {
+	height: 100%;
+	min-height: 60px;
+	position: relative;
+	width: 100%;
+	z-index: 1;
+}
+.xslider_wrap {
+	width: 100%;
+}
+.xslider_src {
+	display: none;
+}
+.xsliderCont, .xsliderContents {
+	height: 100%;
+	position: relative;
+	width: 100%;
+	z-index: 1;
+}
+.xsliderSlide {
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 100%;
+}
+.xsliderContent {
+	bottom: 0;
+	display: none;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 100%;
+}
+.xslider_target {
+	bottom: 0;
+	height: 100%;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	text-align: left;
+	top: 0;
+	width: 100%;
+	z-index: 0;
+}
+.xslider_overlayer {
+	bottom: 0;
+	height: 100%;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 100%;
+	z-index: 0;
+}
+.xslider_target_content {
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 2;
+}
+.xslider_target_content .xslider_link {
+    background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/blank.gif);
+	display: block;
+	height: 100%;
+	text-decoration: none;
+}
+.xslider_loader {
+    background: #fff url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider-loader.gif) no-repeat center;
+	background: rgba(255, 255, 255, 0.9) url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider-loader.gif) no-repeat center;
+	border: 1px solid #ffffff;
+	-webkit-border-radius: 18px;
+	-moz-border-radius: 18px;
+	border-radius: 18px;
+	height: 36px;
+	left: 50%;
+	overflow: hidden;
+	position: absolute;
+	margin: -18px 0 0 -18px;
+	top: 50%;
+	width: 36px;
+	z-index: 3;
+}
+.xslider_bar {
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 3;
+}
+.xslider_thumbs_wrap.xslider_left .xslider_bar, .xslider_thumbs_wrap.xslider_right .xslider_bar {
+	height: 100%;
+	position: absolute;
+	width: auto;
+}
+.xslider_thumbs_wrap.xslider_bottom .xslider_bar, .xslider_thumbs_wrap.xslider_top .xslider_bar {
+	height: auto;
+	position: absolute;
+	width: 100%;
+}
+.xslider_nav_cont {
+	height: 65px;
+	overflow: hidden;
+	position: absolute;
+	right: 9px;
+	top: 15px;
+	width: 120px;
+	z-index: 4;
+}
+.xslider_caption {
+	bottom: 0;
+	display: block;
+	position: absolute;
+	width: 100%;
+}
+.xslider_caption > div {
+	padding: 10px 20px;
+}
+.xsliderrelative {
+	overflow: hidden;
+	position: relative;
+}
+.imgFake {
+	cursor: pointer;
+}
+.xslider_prevThumbs {
+	bottom: 4px;
+	cursor: pointer;
+	left: 0;
+	position: absolute;
+	top: 4px;
+	visibility: hidden;
+	width: 30px;
+	z-index: 10;
+}
+.xslider_prevThumbs div {
+	background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -160px 0;
+	display: block;
+	height: 40px;
+	margin-top: -20px;
+	position: absolute;
+	top: 50%;
+	width: 30px;
+}
+.xslider_nextThumbs {
+	bottom: 4px;
+	cursor: pointer;
+	position: absolute;
+	right: 0;
+	top: 4px;
+	visibility: hidden;
+	width: 30px;
+	z-index: 10;
+}
+.xslider_nextThumbs div {
+	background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -190px 0;
+	display: block;
+	height: 40px;
+	margin-top: -20px;
+	position: absolute;
+	top: 50%;
+	width: 30px;
+}
+.xslider_command_wrap .hideNav {
+	display: none;
+}
+.xslider_command_wrap {
+	left: 0;
+	position: relative;
+	right:0;
+	z-index: 4;
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	text-align: right;
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li {
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	cursor: pointer;
+	display: inline-block;
+	height: 16px;
+	margin: 20px 5px;
+	position: relative;
+	text-align: left;
+	text-indent: -9999px;
+	width: 16px;
+}
+.xslider_commands_emboss .xslider_pag .xslider_pag_ul li {
+	-moz-box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+	-webkit-box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+	box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li > span {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	height: 8px;
+	left: 4px;
+	overflow: hidden;
+	position: absolute;
+	top: 4px;
+	width: 8px;
+}
+.xslider_commands_emboss .xslider_pag .xslider_pag_ul li:hover > span {
+	-moz-box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+	-webkit-box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+	box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li.xslidercurrent > span {
+	-moz-box-shadow: 0;
+	-webkit-box-shadow: 0;
+	box-shadow: 0;
+}
+.xslider_pag_ul li img {
+	display: none;
+	position: absolute;
+}
+.xslider_pag_ul .thumb_arrow {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid;
+	top: 0;
+	left: 50%;
+	margin-left: -4px;
+	position: absolute;
+}
+.xslider_prev, .xslider_next, .xslider_commands {
+	cursor: pointer;
+	height: 40px;
+	margin-top: -20px;
+	position: absolute;
+	top: 50%;
+	width: 40px;
+	z-index: 2;
+}
+.xslider_prev {
+	left: 0;
+}
+.xslider_prev > span {
+	background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat 0 0;
+	display: block;
+	height: 40px;
+	width: 40px;
+}
+.xslider_next {
+	right: 0;
+}
+.xslider_next > span {
+	background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -40px 0;
+	display: block;
+	height: 40px;
+	width: 40px;
+}
+.xslider_commands {
+	right: 41px;
+}
+.xslider_commands > .xslider_play {
+	background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -80px 0;
+	height: 40px;
+	width: 40px;
+}
+.xslider_commands > .xslider_stop {
+	background: url(https://web.archive.org/web/20220319205344im_/http://ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -120px 0;
+	display: block;
+	height: 40px;
+	width: 40px;
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li {
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	cursor: pointer;
+	display: inline-block;
+	height: 16px;
+	margin: 20px 5px;
+	position: relative;
+	text-indent: -9999px;
+	width: 16px;
+}
+.xslider_thumbs_cont {
+	-webkit-border-bottom-right-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+	-moz-border-radius-bottomright: 4px;
+	-moz-border-radius-bottomleft: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	overflow: hidden;
+	position: relative;
+	width: 100%;
+    visibility: hidden;
+}
+.xslider_commands_emboss .xslider_thumbs_cont {
+	-moz-box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+	-webkit-box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+	box-shadow:
+		0px 1px 0px rgba(255,255,255,1),
+		inset 0px 1px 1px rgba(0,0,0,0.2);
+}
+.xslider_thumbs_cont > div {
+	float: left;
+	width: 100%;
+}
+.xslider_thumbs_cont ul {
+	overflow: hidden;
+	padding: 3px 4px 8px;
+	position: relative;
+	text-align: center;
+}
+.xslider_thumbs_cont ul li {
+	display: inline;
+	padding: 0 4px;
+}
+.xslider_thumbs_cont ul li > img {
+	border: 1px solid;
+	cursor: pointer;
+	margin-top: 5px;
+	vertical-align:bottom;
+}
+.xslider_clear {
+	display: block;
+	clear: both;
+}
+.showIt {
+	display: none;
+}
+.xslider_clear {
+	clear: both;
+	display: block;
+	height: 1px;
+	margin: -1px 0 25px;
+	position: relative;
+}
+/**************************
+*
+*	COLORS & SKINS
+*
+**************************/
+
+.xslider_caption {
+	color: #fff;
+}
+.xslider_caption > div {
+	background: #000;
+	background: rgba(0, 0, 0, 0.8);
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li {
+	background: #b7b7b7;
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li:hover > span {
+	background: #b7b7b7;
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li.xslidercurrent > span {
+	background: #434648;
+}
+.xslider_pag_ul li img {
+	border: 4px solid #e6e6e6;
+	-moz-box-shadow: 0px 3px 6px rgba(0,0,0,.5);
+	-webkit-box-shadow: 0px 3px 6px rgba(0,0,0,.5);
+	box-shadow: 0px 3px 6px rgba(0,0,0,.5);
+}
+.xslider_pag_ul .thumb_arrow {
+    border-top-color: #e6e6e6;
+}
+.xslider_prevThumbs, .xslider_nextThumbs, .xslider_prev, .xslider_next, .xslider_commands, .xslider_thumbs_cont {
+	background: #d8d8d8;
+	background: rgba(216, 216, 216, 0.85);
+}
+.xslider_wrap .xslider_pag .xslider_pag_ul li {
+	background: #b7b7b7;
+}
+.xslider_thumbs_cont ul li > img {
+	border: 1px solid #000;
+}
+
+/*AZURE SKIN*/
+.xslider_azure_skin .xslider_prevThumbs div {
+	background-position: -160px -240px;
+}
+.xslider_azure_skin .xslider_nextThumbs div {
+	background-position: -190px -240px;
+}
+.xslider_azure_skin .xslider_prev > span {
+	background-position: 0 -240px;
+}
+.xslider_azure_skin .xslider_next > span {
+	background-position: -40px -240px;
+}
+.xslider_azure_skin .xslider_commands > .xslider_play {
+	background-position: -80px -240px;
+}
+.xslider_azure_skin .xslider_commands > .xslider_stop {
+	background-position: -120px -240px;
+}
+
+/*
+     FILE ARCHIVED ON 20:53:44 Mar 19, 2022 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 21:55:27 Aug 05, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+*/
+/*
+playback timings (ms):
+  capture_cache.get: 2.528
+  load_resource: 79.075
+  PetaboxLoader3.resolve: 65.063
+  PetaboxLoader3.datanode: 11.957
+*/
