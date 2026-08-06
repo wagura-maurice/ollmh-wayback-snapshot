@@ -105,14 +105,14 @@
 	z-index: 2;
 }
 .xslider_target_content .xslider_link {
-    background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/blank.gif);
+    background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/blank.gif);
 	display: block;
 	height: 100%;
 	text-decoration: none;
 }
 .xslider_loader {
-    background: #fff url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider-loader.gif) no-repeat center;
-	background: rgba(255, 255, 255, 0.9) url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider-loader.gif) no-repeat center;
+    background: #fff url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider-loader.gif) no-repeat center;
+	background: rgba(255, 255, 255, 0.9) url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider-loader.gif) no-repeat center;
 	border: 1px solid #ffffff;
 	-webkit-border-radius: 18px;
 	-moz-border-radius: 18px;
@@ -181,7 +181,7 @@
 	z-index: 10;
 }
 .xslider_prevThumbs div {
-	background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -160px 0;
+	background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -160px 0;
 	display: block;
 	height: 40px;
 	margin-top: -20px;
@@ -200,7 +200,7 @@
 	z-index: 10;
 }
 .xslider_nextThumbs div {
-	background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -190px 0;
+	background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -190px 0;
 	display: block;
 	height: 40px;
 	margin-top: -20px;
@@ -300,7 +300,7 @@
 	left: 0;
 }
 .xslider_prev > span {
-	background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat 0 0;
+	background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat 0 0;
 	display: block;
 	height: 40px;
 	width: 40px;
@@ -309,7 +309,7 @@
 	right: 0;
 }
 .xslider_next > span {
-	background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -40px 0;
+	background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -40px 0;
 	display: block;
 	height: 40px;
 	width: 40px;
@@ -318,12 +318,12 @@
 	right: 41px;
 }
 .xslider_commands > .xslider_play {
-	background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -80px 0;
+	background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -80px 0;
 	height: 40px;
 	width: 40px;
 }
 .xslider_commands > .xslider_stop {
-	background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -120px 0;
+	background: url(/web.archive.org/web/20220319205345im_/http:/ourladyoflourdesmweahospital.org/modules/mod_xpertslider/assets/images/xslider_skins.png) no-repeat -120px 0;
 	display: block;
 	height: 40px;
 	width: 40px;
