@@ -1,12 +1,3 @@
-var _____WB$wombat$assign$function_____=function(name){return (globalThis._wb_wombat && globalThis._wb_wombat.local_init && globalThis._wb_wombat.local_init(name))||globalThis[name];};if(!globalThis.__WB_pmw){globalThis.__WB_pmw=function(obj){this.__WB_source=obj;return this;}}{
-let window = _____WB$wombat$assign$function_____("window");
-let self = _____WB$wombat$assign$function_____("self");
-let document = _____WB$wombat$assign$function_____("document");
-let location = _____WB$wombat$assign$function_____("location");
-let top = _____WB$wombat$assign$function_____("top");
-let parent = _____WB$wombat$assign$function_____("parent");
-let frames = _____WB$wombat$assign$function_____("frames");
-let opener = _____WB$wombat$assign$function_____("opener");
 /**
  * @package     Expose
  * @version     4.0
@@ -44,20 +35,3 @@ let opener = _____WB$wombat$assign$function_____("opener");
     };
 
 })(jQuery);
-}
-
-/*
-     FILE ARCHIVED ON 20:53:41 Mar 19, 2022 AND RETRIEVED FROM THE
-     INTERNET ARCHIVE ON 21:55:43 Aug 05, 2026.
-     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
-
-     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
-     SECTION 108(a)(3)).
-*/
-/*
-playback timings (ms):
-  capture_cache.get: 0.618
-  load_resource: 83.997
-  PetaboxLoader3.resolve: 55.896
-  PetaboxLoader3.datanode: 27.401
-*/
