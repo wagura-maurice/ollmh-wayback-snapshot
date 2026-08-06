@@ -34,6 +34,11 @@ WEB_ROOT = os.path.join(PROJECT_ROOT, "web.archive.org", "web")
 CANONICAL_TS = "20220319205345"
 SITE = "ourladyoflourdesmweahospital.org"
 
+# Prefix for nav links (relative to the <base href="...web.archive.org/web/"> tag).
+# With the base tag, href="PAGE_LINK_PREFIX/about-ollmh-location.html" resolves to:
+#   .../web.archive.org/web/20220319205345/https:/ourladyoflourdesmweahospital.org/about-ollmh-location.html
+PAGE_LINK_PREFIX = f"{CANONICAL_TS}/https:/{SITE}"
+
 # Where processed pages go (alongside index.html)
 PAGES_DEST = os.path.join(
     WEB_ROOT, CANONICAL_TS, "https:", SITE
@@ -241,8 +246,11 @@ def rewrite_asset_url(match):
 
 
 def rewrite_nav_links(html_text):
-    """Replace Wayback page URLs in nav with local filenames."""
+    """Replace Wayback page URLs in nav with PAGE_LINK_PREFIX-prefixed local filenames."""
     changes = 0
+
+    def _prefixed(filename):
+        return f"{PAGE_LINK_PREFIX}/{filename}"
 
     # Handle full https://web.archive.org/web/TS/http://SITE/index.php/PATH
     def full_repl(m):
@@ -250,7 +258,7 @@ def rewrite_nav_links(html_text):
         path = m.group(1)
         if path in NAV_MAP:
             changes += 1
-            return NAV_MAP[path]
+            return _prefixed(NAV_MAP[path])
         return m.group(0)
 
     html_text = FULL_PAGE_URL_RE.sub(full_repl, html_text)
@@ -261,7 +269,7 @@ def rewrite_nav_links(html_text):
         path = m.group(1)
         if path in NAV_MAP:
             changes += 1
-            return NAV_MAP[path]
+            return _prefixed(NAV_MAP[path])
         return m.group(0)
 
     html_text = PAGE_URL_RE.sub(page_repl, html_text)
@@ -270,7 +278,7 @@ def rewrite_nav_links(html_text):
     def good_repl(m):
         nonlocal changes
         changes += 1
-        return "about-nursing-school.html"
+        return _prefixed("about-nursing-school.html")
 
     # Match /web/TS/http://SITE/good (with or without index.php prefix)
     good_re = re.compile(
@@ -286,20 +294,20 @@ def rewrite_nav_links(html_text):
     )
     html_text = good_full_re.sub(good_repl, html_text)
 
-    # Fix Home link: /web/TS/http://SITE/index.php → index.html
+    # Fix Home link: /web/TS/http://SITE/index.php → prefixed index.html
     home_re = re.compile(
         r'/web/\d{14}/http://ourladyoflourdesmweahospital\.org/index\.php(?=["\'])',
         re.IGNORECASE,
     )
-    html_text, n_home = home_re.subn("index.html", html_text)
+    html_text, n_home = home_re.subn(_prefixed("index.html"), html_text)
     changes += n_home
 
-    # Fix logo link: /web/TS/http://SITE/ → index.html
+    # Fix logo link: /web/TS/http://SITE/ → prefixed index.html
     logo_re = re.compile(
         r'href="/web/\d{14}/http://ourladyoflourdesmweahospital\.org/"',
         re.IGNORECASE,
     )
-    html_text, n_logo = logo_re.subn('href="index.html"', html_text)
+    html_text, n_logo = logo_re.subn(f'href="{_prefixed("index.html")}"', html_text)
     changes += n_logo
 
     return html_text, changes
@@ -352,6 +360,16 @@ def process_page(filename):
         return f"{CANONICAL_TS}{mod}/http:/{SITE}/{path}"
 
     html_text = style_asset_re.sub(style_repl, html_text)
+
+    # 7. Final pass: prefix any remaining bare href="<page>.html" links
+    #    (catches relative links in the raw HTML that weren't Wayback URLs)
+    known_pages = set(NAV_MAP.values()) | {"index.html"}
+    bare_href_re = re.compile(
+        r'href="(' + "|".join(re.escape(p) for p in known_pages) + r')"'
+    )
+    html_text, n_bare = bare_href_re.subn(
+        lambda m: f'href="{PAGE_LINK_PREFIX}/{m.group(1)}"', html_text
+    )
 
     # Save
     dest = os.path.join(PAGES_DEST, filename)
@@ -413,7 +431,7 @@ def create_stub(filename, title):
         <div class="container">
             <section id="top" class="row">
                 <div class="grid9 column first ex-odd top-1"><div class="block widget widget-logo no-title clearfix "><div class="content"><p id="logo" class="brand image" style="">
-                    <a class="auto-size" style="background: url('{CANONICAL_TS}im_/http:/{SITE}/templates/tx_finnix/images/style1/logo.png') no-repeat; background-size: contain; width: 222px; height:96px;" href="index.html">Our Lady of Lourdes Mwea Hospital</a>
+                    <a class="auto-size" style="background: url('{CANONICAL_TS}im_/http:/{SITE}/templates/tx_finnix/images/style1/logo.png') no-repeat; background-size: contain; width: 222px; height:96px;" href="{PAGE_LINK_PREFIX}/index.html">Our Lady of Lourdes Mwea Hospital</a>
                 </p></div></div></div>
             </section>
 
@@ -423,7 +441,7 @@ def create_stub(filename, title):
                         <div class="maxiroundedleft"></div>
                         <div class="maxiroundedcenter">
                             <ul class="maximenuck">
-                                <li class="maximenuck item101 first level1" style="z-index: 12000"><a class="maximenuck" href="index.html"><span class="titreck">Home</span></a></li>
+                                <li class="maximenuck item101 first level1" style="z-index: 12000"><a class="maximenuck" href="{PAGE_LINK_PREFIX}/index.html"><span class="titreck">Home</span></a></li>
                             </ul>
                         </div>
                         <div class="maxiroundedright"></div>
@@ -437,7 +455,7 @@ def create_stub(filename, title):
                     <div class="block">
                         <h1>{title}</h1>
                         <p>This page was not available in the Wayback Machine archive. Content will be added soon.</p>
-                        <p><a href="index.html">&larr; Back to Home</a></p>
+                        <p><a href="{PAGE_LINK_PREFIX}/index.html">&larr; Back to Home</a></p>
                     </div>
                 </div>
             </section>
@@ -465,13 +483,16 @@ def update_index_nav():
     original = html_text
     changes = 0
 
+    def _prefixed(filename):
+        return f"{PAGE_LINK_PREFIX}/{filename}"
+
     # Replace full wayback page URLs in nav
     def full_repl(m):
         nonlocal changes
         path = m.group(1)
         if path in NAV_MAP:
             changes += 1
-            return NAV_MAP[path]
+            return _prefixed(NAV_MAP[path])
         return m.group(0)
 
     html_text = FULL_PAGE_URL_RE.sub(full_repl, html_text)
@@ -482,7 +503,7 @@ def update_index_nav():
         path = m.group(1)
         if path in NAV_MAP:
             changes += 1
-            return NAV_MAP[path]
+            return _prefixed(NAV_MAP[path])
         return m.group(0)
 
     html_text = PAGE_URL_RE.sub(page_repl, html_text)
@@ -496,9 +517,19 @@ def update_index_nav():
     def good_full_repl(m):
         nonlocal changes
         changes += 1
-        return "about-nursing-school.html"
+        return _prefixed("about-nursing-school.html")
 
     html_text = good_full_re.sub(good_full_repl, html_text)
+
+    # Final pass: prefix any remaining bare href="<page>.html" links
+    known_pages = set(NAV_MAP.values()) | {"index.html"}
+    bare_href_re = re.compile(
+        r'href="(' + "|".join(re.escape(p) for p in known_pages) + r')"'
+    )
+    html_text, n_bare = bare_href_re.subn(
+        lambda m: f'href="{_prefixed(m.group(1))}"', html_text
+    )
+    changes += n_bare
 
     if html_text != original:
         with open(index_path, "w", encoding="utf-8") as f:
