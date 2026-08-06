@@ -76,26 +76,17 @@ def download_image(path):
     return False
 
 
-def cdx_lookup(original_path):
-    """Find any snapshot of the original URL. Returns list of (timestamp, statuscode, length)."""
-    q = urllib.parse.urlencode({
-        "url": f"{SITE}/{original_path}",
-        "output": "json",
-        "fl": "timestamp,statuscode,length",
-        "limit": "50",
-        "filter": "statuscode:200",
-    })
-    url = f"https://web.archive.org/cdx/search/cdx?{q}"
+def _cdx_query(url):
+    """Hit one CDX URL with retries on 429/503. Returns parsed rows or None on permanent failure."""
     for attempt in range(1, 6):
         try:
             data = fetch(url, timeout=60)
             rows = json.loads(data)
-            # first row is the header
             return [tuple(r) for r in rows[1:]] if len(rows) > 1 else []
         except urllib.error.HTTPError as e:
-            if e.code == 429:
+            if e.code in (429, 503):
                 wait = 60 * attempt
-                print(f"  CDX 429 – retry {attempt}/5 in {wait}s …")
+                print(f"  CDX {e.code} – retry {attempt}/5 in {wait}s …")
                 time.sleep(wait)
             else:
                 print(f"  CDX HTTP {e.code}")
@@ -105,6 +96,38 @@ def cdx_lookup(original_path):
             if attempt < 5:
                 time.sleep(5 * attempt)
     return None
+
+
+def cdx_lookup(original_path):
+    """Find any 200 snapshot of the original URL. Falls back to an unfiltered query
+    (any statuscode) so the caller can tell 'never captured' from 'captured but not 200'."""
+    q = urllib.parse.urlencode({
+        "url": f"{SITE}/{original_path}",
+        "output": "json",
+        "fl": "timestamp,statuscode,length",
+        "limit": "50",
+        "filter": "statuscode:200",
+    })
+    rows = _cdx_query(f"https://web.archive.org/cdx/search/cdx?{q}")
+    if rows is None:
+        return None
+    if rows:
+        return rows
+    # no 200 snapshot — confirm whether it was captured at all (any status)
+    print("  no 200 snapshot; checking for any capture …")
+    q2 = urllib.parse.urlencode({
+        "url": f"{SITE}/{original_path}",
+        "output": "json",
+        "fl": "timestamp,statuscode,length",
+        "limit": "50",
+    })
+    any_rows = _cdx_query(f"https://web.archive.org/cdx/search/cdx?{q2}")
+    if any_rows:
+        statuses = sorted({r[1] for r in any_rows})
+        print(f"  found {len(any_rows)} capture(s) with status codes: {statuses} (none 200)")
+    else:
+        print("  no capture of any kind found in CDX")
+    return []
 
 
 def main():
