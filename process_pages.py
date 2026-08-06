@@ -371,6 +371,10 @@ def process_page(filename):
         lambda m: f'href="{PAGE_LINK_PREFIX}/{m.group(1)}"', html_text
     )
 
+    # 8. Strip LESS compiler error messages leaked into the page markup
+    #    (e.g. "LESS ERROR : load error: failed to find C:\xampp\...")
+    html_text, n_less = re.subn(r"LESS ERROR : load error: failed to find [^\n<]*", "", html_text)
+
     # Save
     dest = os.path.join(PAGES_DEST, filename)
     os.makedirs(PAGES_DEST, exist_ok=True)
