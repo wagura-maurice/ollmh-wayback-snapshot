@@ -1,0 +1,24 @@
+/**
+* @version   $Id: master-ie8.css 5020 2012-11-01 
+* @author    
+* @copyright Copyright (C) 2007 - 2012 
+* @license   http://egal/license.php  Proprietary Use License
+/* Navigation 
+article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block;}audio,canvas,video{display:inline-block;*display:inline;*zoom:1;}audio:not([controls]){display:none;}html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}a:focus{outline:thin dotted #333;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}a:hover,a:active{outline:0;}sub,sup{position:relative;font-size:75%;line-height:0;vertical-align:baseline;}sup{top:-0.5em;}sub{bottom:-0.25em;}img{max-width:100%;height:auto;vertical-align:middle;border:0;-ms-interpolation-mode:bicubic;}#map_canvas img{max-width:none;}button,input,select,textarea{margin:0;font-size:100%;vertical-align:middle;}button,input{*overflow:visible;line-height:normal;}button::-moz-focus-inner,input::-moz-focus-inner{padding:0;border:0;}button,input[type="button"],input[type="reset"],input[type="submit"]{cursor:pointer;-webkit-appearance:button;}input[type="search"]{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;-webkit-appearance:textfield;}input[type="search"]::-webkit-search-decoration,input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none;}textarea{overflow:auto;vertical-align:top;}.clearfix,.clear{*zoom:1;}.clearfix:before,.clearfix:after,.clear:before,.clear:after{display:table;content:"";line-height:0;}.clearfix:after,.clear:after{clear:both;}.hide-text{font:*/ #texst {position: absolute; top: 0px; right: 4101px;}/*a;color:transparent;text-shadow:none;background-color:transparent;border:0;}.input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}.row{margin-left:0px;*zoom:1;}.row:before,.row:after{display:table;content:"";line-height:0;}.row:after{clear:both;}[class*="grid"]{float:left;margin-left:0px;}.container,.navbar-static-top .container,.navbar-fixed-top .container,.navbar-fixed-bottom .container{width:960px;}.grid12{width:960px;}.grid11{width:880px;}.grid10{width:800px;}.grid9{width:720px;}.grid8{width:640px;}.grid7{width:560px;}.grid6{width:480px;}.grid5{width:400px;}.grid4{width:320px;}.grid3{width:240px;}.grid2{width:160px;}.grid1{width:80px;}.offset12{margin-left:960px;}html[dir='rtl'].offset12{margin-right:960px;margin-left:0;}.offset11{margin-left:880px;}html[dir='rtl']*/ 
+
+
+/*
+     FILE ARCHIVED ON 10:41:50 Mar 08, 2022 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 21:55:08 Aug 05, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+*/
+/*
+playback timings (ms):
+  capture_cache.get: 6.24
+  load_resource: 129.15
+  PetaboxLoader3.resolve: 86.157
+  PetaboxLoader3.datanode: 17.475
+*/
