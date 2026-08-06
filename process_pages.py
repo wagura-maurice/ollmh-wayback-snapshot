@@ -88,20 +88,11 @@ STUB_PAGES = {
     "about-nursing-school.html": "About The Nursing School",
 }
 
-# The base-tag script (identical to index.html) — inserted at top of <head>
-BASE_TAG_SCRIPT = """<script>
-      (function () {
-        var p = window.location.pathname;
-        var m = "web.archive.org/web/";
-        var i = p.indexOf(m);
-        if (i !== -1) {
-          var b = document.createElement("base");
-          b.href = p.substring(0, i + m.length);
-          document.head.insertBefore(b, document.head.firstChild);
-        }
-      })();
-    </script>
-    <!-- End Wayback Rewrite JS Include -->"""
+# Static base tag — MUST appear before any link/script tags.
+# The JS version doesn't work because browsers parse link tags before JS runs.
+# This sets base to /web.archive.org/web/ so relative URLs like
+# "20220319205345cs_/http:/SITE/..." resolve to /web.archive.org/web/20220319205345cs_/...
+BASE_TAG = '<base href="/web.archive.org/web/">'
 
 
 # ── Phase A: Consolidate assets ──────────────────────────────────────────────
@@ -330,10 +321,18 @@ def process_page(filename):
     # 2. Remove <base href="https://web.archive.org/...">
     html_text, n3 = BASE_HREF_RE.subn("", html_text)
 
-    # 3. Insert base-tag script at the very beginning of <head>
+    # 3. Remove old JS base-tag script if present and insert static base tag
+    html_text = re.sub(
+        r'<script>\s*\(function \(\) \{\s*var p = window\.location\.pathname;.*?<!-- End Wayback Rewrite JS Include -->\s*',
+        "",
+        html_text,
+        count=1,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    # Insert static base tag at the very beginning of <head>
     html_text = re.sub(
         r"(<head[^>]*>)",
-        r"\1\n    " + BASE_TAG_SCRIPT,
+        r"\1\n    " + BASE_TAG,
         html_text,
         count=1,
         flags=re.IGNORECASE,
@@ -399,20 +398,7 @@ def create_stub(filename, title):
     stub = f"""<!DOCTYPE html>
 <html lang="en-gb" dir="ltr" class="no-js">
     <head>
-    <script>
-      (function () {{
-        var p = window.location.pathname;
-        var m = "web.archive.org/web/";
-        var i = p.indexOf(m);
-        if (i !== -1) {{
-          var b = document.createElement("base");
-          b.href = p.substring(0, i + m.length);
-          document.head.insertBefore(b, document.head.firstChild);
-        }}
-      }})();
-    </script>
-    <!-- End Wayback Rewrite JS Include -->
-
+    <base href="/web.archive.org/web/">
     <link rel="stylesheet" href="{CANONICAL_TS}cs_/http:/{SITE}/templates/tx_finnix/css/systems.css" type="text/css"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -479,7 +465,7 @@ def create_stub(filename, title):
 
 def update_index_nav():
     """Update navigation links in index.html to point to local pages."""
-    print("\n▶ PHASE D: Updating index.html navigation links\n")
+    print("\n▶ PHASE D: Updating index.html\n")
 
     index_path = os.path.join(PAGES_DEST, "index.html")
     with open(index_path, "r", encoding="utf-8", errors="replace") as f:
@@ -488,10 +474,35 @@ def update_index_nav():
     original = html_text
     changes = 0
 
+    # 1. Remove old JS base-tag script and insert static base tag
+    html_text = re.sub(
+        r'<script>\s*\(function \(\) \{\s*var p = window\.location\.pathname;.*?<!-- End Wayback Rewrite JS Include -->\s*',
+        "",
+        html_text,
+        count=1,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    # Insert static base tag after <head>
+    if '<base href=' not in html_text:
+        html_text = re.sub(
+            r"(<head[^>]*>)",
+            r"\1\n    " + BASE_TAG,
+            html_text,
+            count=1,
+            flags=re.IGNORECASE,
+        )
+
+    # 2. Fix https:/ → http:/ in asset paths (index.html was downloaded from https)
+    html_text, n_https = re.subn(
+        r'(\d{14}(?:cs_|js_|im_)/)https:/ourladyoflourdesmweahospital\.org/',
+        r'\1http:/ourladyoflourdesmweahospital.org/',
+        html_text,
+    )
+
     def _prefixed(filename):
         return f"{PAGE_LINK_PREFIX}/{filename}"
 
-    # Replace full wayback page URLs in nav
+    # 3. Replace full wayback page URLs in nav
     def full_repl(m):
         nonlocal changes
         path = m.group(1)
