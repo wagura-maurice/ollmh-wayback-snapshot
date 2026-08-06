@@ -53,7 +53,26 @@ git clone https://github.com/wagura-maurice/ollmh-wayback-snapshot.git
 cd ollmh-wayback-snapshot
 ```
 
-### 2. Run the download script
+### 2. Pull the latest script (if you ran v1 already)
+
+If you already ran the first version of the script, you need to pull
+the updated version first:
+
+```bash
+git pull origin main
+```
+
+This updates `download_assets.py` to v2, which fixes:
+- **0 assets extracted** — v1 only looked for Wayback-rewritten URLs.
+  The downloaded HTML actually contains original site URLs (e.g.
+  `/templates/tx_finnix/css/systems.css`) because the Wayback Machine
+  uses client-side JavaScript (`wombat.js`) for URL rewriting. v2
+  detects original URLs and converts them to Wayback Machine asset URLs
+  for downloading.
+- **3 failed page downloads** — v2 tries alternative URL formats
+  (`id_` modifier, fallback URLs) when the primary URL fails.
+
+### 3. Run the download script
 
 ```bash
 python3 download_assets.py
@@ -68,23 +87,26 @@ python download_assets.py
 #### What to expect
 
 - The script downloads **20 HTML pages** first, one at a time with a
-  3-second delay between each.
+  3-second delay between each. Pages that fail with 500/404 errors
+  automatically retry with alternative URL formats (`id_`, `if_`
+  modifiers).
 - It then extracts all CSS/JS/image URLs from those pages and downloads
-  them (Phase 2).
+  them (Phase 2). You should see asset URL counts > 0 for each page
+  (typically 10–20 per page).
 - Finally it parses the downloaded CSS files for `url()` image references
   and downloads those too (Phase 3).
 - If the Wayback Machine returns **429 Too Many Requests**, the script
   automatically waits 60 seconds and retries up to 5 times.
 - If the script crashes or you stop it, just run it again — it skips
-  files that are already downloaded.
+  files that are already downloaded (>1 KB on disk).
 
 #### Expected runtime
 
-With no rate-limiting: ~10 minutes.
+With no rate-limiting: ~15–20 minutes (more assets to download now).
 With rate-limiting: could take 30–60 minutes (the script handles this
 automatically).
 
-### 3. Verify the download
+### 4. Verify the download
 
 Check that the pages and assets were downloaded:
 
@@ -99,9 +121,12 @@ ls temp_files/web.archive.org/web/
 find temp_files/ -type f | wc -l
 ```
 
-You should see at least 80–100 files total.
+You should see at least 100–200 files total (20 HTML pages + CSS/JS/image
+assets). If you see only ~20 files and Phase 2 reported "0 asset URLs",
+you're still running v1 of the script — run `git pull origin main` and
+try again.
 
-### 4. Commit and push back to GitHub
+### 5. Commit and push back to GitHub
 
 ```bash
 git add temp_files/
@@ -110,7 +135,7 @@ git commit -m "add downloaded wayback pages and assets"
 git push origin main
 ```
 
-### 5. Let me know
+### 6. Let me know
 
 Once you've pushed, tell me and I'll:
 
