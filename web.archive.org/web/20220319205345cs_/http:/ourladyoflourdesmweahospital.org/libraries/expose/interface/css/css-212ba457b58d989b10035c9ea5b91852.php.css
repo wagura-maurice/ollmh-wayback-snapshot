@@ -74,7 +74,7 @@ tr.sectiontableentry0 td, td.sectiontableentry0, tr.sectiontableentry1 td, td.se
 /* Accessibility */
 #accessibility .desc {float: left;padding-right: 5px;}
 #accessibility #buttons {float: left;}
-#accessibility .button {display: block;width:14px;height:14px;float: left;background: url(https://web.archive.org/web/20220128210253im_/http://ourladyoflourdesmweahospital.org/libraries/expose/interface/images/typography.png);margin: 2px;}
+#accessibility .button {display: block;width:14px;height:14px;float: left;background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/libraries/expose/interface/images/typography.png);margin: 2px;}
 #accessibility .large .button {background-position: 0 -17px;}
 #accessibility .small .button {background-position: -15px -17px;}
 
@@ -102,7 +102,7 @@ p.syndicate {float: left;display: block;text-align: left;}
 
 /* Tooltips */
 .tip-wrap {float: left;background: #ffc;border: 1px solid #D4D5AA;padding: 5px;max-width: 200px;color: #323232;}
-.tip-title {padding: 0;margin: 0;font-size: 100%;font-weight: bold;margin-top: -15px;padding-top: 15px;padding-bottom: 5px;background: url(https://web.archive.org/web/20220128210253im_/http://ourladyoflourdesmweahospital.org/templates/system/images/selector-arrow.png) no-repeat;}
+.tip-title {padding: 0;margin: 0;font-size: 100%;font-weight: bold;margin-top: -15px;padding-top: 15px;padding-bottom: 5px;background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/system/images/selector-arrow.png) no-repeat;}
 .tip-text {font-size: 100%;margin: 0;}
 
 /* Mailto */

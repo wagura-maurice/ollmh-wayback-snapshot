@@ -473,11 +473,11 @@ ul.arrow {
   padding: 0;
 }
 ul.check li {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/typography/list_check.png) no-repeat 0 5px;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/typography/list_check.png) no-repeat 0 5px;
   padding: 2px 0 2px 20px;
 }
 ul.arrow li {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/typography/arrow.png) no-repeat 0 50%;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/typography/arrow.png) no-repeat 0 50%;
   padding: 2px 0 0 10px;
 }
 .widget-menu {
@@ -485,14 +485,14 @@ ul.arrow li {
   margin: 0;
 }
 #menu {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_l.png) no-repeat;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_l.png) no-repeat;
   position: absolute;
   right: 32px;
   bottom: -57px;
   z-index: 99;
 }
 #menu #megamenu {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_r.png) no-repeat 100% 0;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_r.png) no-repeat 100% 0;
   margin-right: -32px;
   height: 52px;
   padding: 10px;
@@ -564,7 +564,7 @@ ul.arrow li {
 #menu li.mega .childcontent {
   border: 0;
   margin-top: 13px;
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/submenu_bg.png) repeat-x 0 100% #f4e855;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/submenu_bg.png) repeat-x 0 100% #f4e855;
   padding: 10px;
   zoome: 1;
   border-radius: 8px;
@@ -646,7 +646,7 @@ ul.arrow li {
   width: 14px;
   height: 14px;
   vertical-align: text-top;
-  background-image: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/glyphicons-halflings.png);
+  background-image: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/glyphicons-halflings.png);
 }
 #component .print-icon a {
   background-position: -96px -48px;
@@ -857,7 +857,7 @@ ul.breadcrumb {
   text-align: right;
 }
 .designed-by a {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/themexpert.png) no-repeat;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/themexpert.png) no-repeat;
   width: 75px;
   height: 18px;
   display: inline-block;
@@ -871,10 +871,10 @@ ul.breadcrumb {
   display: block;
 }
 .expose-logo-light {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/libraries/expose/interface/images/expose_logo_light.png) no-repeat;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/libraries/expose/interface/images/expose_logo_light.png) no-repeat;
 }
 .expose-logo-dark {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/libraries/expose/interface/images/expose_logo_dark.png) no-repeat;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/libraries/expose/interface/images/expose_logo_dark.png) no-repeat;
 }
 .expose-logo span {
   display: none;
@@ -883,7 +883,7 @@ ul.breadcrumb {
   margin: 0 auto;
 }
 #scrolltop {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/totop.png) no-repeat;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/totop.png) no-repeat;
   display: block;
   width: 26px;
   height: 28px;
@@ -917,13 +917,13 @@ ul.breadcrumb {
   box-shadow: inset 0 1px 2px #444;
 }
 .social-icons li.twitter a {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/social-icons/twitter.png) no-repeat 50% 50% #00b9f4;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/social-icons/twitter.png) no-repeat 50% 50% #00b9f4;
 }
 .social-icons li.facebook a {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/social-icons/facebook.png) no-repeat 50% 50% #3b5998;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/social-icons/facebook.png) no-repeat 50% 50% #3b5998;
 }
 .social-icons li.rss a {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/social-icons/rss.png) no-repeat 50% 50% #d45421;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/social-icons/rss.png) no-repeat 50% 50% #d45421;
 }
 .twitter,
 .facebook,
@@ -949,7 +949,7 @@ ul.breadcrumb {
   background-position: -105px 0;
 }
 .rss2 {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/rss2_icon.png) no-repeat 0 50%;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/rss2_icon.png) no-repeat 0 50%;
   padding: 0 0 0 20px;
 }
 .nostyle .block {
@@ -1185,7 +1185,7 @@ body.align-rtl #mod-finder-searchform button.finder {
   margin: 0;
 }
 .style1 ul li a.current {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/images/style1/tab_nav_bg.png) no-repeat 100% 0;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/images/style1/tab_nav_bg.png) no-repeat 100% 0;
   color: #ffdd47;
 }
 .txtabs-content {
@@ -1203,12 +1203,12 @@ body.align-rtl #mod-finder-searchform button.finder {
   width: 100%;
 }
 .style1 ul li.active a {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/style1/tab_nav_bg.png) no-repeat 100% 0;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/style1/tab_nav_bg.png) no-repeat 100% 0;
   color: #ffdd47;
   width: 100%;
 }
 .style1 ul li a {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/style1/tab_nav_bg.png) no-repeat 100% -71px;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/style1/tab_nav_bg.png) no-repeat 100% -71px;
   color: #000;
 }
 .txtabs-nav li {
@@ -1229,7 +1229,7 @@ body.align-rtl #mod-finder-searchform button.finder {
   overflow: hidden;
 }
 .ex-menu {
-  background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_l.png) no-repeat;
+  background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_l.png) no-repeat;
   position: absolute;
   right: 32px;
   bottom: -57px;
@@ -1379,7 +1379,7 @@ ul li a {
     margin: 0 auto;
   }
   #mobile-menu {
-    background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_l.png) no-repeat 0 0;
+    background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_l.png) no-repeat 0 0;
     padding: 13px 0;
     margin-bottom: -18px;
   }
@@ -1393,11 +1393,11 @@ ul li a {
     top: 10px;
   }
   #mobile-menu:before {
-    background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_r_rtl.png) no-repeat 0 0;
+    background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_r_rtl.png) no-repeat 0 0;
     left: 10px;
   }
   #mobile-menu:after {
-    background: url(https://web.archive.org/web/20220424015149im_/http://ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_r.png) no-repeat 0 0;
+    background: url(20220319205345im_/http:/ourladyoflourdesmweahospital.org/templates/tx_finnix/images/menu_r.png) no-repeat 0 0;
     right: 0px;
   }
   .block {

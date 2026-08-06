@@ -24,6 +24,7 @@ Usage:
 
 import os
 import re
+import glob
 import shutil
 import html as html_module
 
@@ -543,7 +544,88 @@ def update_index_nav():
         print("  index.html: no changes needed")
 
 
-# ── Phase E: Generate missing-images download script ─────────────────────────
+# ── Phase E: Fix asset URLs in CSS and HTML ───────────────────────────────────
+
+
+# Match absolute Wayback URLs in CSS: https://web.archive.org/web/TS{mod}/http://SITE/...
+CSS_ABS_URL_RE = re.compile(
+    r"https?://web\.archive\.org/web/\d{14}(cs_|js_|im_|if_)/http://"
+    + re.escape(SITE) + r"/([^\)\"'\s]+)",
+    re.IGNORECASE,
+)
+
+# Match root-relative asset paths in HTML: href="/libraries/..." etc.
+ROOT_REL_ASSET_RE = re.compile(
+    r'(href|src)="(/(?:libraries|templates|modules|media|components|plugins|cache|images)/[^"]+)"',
+    re.IGNORECASE,
+)
+
+
+def _css_url_replacer(m):
+    mod = m.group(1)
+    path = m.group(2)
+    if mod == "if_":
+        mod = "im_"
+    return f"{CANONICAL_TS}{mod}/http:/{SITE}/{path}"
+
+
+def _root_rel_replacer(m):
+    attr = m.group(1)
+    path = m.group(2).lstrip("/")
+    if path.endswith(".css"):
+        mod = "cs_"
+    elif path.endswith(".js"):
+        mod = "js_"
+    elif path.endswith((".png", ".jpg", ".jpeg", ".gif", ".ico", ".bmp", ".svg")):
+        mod = "im_"
+    else:
+        mod = "cs_"
+    return f'{attr}="{CANONICAL_TS}{mod}/http:/{SITE}/{path}"'
+
+
+def fix_asset_urls():
+    """Rewrite absolute Wayback URLs in CSS files to relative canonical paths,
+    and fix root-relative asset paths in HTML files."""
+    print("\n▶ PHASE E: Fixing asset URLs in CSS and HTML\n")
+
+    # 1. Fix CSS files
+    css_total = 0
+    for fp in glob.glob(os.path.join(CS_DIR, "**", "*.css"), recursive=True):
+        with open(fp, "r", encoding="utf-8", errors="replace") as f:
+            txt = f.read()
+        new, n = CSS_ABS_URL_RE.subn(_css_url_replacer, txt)
+        if n:
+            with open(fp, "w", encoding="utf-8") as f:
+                f.write(new)
+            css_total += n
+            print(f"  CSS {os.path.relpath(fp)}: {n} URLs rewritten")
+    # Also .php files (some CSS stored as .php)
+    for fp in glob.glob(os.path.join(CS_DIR, "**", "*.php"), recursive=True):
+        with open(fp, "r", encoding="utf-8", errors="replace") as f:
+            txt = f.read()
+        new, n = CSS_ABS_URL_RE.subn(_css_url_replacer, txt)
+        if n:
+            with open(fp, "w", encoding="utf-8") as f:
+                f.write(new)
+            css_total += n
+            print(f"  CSS {os.path.relpath(fp)}: {n} URLs rewritten")
+    print(f"  CSS total: {css_total} URLs rewritten")
+
+    # 2. Fix HTML root-relative asset paths
+    html_total = 0
+    for fp in sorted(glob.glob(os.path.join(PAGES_DEST, "*.html"))):
+        with open(fp, "r", encoding="utf-8", errors="replace") as f:
+            txt = f.read()
+        new, n = ROOT_REL_ASSET_RE.subn(_root_rel_replacer, txt)
+        if n:
+            with open(fp, "w", encoding="utf-8") as f:
+                f.write(new)
+            html_total += n
+            print(f"  HTML {os.path.basename(fp)}: {n} paths rewritten")
+    print(f"  HTML total: {html_total} paths rewritten")
+
+
+# ── Phase F: Generate missing-images download script ─────────────────────────
 
 
 def generate_missing_images_script():
@@ -713,7 +795,10 @@ def main():
     # Phase D: update index.html nav
     update_index_nav()
 
-    # Phase E: generate missing images script
+    # Phase E: fix asset URLs in CSS and HTML
+    fix_asset_urls()
+
+    # Phase F: generate missing images script
     generate_missing_images_script()
 
     print("\n" + "=" * 64)
