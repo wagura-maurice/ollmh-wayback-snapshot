@@ -46,6 +46,15 @@ static archive to a **fully dynamic, database-driven application**.
   nursing_admin, admissions_officer, receptionist, community_coordinator)
   with capabilities, admin-sidebar access, a combined capability matrix,
   role-assignment workflow, and PHP registration code.
+- **[`SEO-STRATEGY.md`](./SEO-STRATEGY.md)** — the complete SEO tool stack
+  (10 layers: on-page SEO plugin, Google integration via Site Kit,
+  medical-specific schema markup, redirect & 404 management, performance &
+  Core Web Vitals, broken link monitoring, keyword research, XML sitemaps,
+  social/Open Graph, and optional SEO data warehouse), 7 new SEO-specific
+  database tables with seed data requirements, a seed-to-tool integration
+  map, a 3-phase implementation plan (pre-launch, launch, post-launch),
+  JSON-LD seed templates for Hospital/Physician/Event schema, and an admin
+  sidebar SEO menu.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
