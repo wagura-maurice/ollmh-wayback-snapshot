@@ -109,8 +109,94 @@ CREATE TABLE application_form_downloads (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+### Extended tables (workflow, payments, review, notifications)
+
+These turn the form into a full admissions pipeline: an auditable status
+trail, referees, structured reviewer scoring, application-fee payments
+(e.g. M-Pesa), and an outbound notification log.
+
+```sql
+-- Audit trail of every status transition on an application
+CREATE TABLE application_status_history (
+  id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  application_id BIGINT UNSIGNED NOT NULL,
+  from_status    ENUM('submitted','under_review','shortlisted','admitted','rejected','withdrawn') NULL,
+  to_status      ENUM('submitted','under_review','shortlisted','admitted','rejected','withdrawn') NOT NULL,
+  changed_by     BIGINT UNSIGNED NULL,   -- CMS user; NULL = system/applicant
+  note           VARCHAR(512)    NULL,
+  changed_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_ash_app (application_id, changed_at),
+  CONSTRAINT fk_ash_app  FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_ash_user FOREIGN KEY (changed_by)     REFERENCES users (id)        ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Referees / character references supplied with an application
+CREATE TABLE application_referees (
+  id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  application_id BIGINT UNSIGNED NOT NULL,
+  full_name      VARCHAR(191)    NOT NULL,
+  relationship   VARCHAR(100)    NULL,
+  email          VARCHAR(191)    NULL,
+  phone          VARCHAR(40)     NULL,
+  PRIMARY KEY (id),
+  KEY idx_referee_app (application_id),
+  CONSTRAINT fk_referee_app FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Structured reviewer scoring (many reviewers per application)
+CREATE TABLE application_reviews (
+  id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  application_id BIGINT UNSIGNED NOT NULL,
+  reviewer_id    BIGINT UNSIGNED NOT NULL,   -- CMS user
+  score          DECIMAL(5,2)    NULL,
+  recommendation ENUM('admit','waitlist','reject','undecided') NOT NULL DEFAULT 'undecided',
+  comments       TEXT            NULL,
+  reviewed_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_review_app_reviewer (application_id, reviewer_id),
+  CONSTRAINT fk_review_app  FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_review_user FOREIGN KEY (reviewer_id)    REFERENCES users (id)        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Application-fee payments (e.g. M-Pesa / card / bank)
+CREATE TABLE application_payments (
+  id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  application_id BIGINT UNSIGNED NOT NULL,
+  amount         DECIMAL(12,2)   NOT NULL,
+  currency       CHAR(3)         NOT NULL DEFAULT 'KES',
+  method         ENUM('mpesa','card','bank_transfer','cash','waiver') NOT NULL,
+  provider_ref   VARCHAR(100)    NULL,        -- gateway / M-Pesa transaction id
+  status         ENUM('pending','paid','failed','refunded') NOT NULL DEFAULT 'pending',
+  paid_at        DATETIME        NULL,
+  created_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_payment_ref (provider_ref),
+  KEY idx_payment_app (application_id, status),
+  CONSTRAINT fk_payment_app FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Outbound notifications (email/SMS) sent to applicants
+CREATE TABLE application_notifications (
+  id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  application_id BIGINT UNSIGNED NOT NULL,
+  channel        ENUM('email','sms') NOT NULL,
+  template_key   VARCHAR(100)    NOT NULL,    -- e.g. "submission_received"
+  recipient      VARCHAR(191)    NOT NULL,
+  status         ENUM('queued','sent','failed') NOT NULL DEFAULT 'queued',
+  sent_at        DATETIME        NULL,
+  created_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_notif_app (application_id, status),
+  CONSTRAINT fk_notif_app FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 **Relationships**
 - `applications.page_id → pages.id` ties every submission to this page; `applicant_id → applicants.id` separates reusable identity from a specific application.
 - `programme_id → nursing_programmes.id` and `intake_id → nursing_intakes.id` integrate with the School of Nursing schema in [`about-nursing-school.md`](./about-nursing-school.md).
 - `reviewed_by → users.id` reuses the shared CMS **`users`** table for the admin review workflow.
 - `application_documents.media_id` and `application_form_downloads.media_id` reference the shared **`media_assets`** library (uploaded docs and the downloadable PDF alike), so files are centrally stored and access-controlled.
+- `application_status_history`, `application_referees`, `application_reviews`, `application_payments`, and `application_notifications` all hang off `applications.id` (cascade delete), giving a complete, auditable admissions pipeline.
+- `application_status_history.changed_by` and `application_reviews.reviewer_id` reference the shared **`users`** table; `application_reviews` is unique per (application, reviewer) so each panelist scores once.

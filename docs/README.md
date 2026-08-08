@@ -14,11 +14,17 @@ static archive to a **fully dynamic, database-driven application**.
   `departments`, `staff`) and conventions that every per-page schema references
   via foreign keys. **Read this first** — page files define only their own
   tables and FK into these.
+- **[`ERD.md`](./ERD.md)** — consolidated entity-relationship diagram covering
+  all **80 tables** and **116 foreign keys** across the platform, grouped into
+  8 logical clusters with Mermaid `erDiagram` blocks that render inline on
+  GitHub.
 - **[`header-footer-links.md`](./header-footer-links.md)** — the extracted
   inventory of every hyperlink in the header navigation and footer.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
-  Enhancements**, **3. Database Schema Design**.
+  Enhancements**, **3. Database Schema Design**. The News and Events sections
+  are split into individual per-entry pages under [`pages/news/`](./pages/news/)
+  and [`pages/events/`](./pages/events/) (see below).
 
 ## Page index
 
@@ -43,7 +49,12 @@ title — a key input for the rebuild.
 | S.M.I Community | [smi-community.md](./pages/smi-community.md) | Real content |
 | Contacts | [contacts.md](./pages/contacts.md) | ⚠️ No form/map; email JS-cloaked |
 | Special Medical Services | [special-medical-services.md](./pages/special-medical-services.md) | ⚠️ Mislabeled — in-body heading is "Inpatient Department (Nursing Application)" |
-| New & Events | [news-events.md](./pages/news-events.md) | ⚠️ Mislabeled — a nursing-school advert, not a news feed |
+| News (listing) | [news/index.md](./pages/news/index.md) | ⚠️ Mislabeled — a nursing-school advert, not a news feed |
+| News article: Nursing School Launch | [news/nursing-school-promo.md](./pages/news/nursing-school-promo.md) | Migrated from archive (standalone article page) |
+| News article template | [news/article-template.md](./pages/news/article-template.md) | Reusable template for all article pages |
+| Events (calendar) | [events/index.md](./pages/events/index.md) | ❌ No events in archive; built from scratch |
+| Event page template | [events/event-template.md](./pages/events/event-template.md) | Reusable template for all event pages |
+| ~~New & Events~~ (split) | [news-events.md](./pages/news-events.md) | Redirect note — content moved to `news/` and `events/` |
 | Medical School Application Form | [medical-school-application-form.md](./pages/medical-school-application-form.md) | ⚠️ Not a form — only a PDF download link |
 | About The Nursing School | [about-nursing-school.md](./pages/about-nursing-school.md) | ❌ Placeholder stub (not archived) |
 | Clinic Days | [clinic-days.md](./pages/clinic-days.md) | ❌ Placeholder stub (not archived) |
@@ -64,3 +75,9 @@ to nursing programmes defined in
 [contacts](./pages/contacts.md) and department pages route through the shared
 `departments` catalogue. See each file's **Relationships** subsection for
 details.
+
+For the full visual map of all 80 tables and 116 foreign keys, see the
+**[consolidated ERD](./ERD.md)**, which groups the schema into 8 logical
+clusters (Platform core, Home, News, Events, Nursing & Applications,
+Departments/Wards/Clinical, Projects/Community, About/Admin) with Mermaid
+diagrams that render inline on GitHub.
