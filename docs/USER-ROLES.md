@@ -1,38 +1,40 @@
-# WordPress User Roles — Default, OLLMH Application & Custom Roles
+# WordPress User Roles — Core Roles & OLLMH Mapping
 
 > This document confirms the **default WordPress user roles** as defined by
 > the official WordPress documentation
 > ([wordpress.org/documentation/article/roles-and-capabilities](https://wordpress.org/documentation/article/roles-and-capabilities/)),
-> explains how each role functions, maps each to the specific operational
-> needs of the **Our Lady of Lourdes Mwea Hospital (OLLMH)** website,
-> identifies which default roles are actively utilized versus redundant, and
-> defines the **custom roles** the OLLMH rebuild requires.
+> explains how each role functions, and maps every OLLMH staff position to
+> one of the **five core WordPress roles** — Administrator, Editor, Author,
+> Contributor, Subscriber. **No custom roles are created.** All operational
+> needs (HR, nursing school, admissions, reception, community coordination)
+> are handled by assigning the appropriate core role and adding CPT
+> capabilities to that role via `add_cap()`.
 >
-> All custom roles and their admin-sidebar capabilities are cross-referenced
-> with [`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md).
+> Admin-sidebar capabilities are cross-referenced with
+> [`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md).
 
 ---
 
 ## Table of contents
 
 1. [Confirmation of default WordPress roles](#confirmation-of-default-wordpress-roles)
-2. [How each default role functions](#how-each-default-role-functions)
+2. [How each core role functions](#how-each-core-role-functions)
 3. [OLLMH website — purpose and content structure](#ollmh-website--purpose-and-content-structure)
-4. [Mapping default roles to OLLMH operational needs](#mapping-default-roles-to-ollmh-operational-needs)
-5. [Which default roles are utilized vs. redundant](#which-default-roles-are-utilized-vs-redundant)
-6. [Custom roles for OLLMH](#custom-roles-for-ollmh)
-7. [Full capability matrix (default + custom)](#full-capability-matrix-default--custom)
+4. [Mapping OLLMH staff positions to core roles](#mapping-ollmh-staff-positions-to-core-roles)
+5. [Which core roles are utilized vs. redundant](#which-core-roles-are-utilized-vs-redundant)
+6. [Capability matrix (core roles × admin menus)](#capability-matrix-core-roles--admin-menus)
+7. [CPT capability additions to core roles](#cpt-capability-additions-to-core-roles)
 8. [Role assignment workflow](#role-assignment-workflow)
-9. [Registration code reference](#registration-code-reference)
+9. [Granular scoping within a core role (optional)](#granular-scoping-within-a-core-role-optional)
+10. [Registration code reference](#registration-code-reference)
 
 ---
 
 ## Confirmation of default WordPress roles
 
-WordPress ships with **six** pre-defined roles, not five. The user's list
-(Administrator, Editor, Author, Contributor, Subscriber) is correct for a
-**single-site installation**. The sixth role — **Super Admin** — exists only
-in **Multisite** installations and is omitted from single-site discussions.
+WordPress ships with **six** pre-defined roles. Five exist on a standard
+single-site installation; the sixth — **Super Admin** — exists only in
+Multisite installations.
 
 | # | Role | Slug | Exists on single-site? | Source |
 |---|---|---|---|---|
@@ -43,38 +45,25 @@ in **Multisite** installations and is omitted from single-site discussions.
 | 5 | **Contributor** | `contributor` | Yes | [wordpress.org](https://wordpress.org/documentation/article/roles-and-capabilities/#contributor) |
 | 6 | **Subscriber** | `subscriber` | Yes | [wordpress.org](https://wordpress.org/documentation/article/roles-and-capabilities/#subscriber) |
 
-**Confirmed:** The five roles the user listed — Administrator, Editor,
-Author, Contributor, Subscriber — are the five default roles present on a
-standard single-site WordPress installation. Super Admin is the sixth,
-Multisite-only role.
+**Confirmed:** Administrator, Editor, Author, Contributor, and Subscriber
+are the five default roles present on a standard single-site WordPress
+installation. OLLMH will be a single-site installation, so Super Admin
+does not apply.
 
-On a single-site install, the Administrator effectively holds all Super
-Admin capabilities (including `update_core`, `install_plugins`,
-`edit_themes`, `create_users`, `delete_users`, `unfiltered_html`), so the
-distinction is moot for OLLMH, which will be a single-site installation.
+On a single-site install, the Administrator holds all capabilities
+(including `update_core`, `install_plugins`, `edit_themes`,
+`create_users`, `delete_users`, `unfiltered_html`).
+
+**OLLMH uses only these five core roles. No custom roles are created.**
 
 ---
 
-## How each default role functions
-
-### Super Admin (Multisite only)
-
-- **Slug:** none (assigned at the network level)
-- **Capabilities:** Every capability in WordPress, plus the Multisite-only
-  network capabilities: `manage_network`, `manage_sites`,
-  `manage_network_users`, `manage_network_themes`, `manage_network_plugins`,
-  `manage_network_options`, `create_sites`, `delete_sites`,
-  `upgrade_network`, `setup_network`.
-- **Function:** Can create and delete sites in the network, manage network
-  users, manage network-wide plugins and themes, and access every
-  admin feature on every site in the network.
-- **Relevance to OLLMH:** **None.** OLLMH is a single-site installation.
-  This role will not exist.
+## How each core role functions
 
 ### Administrator
 
 - **Slug:** `administrator`
-- **Capabilities (single-site):** All capabilities. The full list includes:
+- **Capabilities (single-site):** All capabilities, including:
   `activate_plugins`, `delete_others_pages`, `delete_others_posts`,
   `delete_pages`, `delete_posts`, `delete_private_pages`,
   `delete_private_posts`, `delete_published_pages`,
@@ -111,8 +100,8 @@ distinction is moot for OLLMH, which will be a single-site installation.
   (single-site), `upload_files`.
 - **Function:** Can publish and manage posts and pages — including those
   authored by other users. Can moderate comments, manage categories and
-  links, and upload files. **Cannot** manage site settings (`manage_options`),
-  install/edit plugins or themes, or manage users.
+  links, and upload files. **Cannot** manage site settings
+  (`manage_options`), install/edit plugins or themes, or manage users.
 - **Key distinction from Administrator:** No `manage_options`, no
   `edit_theme_options`, no plugin/theme management, no user management.
 
@@ -155,234 +144,154 @@ distinction is moot for OLLMH, which will be a single-site installation.
 The OLLMH website is a **hospital information and services portal** for Our
 Lady of Lourdes Mwea Hospital, a Catholic faith-based healthcare facility in
 Mwea, Kenya. It is **not a blog** — it is a structured institutional website
-with:
+with 80 custom tables across 16 content domains, managed via 15 Custom Post
+Types, custom taxonomies, settings pages, and management screens (see
+[`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md)).
 
-| Content domain | Custom tables | Admin section |
-|---|---|---|
-| News articles | `wp_news_articles`, `wp_news_categories`, `wp_news_tags`, `wp_news_comments`, `wp_news_article_revisions`, `wp_news_article_media`, `wp_news_article_tags` | News |
-| Events | `wp_events`, `wp_event_categories`, `wp_event_registrations`, `wp_event_media` | Events |
-| Departments | `wp_departments`, `wp_department_showcase`, `wp_department_photos` | Departments |
-| Wards & Inpatient | `wp_wards`, `wp_ward_media`, `wp_ward_bed_status`, `wp_inpatient_dept_sections`, `wp_inpatient_admission_enquiries`, `wp_mortuary_services` | Wards & Inpatient |
-| Clinics & OPD | `wp_clinics`, `wp_clinic_schedules`, `wp_clinic_schedule_exceptions`, `wp_clinic_bookings`, `wp_opd_facilities`, `wp_opd_operating_hours`, `wp_opd_consultation_rooms`, `wp_opd_appointments` | Clinics & OPD |
-| Special Medical Services | `wp_special_medical_services`, `wp_service_specialists`, `wp_service_equipment`, `wp_service_enquiries` | Special Medical Services |
-| Staff & HR | `wp_staff`, `wp_staff_cadres`, `wp_hr_capacity_stats`, `wp_job_vacancies` | Staff & HR |
-| Nursing School | `wp_nursing_school_profile`, `wp_nursing_programmes`, `wp_nursing_intakes`, `wp_nursing_facilities` | Nursing School |
-| Applications | `wp_applicants`, `wp_applications`, `wp_application_documents`, `wp_application_referees`, `wp_application_reviews`, `wp_application_payments`, `wp_application_status_history`, `wp_application_notifications`, `wp_application_form_downloads` | Applications |
-| Projects | 12 tables (development, sustainability, upcoming) | Projects |
-| Community | 9 tables (community programs, SMI) | Community |
-| Gallery | `wp_outlook_albums`, `wp_outlook_gallery_items` | Gallery |
-| Home page | `wp_home_slides`, `wp_home_feature_blocks`, `wp_home_in_focus_items`, `wp_home_news_promos` | Home Page |
-| Pages | `wp_pages`, `wp_page_media` | Pages |
-| Settings | `wp_location_info`, `wp_contact_channels`, `wp_contact_submissions`, `wp_about_facts`, `wp_about_milestones`, `wp_care_statements`, `wp_care_values`, `wp_governance_bodies`, `wp_governance_members` | Settings |
-| Platform core | `wp_users`, `wp_media_assets`, `wp_menu_items` | Users, Media, Appearance |
+The site has multiple staff types who need different levels of admin access.
+Rather than creating custom roles, **every staff position is mapped to one
+of the five core WordPress roles**. The differentiation between staff types
+is achieved by:
 
-**Total: 80 custom tables** across 16 content domains, managed via 15
-Custom Post Types, custom taxonomies, settings pages, and management
-screens (see [`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md)).
-
-The site has **multiple staff types** who need different levels of admin
-access: hospital administrators, HR managers, nursing school
-administrators, admissions officers, receptionists, community program
-coordinators, and content editors. The default WordPress roles do not map
-cleanly to these operational roles.
+1. **Assigning the appropriate core role** (Editor vs. Author vs.
+   Subscriber) based on whether the person needs to manage others' content
+   (Editor) or only their own (Author) or no content at all (Subscriber).
+2. **Adding CPT capabilities to the core roles** via `add_cap()` so that
+   Editors and Authors can manage the custom post types (news, events,
+   departments, staff, etc.) — this is standard WordPress practice when
+   registering CPTs, not a custom role.
+3. **Optionally using a capability manager plugin** (see
+   [Granular scoping](#granular-scoping-within-a-core-role-optional)) to
+   remove specific CPT capabilities from individual users within a role —
+   the user is still an Editor, but with certain menus hidden.
 
 ---
 
-## Mapping default roles to OLLMH operational needs
+## Mapping OLLMH staff positions to core roles
 
-### Administrator → Hospital IT Administrator
+### Administrator → Hospital IT Administrator / Webmaster
 
 | Aspect | Detail |
 |---|---|
-| **OLLMH role** | Hospital IT Administrator / Webmaster |
+| **OLLMH position(s)** | Hospital IT Administrator, Webmaster |
 | **Who** | The IT staff member(s) responsible for the website infrastructure |
 | **What they do** | Install/update plugins and themes, manage all users, configure all settings, manage all content, update WordPress core, access all admin features |
-| **Default capabilities used** | All — the Administrator role is used as-is, no modifications needed |
-| **Custom capabilities added** | All custom capabilities (`manage_applications`, `edit_clinics`, `edit_wards`, `edit_staff`, `edit_nursing`, `edit_projects`, `edit_community`, `edit_home_page`, `edit_special_services`, `edit_departments`, `edit_news_articles`, `edit_events`, `edit_gallery`) — Administrators get every custom capability |
+| **Core capabilities used** | All — the Administrator role is used as-is, no modifications needed |
+| **CPT capabilities** | All CPT capabilities are automatically available to Administrators (WordPress grants all capabilities to the Administrator role by default) |
+| **Estimated count** | 1–3 users |
 | **Verdict** | **Actively utilized.** Essential. At least one Administrator account is required by WordPress itself (created during installation). |
 
-### Editor → Content Editor / Communications Officer
+### Editor → Communications, HR, Nursing Admin, Community Coordinator
 
-| Aspect | Detail |
+The Editor role is the **workhorse** for OLLMH. Every staff member who needs
+to manage content across a domain — not just their own posts — gets the
+Editor role. The Editor's core capabilities (`edit_others_posts`,
+`edit_pages`, `publish_posts`, `moderate_comments`, `manage_categories`,
+`upload_files`) are exactly what these positions need.
+
+| OLLMH position | What they manage as Editor |
 |---|---|
-| **OLLMH role** | Content Editor / Communications Officer |
-| **Who** | The staff member responsible for publishing news, events, and managing the photo gallery and home page content |
-| **What they do** | Write and publish news articles, create events, manage event categories, moderate news comments, manage the photo gallery (albums + items), manage home page content (slides, feature blocks, in-focus items, news promos), edit static pages |
-| **Default capabilities used** | `edit_posts`, `edit_others_posts`, `publish_posts`, `edit_pages`, `publish_pages`, `moderate_comments`, `manage_categories`, `upload_files`, `read`, `edit_published_posts`, `edit_published_pages`, `delete_posts`, `delete_others_posts`, `delete_published_posts`, `delete_pages`, `delete_others_pages`, `delete_published_pages` |
-| **Custom capabilities added** | `edit_news_articles`, `edit_events`, `edit_gallery`, `edit_home_page`, `edit_departments` (for department showcase editing) |
-| **What they CANNOT do** | Manage site settings, install plugins/themes, manage users, access clinical/HR/applications/community/staff sections |
-| **Verdict** | **Actively utilized.** The Editor role is the backbone of the content management workflow. It is used as-is from WordPress core, with custom CPT capabilities added via `add_cap()`. |
+| **Communications Officer / PR Officer** | News articles, events, gallery (albums + items), home page content (slides, feature blocks, in-focus items, news promos), static pages |
+| **HR Officer / HR Manager** | Staff records, staff cadres, HR capacity stats, job vacancies |
+| **Nursing School Principal / Administrator** | Nursing school profile, programmes, intakes, facilities, applications |
+| **Admissions Officer (senior)** | Applications pipeline (applicants, documents, referees, reviews, payments, status history, notifications) |
+| **Community Outreach Coordinator** | Community programs, outreach events, volunteer signups, SMI community profile, SMI facilities, SMI events, vocation enquiries |
+| **Projects Manager** | Development projects, sustainability projects, upcoming projects, project media/metrics/phases/pledges |
 
-### Author → Staff Author (limited content contributor)
+**What all Editors can do:** Create, edit, publish, and delete any CPT
+content (news, events, departments, staff, wards, clinics, applications,
+projects, community programs, gallery items, home page blocks). Moderate
+comments. Manage categories and tags. Upload files. Edit static pages.
 
-| Aspect | Detail |
+**What Editors cannot do:** Install/manage plugins and themes, manage
+users, manage site settings (hospital info, contact channels, governance),
+access the Appearance or Plugins or Settings menus.
+
+**Estimated count:** 4–8 users.
+
+**Verdict:** **Actively utilized.** The Editor role is the backbone of the
+content management workflow. CPT capabilities are added to the Editor role
+via `add_cap()` (see [Registration code](#registration-code-reference)).
+
+### Author → Department Heads, Receptionists, Admissions Clerks, Junior Staff
+
+The Author role is for staff who create and manage **their own** records but
+should not edit other people's content. This is the right role for anyone
+who enters data (bookings, appointments, applications, news contributions)
+but is not responsible for editorial oversight.
+
+| OLLMH position | What they manage as Author |
 |---|---|
-| **OLLMH role** | Staff Author — a staff member who contributes news articles or event posts but should not be able to edit others' content |
-| **Who** | A nurse, doctor, or department head who occasionally writes a news article or posts an event but is not a full-time content editor |
-| **What they do** | Write and publish their own news articles and events, upload images to accompany their posts |
-| **Default capabilities used** | `edit_posts`, `publish_posts`, `edit_published_posts`, `delete_posts`, `delete_published_posts`, `upload_files`, `read` |
-| **Custom capabilities added** | `edit_news_articles` (own only — mapped via `edit_published_news_articles` / `edit_others_news_articles` capability split), `edit_events` (own only) |
-| **What they CANNOT do** | Edit others' posts, edit pages, moderate comments, manage categories, access any clinical/HR/applications/staff sections |
-| **Verdict** | **Actively utilized, but with a narrow scope.** Useful for allowing department heads or clinical staff to contribute news without giving them editorial control over others' content. The capability mapping must ensure Authors get `edit_news_articles` (create own) but **not** `edit_others_news_articles`. |
+| **Department Head (occasional news contributor)** | Writes and publishes their own news articles and events; cannot edit others' articles |
+| **Front-Desk Receptionist** | Creates and manages clinic bookings and OPD appointments (their own entries); views ward bed status |
+| **Admissions Clerk (junior)** | Creates and manages application records they are assigned to; cannot edit others' applications |
+| **Clinical Staff (nurses, doctors)** | May contribute news articles about their department; cannot edit others' content |
+| **Volunteer Coordinator** | Manages volunteer signup records they create; cannot edit others' |
+
+**What Authors can do:** Create, publish, edit, and delete their own posts
+and CPT entries. Upload files (images).
+
+**What Authors cannot do:** Edit others' posts or pages, moderate comments,
+manage categories, access site settings, manage users, install plugins.
+
+**Estimated count:** 5–15 users.
+
+**Verdict:** **Actively utilized.** The Author role gives individual
+contributors the ability to create content without editorial control over
+others. CPT capabilities for "own only" are added via `add_cap()` (the
+`edit_others_*` capabilities are NOT granted to Authors).
 
 ### Contributor → Guest Writer / External Contributor
 
 | Aspect | Detail |
 |---|---|
-| **OLLMH role** | Guest writer — an external contributor (e.g., a volunteer, a visiting medical student, a community member) who submits a news article for review but cannot publish it directly |
-| **Who** | Non-staff contributors who should not have publishing authority |
+| **OLLMH position** | Guest writer — an external contributor (e.g., a volunteer, a visiting medical student, a community member) who submits a news article for review but cannot publish it directly |
 | **What they do** | Write news articles (saved as "Pending Review"), which an Editor then reviews and publishes |
-| **Default capabilities used** | `edit_posts`, `delete_posts`, `read` |
-| **Custom capabilities added** | `edit_news_articles` (create own, pending review only — no `publish_news_articles` capability) |
-| **What they CANNOT do** | Publish posts, upload files (no `upload_files` — this is a known limitation; images must be added by the reviewing Editor), edit others' content, access any other admin section |
-| **Verdict** | **Marginally utilized.** Useful only if OLLMH plans to accept external article submissions. For a hospital website where content is primarily produced by staff, this role is likely **redundant** in practice. **Recommendation: keep the role registered (it's core) but do not assign it to any user unless external contributors are explicitly onboarded.** |
+| **Core capabilities used** | `edit_posts`, `delete_posts`, `read` |
+| **What they cannot do** | Publish posts, upload files (no `upload_files` — images must be added by the reviewing Editor), edit others' content, access any other admin section |
+| **Estimated count** | 0 (typically) |
+| **Verdict** | **Redundant in practice.** Useful only if OLLMH plans to accept external article submissions. For a hospital website where content is primarily produced by staff, this role is likely unassigned. **Recommendation: keep the role registered (it is a core WordPress role and cannot be removed) but do not assign any user to it unless external contributors are explicitly onboarded.** |
 
 ### Subscriber → Patient / Public User / Newsletter Subscriber
 
 | Aspect | Detail |
 |---|---|
-| **OLLMH role** | Registered site user — a patient, community member, or newsletter subscriber who has created an account on the website |
+| **OLLMH position** | Registered site user — a patient, community member, or newsletter subscriber who has created an account on the website |
 | **Who** | Any public user who registers an account (e.g., to book clinic appointments online, to subscribe to the newsletter, to track an application status) |
 | **What they do** | Log in, manage their own profile (name, email, password), view their appointment bookings, view their application status, manage their newsletter subscription preferences |
-| **Default capabilities used** | `read` (only) |
-| **Custom capabilities added** | None from the admin side. On the **front-end**, Subscribers get authenticated access to: their own `wp_clinic_bookings` records, their own `wp_opd_appointments`, their own `wp_applications` / `wp_applicants` profile, their own `wp_newsletter_subscribers` preferences. This is handled via front-end form shortcodes and `is_user_logged_in()` checks, not via admin capabilities. |
-| **What they CANNOT do** | Access the WordPress admin dashboard (beyond their profile), write/edit any content, access any admin section |
-| **Verdict** | **Actively utilized — but primarily on the front-end, not the admin.** Subscribers never see the admin sidebar. Their "role" is really an authentication identity for front-end interactions (booking appointments, applying to nursing school, managing newsletter preferences). This is the **default role for new user registrations** (set in Settings → General → "New User Default Role"). |
+| **Core capabilities used** | `read` (only) |
+| **What they cannot do** | Access the WordPress admin dashboard (beyond their profile), write/edit any content, access any admin section |
+| **Front-end access** | On the **front-end**, Subscribers get authenticated access to: their own `wp_clinic_bookings` records, their own `wp_opd_appointments`, their own `wp_applications` / `wp_applicants` profile, their own `wp_newsletter_subscribers` preferences. This is handled via front-end form shortcodes and `is_user_logged_in()` checks, not via admin capabilities. |
+| **Estimated count** | 100+ (all registered public users) |
+| **Verdict** | **Actively utilized — but primarily on the front-end, not the admin.** Subscribers never see the admin sidebar. This is the **default role for new user registrations** (set in Settings → General → "New User Default Role"). |
 
 ---
 
-## Which default roles are utilized vs. redundant
+## Which core roles are utilized vs. redundant
 
-| Default role | OLLMH utilization | Status | Assignment count (estimated) |
+| Core role | OLLMH utilization | Status | Estimated count |
 |---|---|---|---|
 | **Super Admin** | Not applicable (single-site install) | **N/A — does not exist** | 0 |
 | **Administrator** | Hospital IT admin / webmaster | **Actively utilized** | 1–3 |
-| **Editor** | Content editor / communications officer | **Actively utilized** | 1–2 |
-| **Author** | Staff author (department heads, clinical staff who contribute news) | **Actively utilized (narrow)** | 3–10 |
-| **Contributor** | Guest writer / external contributor | **Redundant in practice** — keep registered but do not assign unless external contributors are explicitly onboarded | 0 (typically) |
-| **Subscriber** | Patient / public user / newsletter subscriber | **Actively utilized (front-end only)** — default role for new registrations | 100+ (all registered public users) |
+| **Editor** | Communications, HR, nursing admin, admissions (senior), community coordinator, projects manager | **Actively utilized** | 4–8 |
+| **Author** | Department heads, receptionists, admissions clerks, clinical staff, volunteer coordinators | **Actively utilized** | 5–15 |
+| **Contributor** | Guest writer / external contributor | **Redundant in practice** — keep registered but unassigned unless external contributors are onboarded | 0 (typically) |
+| **Subscriber** | Patient / public user / newsletter subscriber | **Actively utilized (front-end only)** — default role for new registrations | 100+ |
 
 ### Summary
 
-- **3 default roles are actively utilized in the admin:** Administrator,
-  Editor, Author.
-- **1 default role is actively utilized but only on the front-end:**
-  Subscriber (the default new-user role for patient/public registrations).
-- **1 default role is redundant for OLLMH's current needs:** Contributor
-  (kept registered but unassigned unless external writers are onboarded).
-- **1 default role does not exist:** Super Admin (Multisite only; OLLMH is
+- **4 core roles are actively utilized:** Administrator, Editor, Author,
+  Subscriber.
+- **1 core role is redundant for OLLMH's current needs:** Contributor (kept
+  registered but unassigned unless external writers are onboarded).
+- **1 core role does not exist:** Super Admin (Multisite only; OLLMH is
   single-site).
-
-### Why the default roles are insufficient
-
-The five default roles are designed for a **blog/magazine workflow** (write
-→ review → publish posts). OLLMH is a **hospital operations portal** with
-domain-specific admin sections that have nothing to do with blog posts:
-
-- A **receptionist** needs to manage clinic bookings and bed status but
-  should not see news, events, or HR sections.
-- An **HR manager** needs to manage staff records and job vacancies but
-  should not see clinical or applications sections.
-- A **nursing school administrator** needs to manage nursing programmes,
-  intakes, and applications but should not see ward or clinic management.
-- An **admissions officer** needs to manage the application pipeline but
-  should not edit news or events.
-- A **community coordinator** needs to manage community programs and SMI
-  content but should not see clinical or HR sections.
-
-None of these map to Administrator, Editor, Author, Contributor, or
-Subscriber. The solution is to create **custom roles** with precisely
-scoped capabilities.
+- **0 custom roles are created.** All OLLMH staff positions fit within the
+  five core WordPress roles.
 
 ---
 
-## Custom roles for OLLMH
-
-Six custom roles are defined, each scoped to a specific operational
-function. All custom roles inherit the `read` capability (so users can log
-in and see the dashboard) and `upload_files` where file management is part
-of their job.
-
-### 1. `hospital_admin` — Hospital Administrator
-
-| Property | Value |
-|---|---|
-| **Slug** | `hospital_admin` |
-| **Display name** | Hospital Administrator |
-| **Who** | The hospital administrator or senior IT staff member who oversees the entire website |
-| **Base role** | Clone of WordPress `administrator` |
-| **Capabilities** | All default Administrator capabilities **plus** all custom capabilities |
-| **Custom caps** | `manage_applications`, `edit_clinics`, `edit_wards`, `edit_staff`, `edit_nursing`, `edit_projects`, `edit_community`, `edit_home_page`, `edit_special_services`, `edit_departments`, `edit_news_articles`, `edit_events`, `edit_gallery`, `manage_hospital_info`, `manage_contact_channels`, `manage_about_content`, `manage_governance` |
-| **Admin sidebar access** | All 20 top-level menus (full access) |
-| **Notes** | This role is functionally identical to the WordPress Administrator. It exists as a **semantic label** so that the hospital's administrative user is clearly distinguished from a generic WordPress "administrator" in the user list. In practice, the default `administrator` role can be used instead — this custom role is optional. |
-
-### 2. `hr_manager` — HR Manager
-
-| Property | Value |
-|---|---|
-| **Slug** | `hr_manager` |
-| **Display name** | HR Manager |
-| **Who** | The HR officer who manages staff records, cadres, HR statistics, and job vacancies |
-| **Base role** | None (custom) |
-| **Capabilities** | `read`, `upload_files`, `edit_staff`, `edit_staff_cadres` (custom taxonomy manage cap), `edit_hr_capacity_stats`, `edit_job_vacancies`, `publish_job_vacancies`, `edit_published_job_vacancies`, `delete_job_vacancies` |
-| **Admin sidebar access** | Dashboard, Staff & HR (all submenus), Media Library (upload only), Users (own profile only) |
-| **Cannot access** | News, Events, Departments, Wards, Clinics/OPD, Special Services, Nursing School, Applications, Projects, Community, Gallery, Home Page, Pages, Appearance, Plugins, Settings |
-
-### 3. `nursing_admin` — Nursing School Administrator
-
-| Property | Value |
-|---|---|
-| **Slug** | `nursing_admin` |
-| **Display name** | Nursing School Administrator |
-| **Who** | The nursing school administrator who manages the school profile, programmes, intakes, facilities, and applications |
-| **Base role** | None (custom) |
-| **Capabilities** | `read`, `upload_files`, `edit_nursing`, `manage_nursing_profile`, `edit_nursing_programmes`, `publish_nursing_programmes`, `edit_published_nursing_programmes`, `delete_nursing_programmes`, `edit_nursing_intakes`, `edit_nursing_facilities`, `manage_applications`, `edit_applications`, `read_applications`, `edit_application_reviews`, `edit_application_status_history`, `read_application_payments` |
-| **Admin sidebar access** | Dashboard, Nursing School (all submenus), Applications (all submenus), Media Library (upload only), Users (own profile only) |
-| **Cannot access** | News, Events, Departments, Wards, Clinics/OPD, Special Services, Staff & HR, Projects, Community, Gallery, Home Page, Pages, Appearance, Plugins, Settings |
-
-### 4. `admissions_officer` — Admissions Officer
-
-| Property | Value |
-|---|---|
-| **Slug** | `admissions_officer` |
-| **Display name** | Admissions Officer |
-| **Who** | The staff member who processes nursing/medical school applications — reviewing documents, scheduling interviews, updating application status, tracking payments |
-| **Base role** | None (custom) |
-| **Capabilities** | `read`, `upload_files`, `manage_applications`, `edit_applications`, `read_applications`, `edit_applicants`, `edit_application_documents`, `edit_application_referees`, `edit_application_reviews`, `edit_application_status_history`, `read_application_payments`, `manage_application_notifications`, `read_application_form_downloads` |
-| **Admin sidebar access** | Dashboard, Applications (all submenus), Media Library (upload only — for applicant documents), Users (own profile only) |
-| **Cannot access** | Everything except Applications and Media |
-| **Notes** | This role is more narrowly scoped than `nursing_admin` — it cannot manage nursing school programmes or intakes, only the application pipeline. |
-
-### 5. `receptionist` — Receptionist
-
-| Property | Value |
-|---|---|
-| **Slug** | `receptionist` |
-| **Display name** | Receptionist |
-| **Who** | The front-desk receptionist who manages clinic bookings, OPD appointments, and views (but does not configure) ward bed status |
-| **Base role** | None (custom) |
-| **Capabilities** | `read`, `edit_clinic_bookings`, `edit_opd_appointments`, `read_wards`, `read_ward_bed_status`, `edit_inpatient_admission_enquiries` |
-| **Admin sidebar access** | Dashboard, Clinics & OPD (only: Clinic Bookings, OPD Appointments), Wards & Inpatient (only: Bed Status [read-only], Admission Enquiries) |
-| **Cannot access** | Clinic Schedules, Schedule Exceptions, OPD Facilities, OPD Operating Hours, Consultation Rooms (these are admin-configured, not receptionist-managed), and all other sections |
-| **Notes** | This is the most narrowly scoped role. Receptionists can **create and update** bookings and appointments but cannot **configure** the clinic schedule or OPD facilities — those require `edit_clinics` (held by `hospital_admin` and `editor`). |
-
-### 6. `community_coordinator` — Community Program Coordinator
-
-| Property | Value |
-|---|---|
-| **Slug** | `community_coordinator` |
-| **Display name** | Community Program Coordinator |
-| **Who** | The staff member who manages community outreach programs, SMI community content, and processes volunteer/vocation enquiries |
-| **Base role** | None (custom) |
-| **Capabilities** | `read`, `upload_files`, `edit_community`, `edit_community_programs`, `publish_community_programs`, `edit_published_community_programs`, `delete_community_programs`, `edit_community_outreach_events`, `edit_community_volunteer_signups`, `edit_community_program_media`, `manage_smi_profile`, `edit_smi_facilities`, `edit_smi_community_events`, `publish_smi_community_events`, `edit_published_smi_community_events`, `delete_smi_community_events`, `edit_smi_event_media`, `edit_smi_vocation_enquiries` |
-| **Admin sidebar access** | Dashboard, Community (all submenus), Media Library (upload only), Users (own profile only) |
-| **Cannot access** | All other sections |
-
----
-
-## Full capability matrix (default + custom)
-
-### Default WordPress roles — admin sidebar access
+## Capability matrix (core roles × admin menus)
 
 | Admin menu | Administrator | Editor | Author | Contributor | Subscriber |
 |---|---|---|---|---|---|
@@ -390,14 +299,14 @@ of their job.
 | News | ✅ | ✅ | ✅ (own) | ✅ (own, pending) | — |
 | Events | ✅ | ✅ | ✅ (own) | ✅ (own, pending) | — |
 | Departments | ✅ | ✅ | — | — | — |
-| Wards & Inpatient | ✅ | — | — | — | — |
-| Clinics & OPD | ✅ | — | — | — | — |
-| Special Medical Services | ✅ | — | — | — | — |
-| Staff & HR | ✅ | — | — | — | — |
-| Nursing School | ✅ | — | — | — | — |
-| Applications | ✅ | — | — | — | — |
-| Projects | ✅ | — | — | — | — |
-| Community | ✅ | — | — | — | — |
+| Wards & Inpatient | ✅ | ✅ | ✅ (own bookings/enquiries) | — | — |
+| Clinics & OPD | ✅ | ✅ | ✅ (own bookings/appointments) | — | — |
+| Special Medical Services | ✅ | ✅ | — | — | — |
+| Staff & HR | ✅ | ✅ | — | — | — |
+| Nursing School | ✅ | ✅ | — | — | — |
+| Applications | ✅ | ✅ | ✅ (own assigned) | — | — |
+| Projects | ✅ | ✅ | — | — | — |
+| Community | ✅ | ✅ | ✅ (own volunteer signups) | — | — |
 | Gallery | ✅ | ✅ | — | — | — |
 | Home Page | ✅ | ✅ | — | — | — |
 | Pages | ✅ | ✅ | — | — | — |
@@ -406,52 +315,104 @@ of their job.
 | Plugins | ✅ | — | — | — | — |
 | Users | ✅ | — | — | — | — (own profile) |
 | Settings | ✅ | — | — | — | — |
+| SEO | ✅ | ✅ | — | — | — |
 
-### Custom roles — admin sidebar access
+**Legend:** ✅ = full access to that menu's submenus · ✅ (own) = can edit
+only own items · ✅ (own, pending) = can create own items but cannot publish
+· — = no access
 
-| Admin menu | hospital_admin | hr_manager | nursing_admin | admissions_officer | receptionist | community_coordinator |
-|---|---|---|---|---|---|---|
-| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| News | ✅ | — | — | — | — | — |
-| Events | ✅ | — | — | — | — | — |
-| Departments | ✅ | — | — | — | — | — |
-| Wards & Inpatient | ✅ | — | — | — | ✅ (bed status + enquiries only) | — |
-| Clinics & OPD | ✅ | — | — | — | ✅ (bookings + appointments only) | — |
-| Special Medical Services | ✅ | — | — | — | — | — |
-| Staff & HR | ✅ | ✅ | — | — | — | — |
-| Nursing School | ✅ | — | ✅ | — | — | — |
-| Applications | ✅ | — | ✅ | ✅ | — | — |
-| Projects | ✅ | — | — | — | — | — |
-| Community | ✅ | — | — | — | — | ✅ |
-| Gallery | ✅ | — | — | — | — | — |
-| Home Page | ✅ | — | — | — | — | — |
-| Pages | ✅ | — | — | — | — | — |
-| Appearance | ✅ | — | — | — | — | — |
-| Media Library | ✅ | ✅ | ✅ | ✅ | — | ✅ |
-| Plugins | ✅ | — | — | — | — | — |
-| Users | ✅ | — (own profile) | — (own profile) | — (own profile) | — (own profile) | — (own profile) |
-| Settings | ✅ | — | — | — | — | — |
+### How the matrix works in practice
 
-**Legend:** ✅ = full access to that menu's submenus · ✅ (scoped) = limited to specific submenus · ✅ (own) = can edit only own items · — = no access
+- An **Editor** who is the HR Officer sees all admin menus their role
+  grants (News, Events, Departments, Wards, Clinics, Staff & HR, Nursing
+  School, Applications, Projects, Community, Gallery, Home Page, Pages,
+  Media, SEO). In practice, the HR Officer focuses on the Staff & HR menu.
+  If the hospital wants to **hide menus the HR Officer doesn't need**, see
+  [Granular scoping](#granular-scoping-within-a-core-role-optional) below.
+
+- An **Author** who is a Receptionist sees Dashboard, News (own), Events
+  (own), Wards & Inpatient (own bookings/enquiries), Clinics & OPD (own
+  bookings/appointments), Community (own volunteer signups), Applications
+  (own assigned), and Media Library. They cannot edit others' content.
+
+---
+
+## CPT capability additions to core roles
+
+When Custom Post Types are registered, WordPress creates corresponding
+capabilities (e.g., `edit_news_articles`, `edit_others_news_articles`,
+`publish_news_articles`). These capabilities must be added to the Editor
+and Author roles so they can manage the CPTs. **This is standard WordPress
+practice — it does not create custom roles.** The capabilities are added to
+existing core roles via `add_cap()`.
+
+### Editor gets full CPT access (edit own + edit others' + publish + delete)
+
+| CPT | Capabilities added to Editor |
+|---|---|
+| News articles | `edit_news_articles`, `edit_others_news_articles`, `publish_news_articles`, `delete_news_articles`, `delete_others_news_articles` |
+| Events | `edit_events`, `edit_others_events`, `publish_events`, `delete_events`, `delete_others_events` |
+| Departments | `edit_departments`, `edit_others_departments`, `publish_departments`, `delete_departments` |
+| Wards | `edit_wards`, `edit_others_wards`, `publish_wards`, `delete_wards` |
+| Clinics | `edit_clinics`, `edit_others_clinics`, `publish_clinics`, `delete_clinics` |
+| Special services | `edit_special_services`, `edit_others_special_services`, `publish_special_services` |
+| Staff | `edit_staff`, `edit_others_staff`, `publish_staff`, `delete_staff` |
+| Job vacancies | `edit_job_vacancies`, `edit_others_job_vacancies`, `publish_job_vacancies` |
+| Nursing programmes | `edit_nursing_programmes`, `edit_others_nursing_programmes`, `publish_nursing_programmes` |
+| Applications | `edit_applications`, `edit_others_applications`, `publish_applications` |
+| Projects (all 3) | `edit_projects`, `edit_others_projects`, `publish_projects` |
+| Community programs | `edit_community_programs`, `edit_others_community_programs`, `publish_community_programs` |
+| SMI events | `edit_smi_events`, `edit_others_smi_events`, `publish_smi_events` |
+| Gallery albums | `edit_gallery`, `edit_others_gallery`, `publish_gallery` |
+| Home page blocks | `edit_home_page` |
+| SEO | `manage_seo` |
+
+### Author gets own-only CPT access (edit own + publish own + delete own — no edit_others)
+
+| CPT | Capabilities added to Author |
+|---|---|
+| News articles | `edit_news_articles`, `publish_news_articles`, `delete_news_articles` (NOT `edit_others_news_articles`) |
+| Events | `edit_events`, `publish_events`, `delete_events` (NOT `edit_others_events`) |
+| Clinic bookings | `edit_clinic_bookings`, `publish_clinic_bookings` |
+| OPD appointments | `edit_opd_appointments`, `publish_opd_appointments` |
+| Applications | `edit_applications`, `publish_applications` (NOT `edit_others_applications`) |
+| Community volunteer signups | `edit_community_volunteer_signups` |
+| Inpatient admission enquiries | `edit_inpatient_admission_enquiries` |
+
+### Contributor gets create-only (no publish, no upload)
+
+| CPT | Capabilities added to Contributor |
+|---|---|
+| News articles | `edit_news_articles` (creates drafts/pending only — no `publish_news_articles`) |
+
+### Subscriber gets no CPT capabilities
+
+Subscribers interact with the site entirely on the **front-end** (booking
+appointments, applying to nursing school, managing newsletter preferences).
+No admin CPT capabilities are added to the Subscriber role.
 
 ---
 
 ## Role assignment workflow
 
-### Who gets which role?
+### Who gets which core role?
 
-| OLLMH staff position | WordPress role | Rationale |
+| OLLMH staff position | Core WordPress role | Rationale |
 |---|---|---|
-| Hospital IT Administrator / Webmaster | `administrator` (or `hospital_admin`) | Full access to everything |
-| Communications Officer / PR Officer | `editor` | Manages all public-facing content (news, events, gallery, home page, pages) |
-| Department Head (occasional news contributor) | `author` | Can write and publish own news articles; cannot edit others' content |
-| External guest writer (rare) | `contributor` | Writes articles for review; cannot publish or upload images |
-| HR Officer | `hr_manager` | Manages staff records, cadres, HR stats, job vacancies |
-| Nursing School Principal / Administrator | `nursing_admin` | Manages nursing school + applications |
-| Admissions Clerk | `admissions_officer` | Processes applications only |
-| Front-Desk Receptionist | `receptionist` | Manages bookings, appointments, views bed status |
-| Community Outreach Coordinator | `community_coordinator` | Manages community programs and SMI content |
-| Patient / Public user (registered) | `subscriber` | Front-end only: book appointments, apply, manage newsletter |
+| Hospital IT Administrator / Webmaster | **Administrator** | Full access to everything — plugins, themes, users, settings, all content |
+| Communications Officer / PR Officer | **Editor** | Manages all public-facing content (news, events, gallery, home page, pages) |
+| HR Officer / HR Manager | **Editor** | Manages staff records, cadres, HR stats, job vacancies — needs `edit_others` for staff CPT |
+| Nursing School Principal / Administrator | **Editor** | Manages nursing school + applications — needs `edit_others` for programmes and applications |
+| Admissions Officer (senior) | **Editor** | Manages the full application pipeline — needs `edit_others` for applications |
+| Community Outreach Coordinator | **Editor** | Manages community programs and SMI content — needs `edit_others` for programs and events |
+| Projects Manager | **Editor** | Manages all three project types — needs `edit_others` for project CPTs |
+| Department Head (occasional news contributor) | **Author** | Writes and publishes own news articles; cannot edit others' content |
+| Front-Desk Receptionist | **Author** | Creates and manages own clinic bookings and OPD appointments; cannot edit others' |
+| Admissions Clerk (junior) | **Author** | Creates and manages own application records; cannot edit others' applications |
+| Clinical Staff (nurses, doctors) | **Author** | May contribute news articles about their department; cannot edit others' content |
+| Volunteer Coordinator | **Author** | Manages own volunteer signup records; cannot edit others' |
+| External guest writer (rare) | **Contributor** | Writes articles for review; cannot publish or upload images |
+| Patient / Public user (registered) | **Subscriber** | Front-end only: book appointments, apply, manage newsletter |
 
 ### New user default role
 
@@ -473,191 +434,267 @@ their own profile.
 
 ---
 
+## Granular scoping within a core role (optional)
+
+In some cases, the hospital may want an Editor to see only certain admin
+menus — for example, the HR Officer should see Staff & HR but not News or
+Events. There are two approaches, **both of which keep the user as an
+Editor** (no custom role is created):
+
+### Approach 1: Capability manager plugin (recommended)
+
+Install a capability management plugin such as **Members** (by MemberPress,
+free, wordpress.org/plugins/members/) or **User Role Editor** (free,
+wordpress.org/plugins/user-role-editor/). These plugins let the
+Administrator:
+
+- Remove specific capabilities from individual users (not the whole role)
+- The user remains an Editor in the database, but certain menus are hidden
+  because they lack the specific capability for that CPT
+
+**Example:** The HR Officer is an Editor. The Administrator uses the
+Members plugin to remove `edit_news_articles`, `edit_events`,
+`edit_wards`, `edit_clinics`, etc. from this specific user. The HR Officer
+now sees only Dashboard, Staff & HR, Media Library, and SEO — but their
+role is still "Editor" in the user list.
+
+### Approach 2: Admin menu visibility plugin (simpler, less granular)
+
+Install a plugin like **Admin Menu Editor** (wordpress.org/plugins/admin-menu-editor/)
+or **Hide Admin Menu** to hide specific admin menus per user or per role.
+This is purely visual — it hides the menu item but does not remove the
+underlying capability. A savvy user could still access the hidden page via
+direct URL. For a hospital internal site where staff are trusted, this is
+usually sufficient.
+
+### Which approach to use?
+
+| Need | Approach |
+|---|---|
+| Hide menus visually (trusted internal staff) | Admin Menu Editor (Approach 2) |
+| Enforce capability restrictions (security-relevant) | Members plugin (Approach 1) |
+| No scoping needed — all Editors see everything | Neither — default Editor access |
+
+**OLLMH recommendation:** Start with no scoping (all Editors see all
+menus). If staff report confusion from seeing too many menus, add Admin
+Menu Editor (Approach 2) to hide irrelevant menus per user. Only escalate
+to the Members plugin (Approach 1) if there is a security or compliance
+requirement to enforce capability restrictions.
+
+---
+
 ## Registration code reference
 
 The following PHP code (to be placed in the theme's `functions.php` or a
-site-specific plugin) registers the six custom roles and their capabilities.
-Capabilities are added on plugin/theme activation to avoid running on every
-page load.
+site-specific plugin) adds CPT capabilities to the core Editor, Author, and
+Contributor roles. **No custom roles are registered.** No `add_role()`
+calls are made. Only `add_cap()` is used to extend existing core roles.
 
 ```php
 <?php
 /**
- * Register OLLMH custom user roles.
+ * Add CPT capabilities to core WordPress roles.
+ * No custom roles are created — only core roles are used.
  * Run on theme/plugin activation.
  */
-function ollmh_register_custom_roles() {
+function ollmh_add_cpt_caps_to_core_roles() {
 
-    // 1. Hospital Administrator (clone of administrator + all custom caps)
-    add_role( 'hospital_admin', 'Hospital Administrator', array(
-        'read'                      => true,
-        'upload_files'              => true,
-        // All default administrator capabilities would be cloned here
-        // (see WP's get_role('administrator')->capabilities)
-        // Custom capabilities:
-        'manage_applications'       => true,
-        'edit_clinics'              => true,
-        'edit_wards'                => true,
-        'edit_staff'                => true,
-        'edit_nursing'              => true,
-        'edit_projects'             => true,
-        'edit_community'            => true,
-        'edit_home_page'            => true,
-        'edit_special_services'     => true,
-        'edit_departments'          => true,
-        'edit_news_articles'        => true,
-        'edit_events'               => true,
-        'edit_gallery'              => true,
-        'manage_hospital_info'      => true,
-        'manage_contact_channels'   => true,
-        'manage_about_content'      => true,
-        'manage_governance'         => true,
-    ) );
-
-    // 2. HR Manager
-    add_role( 'hr_manager', 'HR Manager', array(
-        'read'                       => true,
-        'upload_files'               => true,
-        'edit_staff'                 => true,
-        'edit_staff_cadres'          => true,
-        'edit_hr_capacity_stats'     => true,
-        'edit_job_vacancies'         => true,
-        'publish_job_vacancies'      => true,
-        'edit_published_job_vacancies' => true,
-        'delete_job_vacancies'       => true,
-    ) );
-
-    // 3. Nursing School Administrator
-    add_role( 'nursing_admin', 'Nursing School Administrator', array(
-        'read'                        => true,
-        'upload_files'                => true,
-        'edit_nursing'                => true,
-        'manage_nursing_profile'      => true,
-        'edit_nursing_programmes'     => true,
-        'publish_nursing_programmes'  => true,
-        'edit_published_nursing_programmes' => true,
-        'delete_nursing_programmes'   => true,
-        'edit_nursing_intakes'        => true,
-        'edit_nursing_facilities'     => true,
-        'manage_applications'         => true,
-        'edit_applications'           => true,
-        'read_applications'           => true,
-        'edit_application_reviews'    => true,
-        'edit_application_status_history' => true,
-        'read_application_payments'   => true,
-    ) );
-
-    // 4. Admissions Officer
-    add_role( 'admissions_officer', 'Admissions Officer', array(
-        'read'                            => true,
-        'upload_files'                    => true,
-        'manage_applications'             => true,
-        'edit_applications'               => true,
-        'read_applications'               => true,
-        'edit_applicants'                 => true,
-        'edit_application_documents'      => true,
-        'edit_application_referees'       => true,
-        'edit_application_reviews'        => true,
-        'edit_application_status_history' => true,
-        'read_application_payments'       => true,
-        'manage_application_notifications'=> true,
-        'read_application_form_downloads' => true,
-    ) );
-
-    // 5. Receptionist
-    add_role( 'receptionist', 'Receptionist', array(
-        'read'                          => true,
-        'edit_clinic_bookings'          => true,
-        'edit_opd_appointments'         => true,
-        'read_wards'                    => true,
-        'read_ward_bed_status'          => true,
-        'edit_inpatient_admission_enquiries' => true,
-    ) );
-
-    // 6. Community Program Coordinator
-    add_role( 'community_coordinator', 'Community Program Coordinator', array(
-        'read'                          => true,
-        'upload_files'                  => true,
-        'edit_community'                => true,
-        'edit_community_programs'       => true,
-        'publish_community_programs'    => true,
-        'edit_published_community_programs' => true,
-        'delete_community_programs'     => true,
-        'edit_community_outreach_events'=> true,
-        'edit_community_volunteer_signups' => true,
-        'edit_community_program_media'  => true,
-        'manage_smi_profile'            => true,
-        'edit_smi_facilities'           => true,
-        'edit_smi_community_events'     => true,
-        'publish_smi_community_events'  => true,
-        'edit_published_smi_community_events' => true,
-        'delete_smi_community_events'   => true,
-        'edit_smi_event_media'          => true,
-        'edit_smi_vocation_enquiries'   => true,
-    ) );
-}
-// Register on theme activation:
-add_action( 'after_switch_theme', 'ollmh_register_custom_roles' );
-```
-
-### Adding custom capabilities to default roles
-
-The default Editor and Author roles need custom CPT capabilities added so
-they can manage the custom post types (news, events, gallery, etc.):
-
-```php
-/**
- * Add custom CPT capabilities to default Editor and Author roles.
- * Run on theme/plugin activation.
- */
-function ollmh_add_caps_to_default_roles() {
+    // ── Editor: full CPT access (edit own + edit others' + publish + delete) ──
     $editor = get_role( 'editor' );
     if ( $editor ) {
+        // News
         $editor->add_cap( 'edit_news_articles' );
         $editor->add_cap( 'edit_others_news_articles' );
         $editor->add_cap( 'publish_news_articles' );
+        $editor->add_cap( 'delete_news_articles' );
+        $editor->add_cap( 'delete_others_news_articles' );
+
+        // Events
         $editor->add_cap( 'edit_events' );
         $editor->add_cap( 'edit_others_events' );
         $editor->add_cap( 'publish_events' );
-        $editor->add_cap( 'edit_gallery' );
-        $editor->add_cap( 'edit_home_page' );
+        $editor->add_cap( 'delete_events' );
+        $editor->add_cap( 'delete_others_events' );
+
+        // Departments
         $editor->add_cap( 'edit_departments' );
+        $editor->add_cap( 'edit_others_departments' );
+        $editor->add_cap( 'publish_departments' );
+        $editor->add_cap( 'delete_departments' );
+
+        // Wards
+        $editor->add_cap( 'edit_wards' );
+        $editor->add_cap( 'edit_others_wards' );
+        $editor->add_cap( 'publish_wards' );
+        $editor->add_cap( 'delete_wards' );
+
+        // Clinics
+        $editor->add_cap( 'edit_clinics' );
+        $editor->add_cap( 'edit_others_clinics' );
+        $editor->add_cap( 'publish_clinics' );
+        $editor->add_cap( 'delete_clinics' );
+
+        // Special Medical Services
+        $editor->add_cap( 'edit_special_services' );
+        $editor->add_cap( 'edit_others_special_services' );
+        $editor->add_cap( 'publish_special_services' );
+
+        // Staff
+        $editor->add_cap( 'edit_staff' );
+        $editor->add_cap( 'edit_others_staff' );
+        $editor->add_cap( 'publish_staff' );
+        $editor->add_cap( 'delete_staff' );
+
+        // Job Vacancies
+        $editor->add_cap( 'edit_job_vacancies' );
+        $editor->add_cap( 'edit_others_job_vacancies' );
+        $editor->add_cap( 'publish_job_vacancies' );
+
+        // Nursing Programmes
+        $editor->add_cap( 'edit_nursing_programmes' );
+        $editor->add_cap( 'edit_others_nursing_programmes' );
+        $editor->add_cap( 'publish_nursing_programmes' );
+
+        // Applications
+        $editor->add_cap( 'edit_applications' );
+        $editor->add_cap( 'edit_others_applications' );
+        $editor->add_cap( 'publish_applications' );
+
+        // Projects (development, sustainability, upcoming)
+        $editor->add_cap( 'edit_projects' );
+        $editor->add_cap( 'edit_others_projects' );
+        $editor->add_cap( 'publish_projects' );
+
+        // Community Programs
+        $editor->add_cap( 'edit_community_programs' );
+        $editor->add_cap( 'edit_others_community_programs' );
+        $editor->add_cap( 'publish_community_programs' );
+
+        // SMI Events
+        $editor->add_cap( 'edit_smi_events' );
+        $editor->add_cap( 'edit_others_smi_events' );
+        $editor->add_cap( 'publish_smi_events' );
+
+        // Gallery
+        $editor->add_cap( 'edit_gallery' );
+        $editor->add_cap( 'edit_others_gallery' );
+        $editor->add_cap( 'publish_gallery' );
+
+        // Home Page
+        $editor->add_cap( 'edit_home_page' );
+
+        // SEO
+        $editor->add_cap( 'manage_seo' );
     }
 
+    // ── Author: own-only CPT access (edit own + publish own — NO edit_others) ──
     $author = get_role( 'author' );
     if ( $author ) {
-        $author->add_cap( 'edit_news_articles' );    // own only
-        $author->add_cap( 'publish_news_articles' );  // own only
-        $author->add_cap( 'edit_events' );            // own only
-        $author->add_cap( 'publish_events' );         // own only
+        // News (own only)
+        $author->add_cap( 'edit_news_articles' );
+        $author->add_cap( 'publish_news_articles' );
+        $author->add_cap( 'delete_news_articles' );
+        // NOTE: edit_others_news_articles is NOT added — Authors can only
+        // edit their own news articles.
+
+        // Events (own only)
+        $author->add_cap( 'edit_events' );
+        $author->add_cap( 'publish_events' );
+        $author->add_cap( 'delete_events' );
+
+        // Clinic bookings (own only — for receptionists)
+        $author->add_cap( 'edit_clinic_bookings' );
+        $author->add_cap( 'publish_clinic_bookings' );
+
+        // OPD appointments (own only — for receptionists)
+        $author->add_cap( 'edit_opd_appointments' );
+        $author->add_cap( 'publish_opd_appointments' );
+
+        // Applications (own only — for admissions clerks)
+        $author->add_cap( 'edit_applications' );
+        $author->add_cap( 'publish_applications' );
+
+        // Community volunteer signups (own only)
+        $author->add_cap( 'edit_community_volunteer_signups' );
+
+        // Inpatient admission enquiries (own only)
+        $author->add_cap( 'edit_inpatient_admission_enquiries' );
     }
 
+    // ── Contributor: create-only (no publish, no upload) ──
     $contributor = get_role( 'contributor' );
     if ( $contributor ) {
-        $contributor->add_cap( 'edit_news_articles' ); // own, pending review
+        // News (create drafts/pending only — no publish capability)
+        $contributor->add_cap( 'edit_news_articles' );
+        // NOTE: publish_news_articles is NOT added — Contributor posts
+        // remain "Pending Review" until an Editor publishes them.
     }
+
+    // ── Subscriber: no CPT capabilities (front-end only) ──
+    // No add_cap() calls for Subscriber — they interact with the site
+    // entirely via front-end forms (booking, applications, newsletter).
 }
-add_action( 'after_switch_theme', 'ollmh_add_caps_to_default_roles' );
+add_action( 'after_switch_theme', 'ollmh_add_cpt_caps_to_core_roles' );
 ```
 
-### Removing custom roles on theme deactivation
+### Cleanup on theme deactivation
 
 ```php
 /**
- * Remove custom roles on theme deactivation.
+ * Remove CPT capabilities from core roles on theme deactivation.
+ * No custom roles to remove — only caps are cleaned up.
  */
-function ollmh_remove_custom_roles() {
-    remove_role( 'hospital_admin' );
-    remove_role( 'hr_manager' );
-    remove_role( 'nursing_admin' );
-    remove_role( 'admissions_officer' );
-    remove_role( 'receptionist' );
-    remove_role( 'community_coordinator' );
+function ollmh_remove_cpt_caps_from_core_roles() {
+    $editor = get_role( 'editor' );
+    $author = get_role( 'author' );
+    $contributor = get_role( 'contributor' );
+
+    $editor_caps = array(
+        'edit_news_articles', 'edit_others_news_articles', 'publish_news_articles',
+        'delete_news_articles', 'delete_others_news_articles',
+        'edit_events', 'edit_others_events', 'publish_events',
+        'delete_events', 'delete_others_events',
+        'edit_departments', 'edit_others_departments', 'publish_departments', 'delete_departments',
+        'edit_wards', 'edit_others_wards', 'publish_wards', 'delete_wards',
+        'edit_clinics', 'edit_others_clinics', 'publish_clinics', 'delete_clinics',
+        'edit_special_services', 'edit_others_special_services', 'publish_special_services',
+        'edit_staff', 'edit_others_staff', 'publish_staff', 'delete_staff',
+        'edit_job_vacancies', 'edit_others_job_vacancies', 'publish_job_vacancies',
+        'edit_nursing_programmes', 'edit_others_nursing_programmes', 'publish_nursing_programmes',
+        'edit_applications', 'edit_others_applications', 'publish_applications',
+        'edit_projects', 'edit_others_projects', 'publish_projects',
+        'edit_community_programs', 'edit_others_community_programs', 'publish_community_programs',
+        'edit_smi_events', 'edit_others_smi_events', 'publish_smi_events',
+        'edit_gallery', 'edit_others_gallery', 'publish_gallery',
+        'edit_home_page', 'manage_seo',
+    );
+
+    $author_caps = array(
+        'edit_news_articles', 'publish_news_articles', 'delete_news_articles',
+        'edit_events', 'publish_events', 'delete_events',
+        'edit_clinic_bookings', 'publish_clinic_bookings',
+        'edit_opd_appointments', 'publish_opd_appointments',
+        'edit_applications', 'publish_applications',
+        'edit_community_volunteer_signups',
+        'edit_inpatient_admission_enquiries',
+    );
+
+    $contributor_caps = array( 'edit_news_articles' );
+
+    foreach ( $editor_caps as $cap ) {
+        if ( $editor ) $editor->remove_cap( $cap );
+    }
+    foreach ( $author_caps as $cap ) {
+        if ( $author ) $author->remove_cap( $cap );
+    }
+    foreach ( $contributor_caps as $cap ) {
+        if ( $contributor ) $contributor->remove_cap( $cap );
+    }
 }
-add_action( 'switch_theme', 'ollmh_remove_custom_roles' );
+add_action( 'switch_theme', 'ollmh_remove_cpt_caps_from_core_roles' );
 ```
 
-> **Caution:** Removing a role does not delete the users assigned to it.
-> Users whose role is removed will be left without a role and unable to log
-> in. Before deactivating, reassign all custom-role users to `subscriber`
-> or another default role.
+> **Note:** Unlike the previous version of this document, there are **no
+> `add_role()` calls** and **no `remove_role()` calls**. Only the five core
+> WordPress roles are used. CPT capabilities are added to and removed from
+> existing core roles via `add_cap()` / `remove_cap()`.

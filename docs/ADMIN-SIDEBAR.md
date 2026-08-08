@@ -5,7 +5,8 @@
 > custom database tables (from the [ERD](./ERD.md)) and WordPress core
 > functionality it manages.
 >
-> The structure groups the **80 custom tables** into logical admin sections
+> The structure groups the **81 custom tables** (80 domain tables + the
+> `wp_settings` configuration table) into logical admin sections
 > using WordPress Custom Post Types (CPTs), custom taxonomy registrations,
 > settings pages, and management screens. The goal is a sidebar that is
 > comprehensive yet scannable — no more than **18 top-level items** — with
@@ -451,9 +452,10 @@ Standard WordPress plugin management. Not mapped to custom tables.
 | Add New User | `wp_users` | Core user editor |
 | Your Profile | `wp_users` | Current user profile |
 
-**Custom roles** (see [capability matrix](#capabilityrole-matrix) below):
-`hospital_admin`, `hr_manager`, `nursing_admin`, `admissions_officer`,
-`receptionist`, `community_coordinator`, `editor`, `author`.
+**Roles:** Only the five core WordPress roles are used — Administrator,
+Editor, Author, Contributor, Subscriber. No custom roles are created. See
+[`USER-ROLES.md`](./USER-ROLES.md) for the full role-to-position mapping
+and [capability matrix](#capabilityrole-matrix) below.
 
 **Capability:** `list_users` (admins); `read` (own profile for all)
 
@@ -464,6 +466,7 @@ Standard WordPress plugin management. Not mapped to custom tables.
 | Submenu | Table(s) | Type |
 |---|---|---|
 | General | WordPress core | Site title, tagline, URL, timezone |
+| Platform Config | `wp_settings` | Tabbed settings page — 19 groups: general, homepage, contact, social, clinical, appointments, nursing_school, applications, auth, security, email, notifications, seo, financial, community, profiles, cache, analytics, jobs (see [`SETTINGS.md`](./SETTINGS.md)) |
 | Hospital Info | `wp_location_info` | Single-record settings: address, GPS, phone, email, map embed |
 | Contact Channels | `wp_contact_channels` | Management list: phone, email, social media, emergency contacts |
 | Contact Submissions | `wp_contact_submissions` | Inbox-style list: form submissions from the Contacts page |
@@ -476,24 +479,47 @@ Standard WordPress plugin management. Not mapped to custom tables.
 | Reading | WordPress core | Front page display, posts per page |
 | Permalinks | WordPress core | URL structure |
 
-**Capability:** `manage_options` (admins)
+**Capability:** `manage_options` (admins). The SEO sub-tab within Platform
+Config additionally requires `manage_seo` (granted to Editor via
+`add_cap()`; see [`USER-ROLES.md`](./USER-ROLES.md)).
 
 ---
 
 ## Capability/role matrix
 
-| Role | Dashboard | News | Events | Departments | Wards | Clinics/OPD | Special Services | Staff/HR | Nursing School | Applications | Projects | Community | Gallery | Home Page | Pages | Appearance | Media | Users | Settings |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **hospital_admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **hr_manager** | ✅ | — | — | — | — | — | — | ✅ | — | — | — | — | — | — | — | — | ✅ | — | — |
-| **nursing_admin** | ✅ | — | — | — | — | — | — | — | ✅ | ✅ | — | — | — | — | — | — | ✅ | — | — |
-| **admissions_officer** | ✅ | — | — | — | — | — | — | — | — | ✅ | — | — | — | — | — | — | ✅ | — | — |
-| **receptionist** | ✅ | — | — | — | ✅ (bed status only) | ✅ (bookings/appointments only) | — | — | — | — | — | — | — | — | — | — | — | — | — |
-| **community_coordinator** | ✅ | — | — | — | — | — | — | — | — | — | — | ✅ | — | — | — | — | ✅ | — | — |
-| **editor** | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | ✅ | — | — |
-| **author** | ✅ | ✅ (own) | ✅ (own) | — | — | — | — | — | — | — | — | — | — | — | ✅ (own) | — | ✅ | — | — |
+Only the five core WordPress roles are used — no custom roles. See
+[`USER-ROLES.md`](./USER-ROLES.md) for the full position-to-role mapping.
 
-**Legend:** ✅ = full access · ✅ (own) = can edit own items only · ✅ (scoped) = limited submenu access · — = no access
+| Role | Dashboard | News | Events | Departments | Wards | Clinics/OPD | Special Services | Staff/HR | Nursing School | Applications | Projects | Community | Gallery | Home Page | Pages | Appearance | Media | Users | Settings | SEO |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Administrator** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Editor** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | ✅ | — | — | ✅ |
+| **Author** | ✅ | ✅ (own) | ✅ (own) | — | ✅ (own bookings/enquiries) | ✅ (own bookings/appts) | — | — | — | ✅ (own assigned) | — | ✅ (own signups) | — | — | — | — | ✅ | — | — | — |
+| **Contributor** | ✅ | ✅ (own, pending) | ✅ (own, pending) | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| **Subscriber** | ✅ (profile) | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — (own profile) | — | — |
+
+**Legend:** ✅ = full access to that menu's submenus · ✅ (own) = can edit only
+own items · ✅ (own, pending) = can create own items but cannot publish ·
+✅ (profile) = dashboard access limited to profile page · — = no access
+
+### How operational positions map to this matrix
+
+| OLLMH position | Core role | What they actually do in the admin |
+|---|---|---|
+| Hospital IT Administrator / Webmaster | **Administrator** | Everything — plugins, themes, users, settings, all content |
+| Communications Officer / PR Officer | **Editor** | News, events, gallery, home page, pages, SEO |
+| HR Officer / HR Manager | **Editor** | Staff & HR (focused use of Editor's full CPT access) |
+| Nursing School Principal / Administrator | **Editor** | Nursing School + Applications |
+| Admissions Officer (senior) | **Editor** | Applications pipeline |
+| Community Outreach Coordinator | **Editor** | Community programs + SMI content |
+| Projects Manager | **Editor** | All three project types |
+| Department Head (news contributor) | **Author** | Own news articles and events only |
+| Front-Desk Receptionist | **Author** | Own clinic bookings, OPD appointments, admission enquiries |
+| Admissions Clerk (junior) | **Author** | Own application records only |
+| Clinical Staff (nurses, doctors) | **Author** | Own news contributions |
+| Volunteer Coordinator | **Author** | Own volunteer signup records |
+| External guest writer (rare) | **Contributor** | Submits news articles for review (no publish, no upload) |
+| Patient / Public user (registered) | **Subscriber** | Front-end only — no admin access beyond profile |
 
 ---
 
@@ -549,7 +575,7 @@ don't warrant their own CPT but need an admin UI:
 
 ## Design principles
 
-1. **Group by domain, not by table.** The 80 tables are grouped into 12
+1. **Group by domain, not by table.** The 81 tables are grouped into 12
    domain-specific top-level menus (News, Events, Departments, Wards &
    Inpatient, Clinics & OPD, Special Medical Services, Staff & HR, Nursing
    School, Applications, Projects, Community, Gallery) plus Home Page
@@ -568,10 +594,11 @@ don't warrant their own CPT but need an admin UI:
    pledges) use an inbox-style list with status tracking (new/read/replied)
    so staff can triage them.
 
-4. **Role-based scoping.** Each menu item is gated by a custom capability
-   mapped to a role. Receptionists see only bookings and bed status; HR
-   managers see only Staff & HR; admissions officers see only Applications.
-   This prevents sidebar overload for non-admin users.
+4. **Role-based scoping.** Each menu item is gated by a capability mapped
+   to one of the five core WordPress roles (no custom roles). Authors see
+   only their own bookings and articles; Editors see all content menus;
+   Subscribers see only their profile. This prevents sidebar overload for
+   non-admin users. See [`USER-ROLES.md`](./USER-ROLES.md).
 
 5. **Dashboard widgets for triage.** The dashboard surfaces actionable
    counts (pending applications, today's bookings, new enquiries) so staff

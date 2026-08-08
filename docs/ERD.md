@@ -1,11 +1,12 @@
 # Consolidated Entity-Relationship Diagram (ERD)
 
 This document is the **single-source ERD** for the entire OLLMH dynamic website
-schema. It covers all **80 tables** (7 shared/platform + 73 page-specific) and
+schema. It covers all **81 tables** (8 shared/platform + 73 page-specific) and
 their **116 foreign-key relationships**, grouped into logical clusters.
 
 For table definitions and column-level details, see:
-- [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md) — the 7 shared tables.
+- [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md) — the 8 shared tables.
+- [`SETTINGS.md`](./SETTINGS.md) — the `wp_settings` configuration catalogue.
 - [`pages/`](./pages/) — one file per page with its own `CREATE TABLE` statements.
 
 > **How to read this document:** Mermaid `erDiagram` blocks render inline on
@@ -75,7 +76,23 @@ erDiagram
         BIGINT department_id FK
         BIGINT photo_media_id FK
     }
+    wp_settings {
+        BIGINT id PK
+        VARCHAR item
+        LONGTEXT default_value
+        LONGTEXT current_value
+        ENUM type
+        VARCHAR group_name
+        TINYINT is_public
+    }
 ```
+
+> **`wp_settings`** is a standalone key-value configuration table with no
+> foreign-key relationships to other tables. It stores ~100 settings across
+> 19 groups (hospital identity, contact, clinical, nursing school,
+> applications, SEO, M-Pesa, email/SMTP, security, reference data, etc.).
+> See [`SETTINGS.md`](./SETTINGS.md) for the full catalogue and
+> [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md) for the table definition.
 
 ---
 

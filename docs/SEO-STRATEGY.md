@@ -1056,8 +1056,9 @@ Add a top-level **SEO** menu to the WordPress admin sidebar (see
 | GSC Data | `wp_seo_gsc_daily` | Search Console daily performance data (query × page × device) |
 | Settings | — | Rank Math settings, Site Kit connection, robots.txt, sitemap config |
 
-**Capability:** `manage_seo` (new custom capability — assign to
-`hospital_admin` and `editor` roles; see [`USER-ROLES.md`](./USER-ROLES.md)).
+**Capability:** `manage_seo` (custom capability added to the core
+**Editor** and **Administrator** roles via `add_cap()` — no custom roles
+are created; see [`USER-ROLES.md`](./USER-ROLES.md)).
 
 ---
 

@@ -113,6 +113,54 @@ CREATE TABLE wp_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+### `wp_settings`
+Central key-value store for all platform configuration — hospital identity,
+contact details, clinical operations, nursing school, applications, SEO,
+email/SMTP, M-Pesa, security, and reference data (dropdowns for patient
+registration, staff records, and applications). See
+[`SETTINGS.md`](./SETTINGS.md) for the full settings catalogue and
+[`seeders/class-ollmh-settings-seeder.php`](../seeders/class-ollmh-settings-seeder.php)
+for the PHP seeder.
+
+```sql
+CREATE TABLE wp_settings (
+  id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  item          VARCHAR(191)    NOT NULL,
+  default_value LONGTEXT        NULL,
+  current_value LONGTEXT        NULL,
+  description   TEXT            NULL,
+  type          ENUM('string','text','json','boolean','integer','decimal',
+                     'url','email','secret','date','datetime','file')
+                  NOT NULL DEFAULT 'string',
+  group_name    VARCHAR(100)    NOT NULL DEFAULT 'general',
+  is_public     TINYINT(1)      NOT NULL DEFAULT 0,
+  created_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_settings_item (item),
+  KEY idx_settings_group (group_name),
+  KEY idx_settings_public (is_public)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Column notes:**
+
+| Column | Purpose |
+|---|---|
+| `item` | Unique setting key (e.g. `hospital_name`, `mpesa_shortcode`, `profile_blood_types`). |
+| `default_value` | Factory default. Set by the seeder. Never overwritten by the admin UI. |
+| `current_value` | The live value. Set by the admin. If the admin never customised it, it equals `default_value`. |
+| `description` | Human-readable explanation of what the setting controls. |
+| `type` | Data type hint for the admin UI (render a text field, textarea, toggle, JSON editor, password field, etc.). `secret` values are stored encrypted and never exposed to the front-end. |
+| `group_name` | Feature-area grouping for the admin settings page (e.g. `general`, `contact`, `clinical`, `seo`, `financial`). |
+| `is_public` | 1 = safe to expose to the front-end (e.g. hospital name, phone, social links). 0 = admin-only (e.g. SMTP password, M-Pesa keys). The front-end settings API only returns rows where `is_public = 1`. |
+
+**Upsert logic:** The seeder uses insert-only upsert — it sets
+`current_value = default_value` on first insert, and never overwrites a
+`current_value` that an admin has already customised. On re-runs, it
+refreshes `default_value` and syncs `current_value` only if it is still
+null, empty, or equal to the old default.
+
 ### `wp_menu_items`
 Drives the header navigation megamenu and footer link columns.
 
