@@ -65,6 +65,110 @@ static archive to a **fully dynamic, database-driven application**.
   rendering rules, front-end API contract, and relationship to existing
   structured tables. The PHP seeder is at
   [`seeders/class-ollmh-settings-seeder.php`](../seeders/class-ollmh-settings-seeder.php).
+
+### Implementation documentation
+
+- **[`THEME-ARCHITECTURE.md`](./THEME-ARCHITECTURE.md)** — classic PHP theme
+  structure: directory layout, template hierarchy mapping (20 page types →
+  WordPress templates), `functions.php` bootstrap, `theme.json` design
+  tokens, image sizes, menu locations, widget areas, theme-vs-plugin
+  division of labor, and CSS/JS architecture.
+- **[`PLUGIN-ARCHITECTURE.md`](./PLUGIN-ARCHITECTURE.md)** — 4 custom
+  plugins (`ollmh-core`, `ollmh-forms`, `ollmh-payments`, `ollmh-notifications`):
+  directory structure, activation/deactivation/uninstall sequences, REST API
+  endpoints, M-Pesa STK Push flow, email/SMS queue, and plugin dependency
+  order.
+- **[`CPT-REGISTRATION-CODE.md`](./CPT-REGISTRATION-CODE.md)** — actual PHP
+  `register_post_type()` and `register_taxonomy()` code for all 15 CPTs and
+  4 taxonomies, with labels, rewrite slugs, menu icons, capabilities, and
+  `map_meta_cap` configuration.
+- **[`MIGRATION-PLAN.md`](./MIGRATION-PLAN.md)** — 7-phase plan for
+  converting the static Joomla archive to dynamic WordPress: environment
+  setup → plugin/theme scaffolding → database/seeders → asset migration →
+  content migration → forms/integrations → testing/launch, with entry/exit
+  criteria and a dependency graph.
+- **[`CONTENT-MIGRATION.md`](./CONTENT-MIGRATION.md)** — how to extract
+  content from archived HTML, clean Joomla-specific markup, convert image
+  URLs and internal links, and insert into WordPress pages and CPTs.
+  Includes a WP-CLI migration script with HTML extraction, cleaning, and
+  URL conversion functions.
+- **[`ASSET-MIGRATION.md`](./ASSET-MIGRATION.md)** — how to migrate ~133
+  images from the archive into the WordPress media library: filename
+  cleaning, alt text assignment, WebP conversion, logo/favicon handling,
+  and a WP-CLI migration script with URL mapping file generation.
+- **[`ENVIRONMENT-SETUP.md`](./ENVIRONMENT-SETUP.md)** — local development
+  environment with Docker Compose (WordPress + MySQL + phpMyAdmin +
+  MailHog), first-time setup commands, daily workflow, `wp-config.php`
+  settings, database access, and troubleshooting.
+- **[`URL-MAPPING.md`](./URL-MAPPING.md)** — complete redirect map from 20
+  old Joomla `.html` URLs to new WordPress permalinks, with Redirection
+  plugin CSV import, `.htaccess` rules, CPT URL structure, and
+  post-launch verification.
+- **[`REST-API-SPEC.md`](./REST-API-SPEC.md)** — all custom REST API
+  endpoints: contact, appointment booking, multi-step nursing school
+  application, document upload, M-Pesa callback, event registration, public
+  settings retrieval, and Turnstile verification. Includes authentication,
+  rate limiting, and error response format.
+- **[`FRONT-END-FORMS.md`](./FRONT-END-FORMS.md)** — specifications for all
+  4 front-end forms (contact, appointment, application, event registration):
+  field definitions, validation rules, Turnstile integration, AJAX
+  submission flow, success/error states, and the multi-step application
+  form with progress indicator.
+- **[`JAVASCRIPT-INTERACTIVITY.md`](./JAVASCRIPT-INTERACTIVITY.md)** —
+  replacement strategy for archived Joomla JS components (XpertSlider →
+  Swiper.js, XpertTabs → vanilla JS, XpertScroller → CSS scroll-snap,
+  MaximenuCK → CSS hover + JS mobile toggle, EqualHeight → CSS Flexbox),
+  with implementation code, HTML structure, and loading strategy.
+- **[`RESPONSIVE-DESIGN.md`](./RESPONSIVE-DESIGN.md)** — mobile-first
+  responsive strategy: 5 breakpoints (base/640/768/1024/1280px), CSS Grid
+  system, sticky header, mobile hamburger menu, responsive images with
+  `srcset`, responsive tables, responsive forms, fluid typography with
+  `clamp()`, and browser support matrix.
+- **[`DEPLOYMENT.md`](./DEPLOYMENT.md)** — production deployment: hosting
+  requirements, domain/DNS/SSL configuration, staging→production workflow,
+  production `wp-config.php`, Nginx and Apache configurations, file
+  permissions, and post-deployment checklist.
+- **[`EMAIL-TEMPLATES.md`](./EMAIL-TEMPLATES.md)** — all transactional email
+  templates (contact auto-reply, contact admin notification, appointment
+  confirmation, appointment reminder, application received, application
+  status update, event registration, password reset) and SMS templates,
+  with a shared HTML email wrapper and template variable reference.
+- **[`CRON-JOBS.md`](./CRON-JOBS.md)** — all 12 scheduled tasks (notification
+  queue, appointment reminders, event reminders, transient cleanup, log
+  pruning, job pruning, DB optimization, sitemap regeneration, broken link
+  check, backups, application expiry, cache clear), with WP-Cron vs system
+  cron configuration and PHP registration code.
+- **[`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md)** —
+  dependency policy (minimize, no jQuery for theme code, no Bootstrap/
+  Tailwind, no build step required), CSS dependencies (Swiper, GLightbox),
+  JS dependencies, SVG icon system, system font stack, version pinning
+  with SRI, and what to explicitly avoid.
+- **[`TESTING-PLAN.md`](./TESTING-PLAN.md)** — testing strategy across 5
+  phases (unit, integration, UAT, pre-launch, post-launch): database, CPT,
+  theme, forms, notifications, admin, cross-browser, mobile, SEO,
+  performance, security, accessibility, content verification, and 48-hour
+  post-launch monitoring.
+- **[`ACCESSIBILITY.md`](./ACCESSIBILITY.md)** — WCAG 2.1 Level AA
+  compliance: text alternatives, color contrast (per OLLMH palette),
+  keyboard navigation, focus indicators, touch targets, form labels, ARIA
+  usage, `prefers-reduced-motion`, WordPress-specific accessibility, and
+  testing tools.
+- **[`PERFORMANCE-BUDGET.md`](./PERFORMANCE-BUDGET.md)** — Core Web Vitals
+  targets (LCP < 2.5s, INP < 200ms, CLS < 0.1), page weight budget (< 700KB
+  first view), image optimization (WebP, responsive srcset, lazy loading),
+  CSS/JS optimization, caching strategy (WP Rocket, Redis, Cloudflare CDN),
+  database optimization, server tuning, and monitoring.
+- **[`SECURITY-HARDENING.md`](./SECURITY-HARDENING.md)** — 5-layer security
+  strategy (Cloudflare edge, WordPress application, server, data,
+  monitoring): WAF, DDoS protection, `wp-config.php` hardening, XML-RPC
+  disable, login security, SQL injection/XSS/CSRF prevention, file upload
+  security, secret encryption, HTTP security headers, file permissions,
+  security plugins, update policy, and incident response.
+- **[`BACKUP-RECOVERY.md`](./BACKUP-RECOVERY.md)** — backup strategy (daily
+  database, weekly files, server snapshots), 3-2-1 storage rule, recovery
+  procedures (full site, database-only, single table, file-only), RTO/RPO
+  targets, monthly backup verification, and disaster recovery plan for
+  server failure, database corruption, hack, and accidental deletion.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
