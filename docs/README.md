@@ -28,6 +28,11 @@ static archive to a **fully dynamic, database-driven application**.
   extracted from the archived site's CSS, organized into primary, secondary,
   accent, background, text, border, and inline content colors with hex codes,
   CSS source selectors, WordPress CSS variables, and a `theme.json` palette.
+- **[`FONT-SCHEMA.md`](./FONT-SCHEMA.md)** — the complete typography
+  reference extracted from the archived site's CSS and inline HTML styles:
+  every `font-family` stack, type scale (`font-size`), weights, styles, line
+  heights, per-page inline usage, WordPress CSS variables, and a
+  `theme.json` typography configuration.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
