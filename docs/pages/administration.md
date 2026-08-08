@@ -32,7 +32,7 @@
 - Add captions/`alt` text so photos of the admin block, board, and Sr. Josephine are identifiable.
 
 **Functionality**
-- Pull leadership from the shared `staff` table so the same records power department pages and the HR page.
+- Pull leadership from the shared `wp_staff` table so the same records power department pages and the HR page.
 - Add "message the office" / secretariat contact for governance enquiries.
 
 **Trust/Accessibility**
@@ -43,7 +43,7 @@
 
 ```sql
 -- Governance bodies (the Board and the Management Team)
-CREATE TABLE governance_bodies (
+CREATE TABLE wp_governance_bodies (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id     BIGINT UNSIGNED NOT NULL,
   name        VARCHAR(191)    NOT NULL,               -- "Management Board", "Hospital Management Team"
@@ -60,11 +60,11 @@ CREATE TABLE governance_bodies (
   UNIQUE KEY uq_gov_body_slug (slug),
   KEY idx_gov_body_page (page_id, sort_order),
   CONSTRAINT fk_gov_body_page FOREIGN KEY (page_id)
-    REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Membership of a governance body, linking to shared staff records
-CREATE TABLE governance_members (
+CREATE TABLE wp_governance_members (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   body_id      BIGINT UNSIGNED NOT NULL,
   staff_id     BIGINT UNSIGNED NULL,                  -- optional link to staff record
@@ -77,13 +77,13 @@ CREATE TABLE governance_members (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_gov_member_body (body_id, sort_order),
-  CONSTRAINT fk_gov_member_body  FOREIGN KEY (body_id)        REFERENCES governance_bodies (id) ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_gov_member_staff FOREIGN KEY (staff_id)       REFERENCES staff (id)             ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_gov_member_photo FOREIGN KEY (photo_media_id) REFERENCES media_assets (id)      ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_gov_member_body  FOREIGN KEY (body_id)        REFERENCES wp_governance_bodies (id) ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_gov_member_staff FOREIGN KEY (staff_id)       REFERENCES wp_staff (id)             ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_gov_member_photo FOREIGN KEY (photo_media_id) REFERENCES wp_media_assets (id)      ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `governance_bodies.page_id` references `pages(id)` for the "Admin menu" page (`slug = administration`).
-- `governance_members.body_id` references `governance_bodies(id)`; each member optionally links to a shared `staff(id)` record (management roles like Administrator, Matron, CEO) so profiles are reused across pages.
-- `governance_members.photo_media_id` references `media_assets(id)`; the admin-block/board photos on the page are attached through the shared `page_media` join table (role `gallery`).
+- `wp_governance_bodies.page_id` references `pages(id)` for the "Admin menu" page (`slug = administration`).
+- `wp_governance_members.body_id` references `governance_bodies(id)`; each member optionally links to a shared `staff(id)` record (management roles like Administrator, Matron, CEO) so profiles are reused across pages.
+- `wp_governance_members.photo_media_id` references `media_assets(id)`; the admin-block/board photos on the page are attached through the shared `wp_page_media` join table (role `gallery`).

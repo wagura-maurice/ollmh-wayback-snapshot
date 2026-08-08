@@ -46,7 +46,7 @@
 
 ```sql
 -- Profile of the religious congregation that manages the hospital
-CREATE TABLE smi_community_profile (
+CREATE TABLE wp_smi_community_profile (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   name           VARCHAR(191)    NOT NULL,          -- "Sisters of Mary Immaculate"
@@ -62,12 +62,12 @@ CREATE TABLE smi_community_profile (
   deleted_at     TIMESTAMP       NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uq_smiprofile_page (page_id),
-  CONSTRAINT fk_smiprofile_page  FOREIGN KEY (page_id)        REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_smiprofile_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_smiprofile_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_smiprofile_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Facilities within the compound (convent, infirmary / home of the old)
-CREATE TABLE smi_facilities (
+CREATE TABLE wp_smi_facilities (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   slug           VARCHAR(191)    NOT NULL,
@@ -81,12 +81,12 @@ CREATE TABLE smi_facilities (
   PRIMARY KEY (id),
   UNIQUE KEY uq_smifacility_slug (slug),
   KEY idx_smifacility_page (page_id),
-  CONSTRAINT fk_smifacility_page  FOREIGN KEY (page_id)        REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_smifacility_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_smifacility_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_smifacility_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Community life events (nursing school opening, C.W.A visit, 100th birthday...)
-CREATE TABLE smi_community_events (
+CREATE TABLE wp_smi_community_events (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id      BIGINT UNSIGNED NOT NULL,
   title        VARCHAR(255)    NOT NULL,
@@ -99,12 +99,12 @@ CREATE TABLE smi_community_events (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_smievent_page (page_id),
-  CONSTRAINT fk_smievent_page  FOREIGN KEY (page_id)        REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_smievent_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_smievent_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_smievent_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Vocations / support enquiries submitted from this page
-CREATE TABLE smi_vocation_enquiries (
+CREATE TABLE wp_smi_vocation_enquiries (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id      BIGINT UNSIGNED NOT NULL,
   full_name    VARCHAR(191)    NOT NULL,
@@ -117,11 +117,11 @@ CREATE TABLE smi_vocation_enquiries (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_smienq_page (page_id),
-  CONSTRAINT fk_smienq_page FOREIGN KEY (page_id) REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_smienq_page FOREIGN KEY (page_id) REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Gallery images tied to community events from the shared media library
-CREATE TABLE smi_event_media (
+CREATE TABLE wp_smi_event_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   event_id   BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -129,14 +129,14 @@ CREATE TABLE smi_event_media (
   sort_order INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_smievent_media (event_id, media_id),
-  CONSTRAINT fk_sem_event FOREIGN KEY (event_id) REFERENCES smi_community_events (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_sem_media FOREIGN KEY (media_id) REFERENCES media_assets (id)         ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_sem_event FOREIGN KEY (event_id) REFERENCES wp_smi_community_events (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_sem_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id)         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `smi_community_profile.page_id` → `pages.id` (unique, one profile per page) binds the congregation profile to `/smi-community.html`.
-- `smi_facilities.page_id`, `smi_community_events.page_id`, and `smi_vocation_enquiries.page_id` all → `pages.id`, grouping facilities, events and enquiries under the page.
-- `cover_media_id` columns and `smi_event_media.media_id` → `media_assets.id` reuse the shared media library for imagery.
-- `smi_event_media.event_id` → `smi_community_events.id` provides the ordered gallery per event.
-- The congregation's staff/sisters can be represented via the shared `staff` table (`role_type='management'/'volunteer'`), letting sister profiles integrate without a new table here.
+- `wp_smi_community_profile.page_id` → `wp_pages.id` (unique, one profile per page) binds the congregation profile to `/smi-community.html`.
+- `wp_smi_facilities.page_id`, `wp_smi_community_events.page_id`, and `wp_smi_vocation_enquiries.page_id` all → `wp_pages.id`, grouping facilities, events and enquiries under the page.
+- `cover_media_id` columns and `wp_smi_event_media.media_id` → `wp_media_assets.id` reuse the shared media library for imagery.
+- `wp_smi_event_media.event_id` → `wp_smi_community_events.id` provides the ordered gallery per event.
+- The congregation's staff/sisters can be represented via the shared `wp_staff` table (`role_type='management'/'volunteer'`), letting sister profiles integrate without a new table here.

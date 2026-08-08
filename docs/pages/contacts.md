@@ -39,7 +39,7 @@
 **Functionality**
 - Store form submissions in the database with status tracking and email notifications to `info@`.
 - Route enquiries to the right department; auto-acknowledge submitters.
-- List multiple contact points (departments) sourced from shared `departments`/`staff`.
+- List multiple contact points (departments) sourced from shared `wp_departments`/`wp_staff`.
 
 **Trust/Accessibility**
 - Fix the "Pnone No" typo; normalise/verify the phone numbers (`+254 202 032382` etc.).
@@ -50,7 +50,7 @@
 
 ```sql
 -- Contact channels shown on the contacts page (emails, phones, hours, social)
-CREATE TABLE contact_channels (
+CREATE TABLE wp_contact_channels (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   department_id BIGINT UNSIGNED NULL,             -- optional department-specific channel
@@ -64,12 +64,12 @@ CREATE TABLE contact_channels (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_contact_channel_page (page_id, sort_order),
-  CONSTRAINT fk_contact_channel_page FOREIGN KEY (page_id)       REFERENCES pages (id)       ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_contact_channel_dept FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_contact_channel_page FOREIGN KEY (page_id)       REFERENCES wp_pages (id)       ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_contact_channel_dept FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Submissions from the enhanced contact form
-CREATE TABLE contact_submissions (
+CREATE TABLE wp_contact_submissions (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   department_id BIGINT UNSIGNED NULL,             -- routed-to department
@@ -86,14 +86,14 @@ CREATE TABLE contact_submissions (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_submission_page_status (page_id, status),
-  CONSTRAINT fk_submission_page    FOREIGN KEY (page_id)       REFERENCES pages (id)       ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_submission_dept    FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_submission_handler FOREIGN KEY (handled_by)    REFERENCES users (id)       ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_submission_page    FOREIGN KEY (page_id)       REFERENCES wp_pages (id)       ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_submission_dept    FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_submission_handler FOREIGN KEY (handled_by)    REFERENCES wp_users (id)       ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `contact_channels.page_id` and `contact_submissions.page_id` reference `pages(id)` for the contacts page (`slug = contacts`).
+- `wp_contact_channels.page_id` and `wp_contact_submissions.page_id` reference `pages(id)` for the contacts page (`slug = contacts`).
 - Both tables optionally reference `departments(id)` so channels/enquiries can be scoped or routed to a specific department.
-- `contact_submissions.handled_by` references the shared `users(id)` (CMS editors/admins) for enquiry follow-up.
-- Contact-page images live in `media_assets` and attach through the shared `page_media` join table (role `inline`/`gallery`).
+- `wp_contact_submissions.handled_by` references the shared `users(id)` (CMS editors/admins) for enquiry follow-up.
+- Contact-page images live in `wp_media_assets` and attach through the shared `wp_page_media` join table (role `inline`/`gallery`).

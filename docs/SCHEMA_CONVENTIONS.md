@@ -24,13 +24,13 @@ All tables use the following conventions:
 ## Core shared tables
 
 These are defined **once here**. Individual page files reference them (e.g.
-`page_id BIGINT UNSIGNED` → `pages.id`) rather than redefining them.
+`page_id BIGINT UNSIGNED` → `wp_pages.id`) rather than redefining them.
 
-### `pages`
+### `wp_pages`
 The backbone of the dynamic site. Every navigable page/route is a row here.
 
 ```sql
-CREATE TABLE pages (
+CREATE TABLE wp_pages (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   slug          VARCHAR(191)    NOT NULL,
   title         VARCHAR(255)    NOT NULL,
@@ -50,15 +50,15 @@ CREATE TABLE pages (
   UNIQUE KEY uq_pages_slug (slug),
   KEY idx_pages_type_status (page_type, status),
   CONSTRAINT fk_pages_hero_media FOREIGN KEY (hero_media_id)
-    REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+    REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### `media_assets`
+### `wp_media_assets`
 Central library for every image/document/video referenced anywhere on the site.
 
 ```sql
-CREATE TABLE media_assets (
+CREATE TABLE wp_media_assets (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   file_path    VARCHAR(512)    NOT NULL,
   mime_type    VARCHAR(100)    NOT NULL,
@@ -74,15 +74,15 @@ CREATE TABLE media_assets (
   PRIMARY KEY (id),
   KEY idx_media_type (media_type),
   CONSTRAINT fk_media_uploader FOREIGN KEY (uploaded_by)
-    REFERENCES users (id) ON DELETE SET NULL ON UPDATE CASCADE
+    REFERENCES wp_users (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### `page_media`
+### `wp_page_media`
 Join table associating pages with an ordered gallery of media.
 
 ```sql
-CREATE TABLE page_media (
+CREATE TABLE wp_page_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id    BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -90,16 +90,16 @@ CREATE TABLE page_media (
   sort_order INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_page_media (page_id, media_id, role),
-  CONSTRAINT fk_pm_page  FOREIGN KEY (page_id)  REFERENCES pages (id)        ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_pm_media FOREIGN KEY (media_id) REFERENCES media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_pm_page  FOREIGN KEY (page_id)  REFERENCES wp_pages (id)        ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_pm_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### `users`
+### `wp_users`
 Admins/editors (CMS backend) and, where relevant, registered portal users.
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE wp_users (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name          VARCHAR(191)    NOT NULL,
   email         VARCHAR(191)    NOT NULL,
@@ -113,11 +113,11 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### `menu_items`
+### `wp_menu_items`
 Drives the header navigation megamenu and footer link columns.
 
 ```sql
-CREATE TABLE menu_items (
+CREATE TABLE wp_menu_items (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   menu_area   ENUM('header','footer','offcanvas') NOT NULL DEFAULT 'header',
   parent_id   BIGINT UNSIGNED NULL,
@@ -128,16 +128,16 @@ CREATE TABLE menu_items (
   is_active   TINYINT(1)      NOT NULL DEFAULT 1,
   PRIMARY KEY (id),
   KEY idx_menu_area (menu_area, parent_id, sort_order),
-  CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES menu_items (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_menu_page   FOREIGN KEY (page_id)   REFERENCES pages (id)      ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES wp_menu_items (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_menu_page   FOREIGN KEY (page_id)   REFERENCES wp_pages (id)      ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### `departments`
+### `wp_departments`
 Referenced by service pages, ward pages, staff, and clinic schedules.
 
 ```sql
-CREATE TABLE departments (
+CREATE TABLE wp_departments (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name        VARCHAR(191)    NOT NULL,
   slug        VARCHAR(191)    NOT NULL,
@@ -146,15 +146,15 @@ CREATE TABLE departments (
   description TEXT            NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uq_dept_slug (slug),
-  CONSTRAINT fk_dept_page FOREIGN KEY (page_id) REFERENCES pages (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_dept_page FOREIGN KEY (page_id) REFERENCES wp_pages (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### `staff`
+### `wp_staff`
 Referenced by administration, HR-capacity, and department pages.
 
 ```sql
-CREATE TABLE staff (
+CREATE TABLE wp_staff (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   full_name     VARCHAR(191)    NOT NULL,
   title         VARCHAR(191)    NULL,      -- e.g. "Medical Superintendent"
@@ -170,8 +170,8 @@ CREATE TABLE staff (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_staff_dept (department_id),
-  CONSTRAINT fk_staff_dept  FOREIGN KEY (department_id)  REFERENCES departments (id)   ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_staff_photo FOREIGN KEY (photo_media_id) REFERENCES media_assets (id)  ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_staff_dept  FOREIGN KEY (department_id)  REFERENCES wp_departments (id)   ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_staff_photo FOREIGN KEY (photo_media_id) REFERENCES wp_media_assets (id)  ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -181,9 +181,9 @@ CREATE TABLE staff (
 
 Each file in `docs/pages/` defines **only the tables specific to that page's
 content** and references the shared tables above by foreign key. For example, a
-service page's `services` table carries `page_id → pages.id` and
-`department_id → departments.id`; it does **not** redefine `pages` or
-`departments`.
+service page's `services` table carries `page_id → wp_pages.id` and
+`department_id → wp_departments.id`; it does **not** redefine `wp_pages` or
+`wp_departments`.
 
 This keeps the schema normalized and lets every page plug into one coherent,
 database-driven platform.

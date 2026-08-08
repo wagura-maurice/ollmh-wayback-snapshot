@@ -49,7 +49,7 @@
 
 ```sql
 -- Key facts / statistics shown on the About-Location page
-CREATE TABLE about_facts (
+CREATE TABLE wp_about_facts (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id     BIGINT UNSIGNED NOT NULL,
   label       VARCHAR(191)    NOT NULL,          -- e.g. "Catchment population"
@@ -63,11 +63,11 @@ CREATE TABLE about_facts (
   PRIMARY KEY (id),
   KEY idx_about_facts_page (page_id, sort_order),
   CONSTRAINT fk_about_facts_page FOREIGN KEY (page_id)
-    REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- History milestones (1962 dispensary, 1968 health centre, 1979 upgrade, ...)
-CREATE TABLE about_milestones (
+CREATE TABLE wp_about_milestones (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id     BIGINT UNSIGNED NOT NULL,
   year        SMALLINT UNSIGNED NULL,
@@ -79,12 +79,12 @@ CREATE TABLE about_milestones (
   updated_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_about_milestones_page (page_id, sort_order),
-  CONSTRAINT fk_about_milestones_page  FOREIGN KEY (page_id)  REFERENCES pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_about_milestones_media FOREIGN KEY (media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_about_milestones_page  FOREIGN KEY (page_id)  REFERENCES wp_pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_about_milestones_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Geographic location / map data for the hospital
-CREATE TABLE location_info (
+CREATE TABLE wp_location_info (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   address_line   VARCHAR(255)    NULL,        -- "Along Nairobi-Embu road"
@@ -101,11 +101,11 @@ CREATE TABLE location_info (
   PRIMARY KEY (id),
   UNIQUE KEY uq_location_page (page_id),
   CONSTRAINT fk_location_page FOREIGN KEY (page_id)
-    REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `about_facts.page_id`, `about_milestones.page_id`, and `location_info.page_id` all reference `pages(id)`, binding this content to the "Location" page row (`slug = about-ollmh-location`).
-- `about_milestones.media_id` and the page's gallery images reference `media_assets(id)`; the ordered photo galleries are stored via the shared `page_media` join table (role `gallery`).
-- `location_info` is a 1:1 satellite of `pages` (unique `page_id`) supplying map/geo data for the embedded map and directions CTA.
+- `wp_about_facts.page_id`, `wp_about_milestones.page_id`, and `wp_location_info.page_id` all reference `pages(id)`, binding this content to the "Location" page row (`slug = about-ollmh-location`).
+- `wp_about_milestones.media_id` and the page's gallery images reference `media_assets(id)`; the ordered photo galleries are stored via the shared `wp_page_media` join table (role `gallery`).
+- `wp_location_info` is a 1:1 satellite of `wp_pages` (unique `page_id`) supplying map/geo data for the embedded map and directions CTA.

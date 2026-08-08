@@ -40,7 +40,7 @@
 
 ```sql
 -- Catalogue of special medical services featured on the page
-CREATE TABLE special_medical_services (
+CREATE TABLE wp_special_medical_services (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   department_id  BIGINT UNSIGNED NULL,
@@ -60,13 +60,13 @@ CREATE TABLE special_medical_services (
   PRIMARY KEY (id),
   UNIQUE KEY uq_sms_slug (slug),
   KEY idx_sms_page (page_id, sort_order),
-  CONSTRAINT fk_sms_page  FOREIGN KEY (page_id)       REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_sms_dept  FOREIGN KEY (department_id) REFERENCES departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_sms_media FOREIGN KEY (hero_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_sms_page  FOREIGN KEY (page_id)       REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_sms_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_sms_media FOREIGN KEY (hero_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Specialists (staff) linked to each special service
-CREATE TABLE service_specialists (
+CREATE TABLE wp_service_specialists (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   service_id  BIGINT UNSIGNED NOT NULL,
   staff_id    BIGINT UNSIGNED NOT NULL,
@@ -74,12 +74,12 @@ CREATE TABLE service_specialists (
   sort_order  INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_service_specialist (service_id, staff_id),
-  CONSTRAINT fk_ss_service FOREIGN KEY (service_id) REFERENCES special_medical_services (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_ss_staff   FOREIGN KEY (staff_id)   REFERENCES staff (id)                    ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_ss_service FOREIGN KEY (service_id) REFERENCES wp_special_medical_services (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ss_staff   FOREIGN KEY (staff_id)   REFERENCES wp_staff (id)                    ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Advanced medical instruments / systems highlighted on the page
-CREATE TABLE service_equipment (
+CREATE TABLE wp_service_equipment (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   service_id   BIGINT UNSIGNED NULL,
   page_id      BIGINT UNSIGNED NOT NULL,
@@ -91,13 +91,13 @@ CREATE TABLE service_equipment (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_equip_page (page_id, sort_order),
-  CONSTRAINT fk_equip_service FOREIGN KEY (service_id) REFERENCES special_medical_services (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_equip_page    FOREIGN KEY (page_id)    REFERENCES pages (id)                    ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_equip_media   FOREIGN KEY (media_id)   REFERENCES media_assets (id)             ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_equip_service FOREIGN KEY (service_id) REFERENCES wp_special_medical_services (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_equip_page    FOREIGN KEY (page_id)    REFERENCES wp_pages (id)                    ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_equip_media   FOREIGN KEY (media_id)   REFERENCES wp_media_assets (id)             ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Enquiry / referral requests for a special service
-CREATE TABLE service_enquiries (
+CREATE TABLE wp_service_enquiries (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   service_id    BIGINT UNSIGNED NOT NULL,
   full_name     VARCHAR(191)    NOT NULL,
@@ -109,12 +109,12 @@ CREATE TABLE service_enquiries (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_enq_service (service_id, status),
-  CONSTRAINT fk_enq_service FOREIGN KEY (service_id) REFERENCES special_medical_services (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_enq_service FOREIGN KEY (service_id) REFERENCES wp_special_medical_services (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `special_medical_services.page_id` and `service_equipment.page_id` bind the content to the shared **`pages`** row for `/special-medical-services.html`.
-- `special_medical_services.department_id` links each service to the shared **`departments`** table; `service_specialists.staff_id` maps services to clinicians in the shared **`staff`** table.
-- Service hero images and equipment photos reference the shared **`media_assets`** library (also exposed via the platform `page_media` gallery).
-- `service_enquiries` captures front-end referral/enquiry submissions and connects to a service, feeding the CMS handled by shared **`users`**.
+- `wp_special_medical_services.page_id` and `wp_service_equipment.page_id` bind the content to the shared **`wp_pages`** row for `/special-medical-services.html`.
+- `wp_special_medical_services.department_id` links each service to the shared **`wp_departments`** table; `wp_service_specialists.staff_id` maps services to clinicians in the shared **`wp_staff`** table.
+- Service hero images and equipment photos reference the shared **`wp_media_assets`** library (also exposed via the platform `wp_page_media` gallery).
+- `wp_service_enquiries` captures front-end referral/enquiry submissions and connects to a service, feeding the CMS handled by shared **`wp_users`**.

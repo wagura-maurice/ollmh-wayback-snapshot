@@ -34,7 +34,7 @@
 
 **Functionality**
 - A **Careers / Vacancies** module (job postings + online application form), highly relevant to an HR page.
-- Filterable staff/cadre listing sourced from the shared `staff` and `departments` tables.
+- Filterable staff/cadre listing sourced from the shared `wp_staff` and `wp_departments` tables.
 - Optional dashboard of aggregate capacity stats that updates as staff records change.
 
 **Trust/Accessibility**
@@ -45,7 +45,7 @@
 
 ```sql
 -- Staff cadres / professional categories described on the HR page
-CREATE TABLE staff_cadres (
+CREATE TABLE wp_staff_cadres (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id      BIGINT UNSIGNED NOT NULL,
   name         VARCHAR(191)    NOT NULL,        -- "Surgeon", "Nurse", "Radiographer"
@@ -60,11 +60,11 @@ CREATE TABLE staff_cadres (
   UNIQUE KEY uq_cadre_slug (slug),
   KEY idx_cadre_page (page_id, sort_order),
   CONSTRAINT fk_cadre_page FOREIGN KEY (page_id)
-    REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Head-count capacity per cadre, optionally broken down by department
-CREATE TABLE hr_capacity_stats (
+CREATE TABLE wp_hr_capacity_stats (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   cadre_id      BIGINT UNSIGNED NOT NULL,
@@ -77,13 +77,13 @@ CREATE TABLE hr_capacity_stats (
   PRIMARY KEY (id),
   UNIQUE KEY uq_capacity (cadre_id, department_id, as_of_date),
   KEY idx_capacity_page (page_id),
-  CONSTRAINT fk_capacity_page  FOREIGN KEY (page_id)       REFERENCES pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_capacity_cadre FOREIGN KEY (cadre_id)      REFERENCES staff_cadres (id) ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_capacity_dept  FOREIGN KEY (department_id) REFERENCES departments (id)  ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_capacity_page  FOREIGN KEY (page_id)       REFERENCES wp_pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_capacity_cadre FOREIGN KEY (cadre_id)      REFERENCES wp_staff_cadres (id) ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_capacity_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id)  ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Career / vacancy postings (HR-relevant enhancement)
-CREATE TABLE job_vacancies (
+CREATE TABLE wp_job_vacancies (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   cadre_id      BIGINT UNSIGNED NULL,
@@ -101,14 +101,14 @@ CREATE TABLE job_vacancies (
   PRIMARY KEY (id),
   UNIQUE KEY uq_vacancy_slug (slug),
   KEY idx_vacancy_page (page_id, status),
-  CONSTRAINT fk_vacancy_page  FOREIGN KEY (page_id)       REFERENCES pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_vacancy_cadre FOREIGN KEY (cadre_id)      REFERENCES staff_cadres (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_vacancy_dept  FOREIGN KEY (department_id) REFERENCES departments (id)  ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_vacancy_page  FOREIGN KEY (page_id)       REFERENCES wp_pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_vacancy_cadre FOREIGN KEY (cadre_id)      REFERENCES wp_staff_cadres (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_vacancy_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id)  ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `staff_cadres.page_id`, `hr_capacity_stats.page_id`, and `job_vacancies.page_id` reference `pages(id)` for the HR page (`slug = hr-capacity-staff`).
-- `hr_capacity_stats.department_id` and `job_vacancies.department_id` reference the shared `departments(id)`, letting capacity be reported and vacancies posted per department.
-- The shared `staff` table holds individual employees; `staff_cadres` classifies them by profession and `hr_capacity_stats` aggregates counts (a reporting layer over `staff`/`departments`).
-- Page photos live in `media_assets` and attach via the shared `page_media` join table (role `gallery`).
+- `wp_staff_cadres.page_id`, `wp_hr_capacity_stats.page_id`, and `wp_job_vacancies.page_id` reference `pages(id)` for the HR page (`slug = hr-capacity-staff`).
+- `wp_hr_capacity_stats.department_id` and `wp_job_vacancies.department_id` reference the shared `departments(id)`, letting capacity be reported and vacancies posted per department.
+- The shared `wp_staff` table holds individual employees; `wp_staff_cadres` classifies them by profession and `wp_hr_capacity_stats` aggregates counts (a reporting layer over `wp_staff`/`wp_departments`).
+- Page photos live in `wp_media_assets` and attach via the shared `wp_page_media` join table (role `gallery`).

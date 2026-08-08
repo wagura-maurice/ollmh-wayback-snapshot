@@ -45,7 +45,7 @@
 
 ```sql
 -- Individual wards displayed on the page
-CREATE TABLE wards (
+CREATE TABLE wp_wards (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   department_id  BIGINT UNSIGNED NULL,
@@ -66,13 +66,13 @@ CREATE TABLE wards (
   PRIMARY KEY (id),
   UNIQUE KEY uq_wards_slug (slug),
   KEY idx_wards_page (page_id, sort_order),
-  CONSTRAINT fk_wards_page  FOREIGN KEY (page_id)       REFERENCES pages (id)       ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_wards_dept  FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_wards_staff FOREIGN KEY (in_charge_id)  REFERENCES staff (id)       ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_wards_page  FOREIGN KEY (page_id)       REFERENCES wp_pages (id)       ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_wards_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_wards_staff FOREIGN KEY (in_charge_id)  REFERENCES wp_staff (id)       ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Per-ward image gallery (captions like "Nurse giving routine immunization")
-CREATE TABLE ward_media (
+CREATE TABLE wp_ward_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   ward_id    BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -80,12 +80,12 @@ CREATE TABLE ward_media (
   sort_order INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_ward_media (ward_id, media_id),
-  CONSTRAINT fk_wm_ward  FOREIGN KEY (ward_id)  REFERENCES wards (id)        ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_wm_media FOREIGN KEY (media_id) REFERENCES media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_wm_ward  FOREIGN KEY (ward_id)  REFERENCES wp_wards (id)        ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_wm_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Morgue & hearse (mortuary) services offered
-CREATE TABLE mortuary_services (
+CREATE TABLE wp_mortuary_services (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   ward_id       BIGINT UNSIGNED NULL,               -- links to the "Morgue" ward row
@@ -103,28 +103,28 @@ CREATE TABLE mortuary_services (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_mort_page (page_id),
-  CONSTRAINT fk_mort_page FOREIGN KEY (page_id) REFERENCES pages (id) ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_mort_ward FOREIGN KEY (ward_id) REFERENCES wards (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_mort_page FOREIGN KEY (page_id) REFERENCES wp_pages (id) ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_mort_ward FOREIGN KEY (ward_id) REFERENCES wp_wards (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Snapshots of bed availability per ward (for the live availability widget)
-CREATE TABLE ward_bed_status (
+CREATE TABLE wp_ward_bed_status (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   ward_id        BIGINT UNSIGNED NOT NULL,
   total_beds     INT UNSIGNED    NOT NULL,
   occupied_beds  INT UNSIGNED    NOT NULL DEFAULT 0,
   recorded_at    DATETIME        NOT NULL,
-  recorded_by    BIGINT UNSIGNED NULL,              -- users.id
+  recorded_by    BIGINT UNSIGNED NULL,              -- wp_users.id
   created_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_bed_ward_time (ward_id, recorded_at),
-  CONSTRAINT fk_bed_ward FOREIGN KEY (ward_id)     REFERENCES wards (id) ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_bed_user FOREIGN KEY (recorded_by) REFERENCES users (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_bed_ward FOREIGN KEY (ward_id)     REFERENCES wp_wards (id) ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_bed_user FOREIGN KEY (recorded_by) REFERENCES wp_users (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `wards.page_id` and `mortuary_services.page_id` anchor all content to the shared **`pages`** row for `/wards.html`.
-- `wards.department_id` links each ward to the shared **`departments`** table (inpatient category); `wards.in_charge_id` links to **`staff`** (ward matron/nurse in charge).
-- `ward_media.media_id` uses the shared **`media_assets`** library for per-ward galleries, complementing the platform `page_media` join.
-- `mortuary_services.ward_id` connects the Morgue/Hearse offerings back to the Morgue ward row; `ward_bed_status.recorded_by` references shared **`users`** (staff CMS accounts).
+- `wp_wards.page_id` and `wp_mortuary_services.page_id` anchor all content to the shared **`wp_pages`** row for `/wards.html`.
+- `wp_wards.department_id` links each ward to the shared **`wp_departments`** table (inpatient category); `wp_wards.in_charge_id` links to **`wp_staff`** (ward matron/nurse in charge).
+- `wp_ward_media.media_id` uses the shared **`wp_media_assets`** library for per-ward galleries, complementing the platform `wp_page_media` join.
+- `wp_mortuary_services.ward_id` connects the Morgue/Hearse offerings back to the Morgue ward row; `wp_ward_bed_status.recorded_by` references shared **`wp_users`** (staff CMS accounts).

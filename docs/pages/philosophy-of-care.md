@@ -47,7 +47,7 @@
 
 ```sql
 -- Vision / mission / motto statements for the philosophy page
-CREATE TABLE care_statements (
+CREATE TABLE wp_care_statements (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   statement_type ENUM('motto','vision','mission','belief','other') NOT NULL,
@@ -62,11 +62,11 @@ CREATE TABLE care_statements (
   PRIMARY KEY (id),
   KEY idx_care_statements_page (page_id, statement_type, sort_order),
   CONSTRAINT fk_care_statements_page FOREIGN KEY (page_id)
-    REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Individual care values / service dimensions (curative, preventive, spiritual, ...)
-CREATE TABLE care_values (
+CREATE TABLE wp_care_values (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id     BIGINT UNSIGNED NOT NULL,
   name        VARCHAR(191)    NOT NULL,          -- "Curative", "Spiritual care"
@@ -80,11 +80,11 @@ CREATE TABLE care_values (
   UNIQUE KEY uq_care_value_name (page_id, name),
   KEY idx_care_values_page (page_id, sort_order),
   CONSTRAINT fk_care_values_page FOREIGN KEY (page_id)
-    REFERENCES pages (id) ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES wp_pages (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- Both `care_statements.page_id` and `care_values.page_id` reference `pages(id)` for the philosophy page (`slug = philosophy-of-care`).
-- Images (banner, Children's Ward) live in `media_assets` and attach through the shared `page_media` join table (role `inline`/`banner`).
-- `care_statements` typically holds one motto/vision/mission each, while `care_values` enumerates the five service dimensions as a reusable, sortable list.
+- Both `wp_care_statements.page_id` and `wp_care_values.page_id` reference `pages(id)` for the philosophy page (`slug = philosophy-of-care`).
+- Images (banner, Children's Ward) live in `wp_media_assets` and attach through the shared `wp_page_media` join table (role `inline`/`banner`).
+- `wp_care_statements` typically holds one motto/vision/mission each, while `wp_care_values` enumerates the five service dimensions as a reusable, sortable list.

@@ -36,16 +36,16 @@
 - Page meta description.
 
 **Functionality & integrations**
-- Link department heads to the shared `staff` records; surface contact channels per department.
+- Link department heads to the shared `wp_staff` records; surface contact channels per department.
 - "Contact this department" action wired to the platform's enquiry/contact system.
 
 ## 3. Database Schema Design
 
 ```sql
 -- One card per department featured on the "Ollmh Departments" page.
--- Reuses the shared `departments` catalogue; this table holds the
+-- Reuses the shared `wp_departments` catalogue; this table holds the
 -- page-presentation layer (ordering, featured photo, page association).
-CREATE TABLE department_showcase (
+CREATE TABLE wp_department_showcase (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   department_id  BIGINT UNSIGNED NOT NULL,
@@ -63,14 +63,14 @@ CREATE TABLE department_showcase (
   PRIMARY KEY (id),
   UNIQUE KEY uq_showcase_page_dept (page_id, department_id),
   KEY idx_showcase_page (page_id, sort_order),
-  CONSTRAINT fk_showcase_page  FOREIGN KEY (page_id)        REFERENCES pages (id)         ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_showcase_dept  FOREIGN KEY (department_id)  REFERENCES departments (id)   ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_showcase_head  FOREIGN KEY (head_staff_id)  REFERENCES staff (id)         ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_showcase_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id)  ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_showcase_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)         ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_showcase_dept  FOREIGN KEY (department_id)  REFERENCES wp_departments (id)   ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_showcase_head  FOREIGN KEY (head_staff_id)  REFERENCES wp_staff (id)         ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_showcase_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id)  ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Additional per-department photos beyond the cover image.
-CREATE TABLE department_photos (
+CREATE TABLE wp_department_photos (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   department_id BIGINT UNSIGNED NOT NULL,
   media_id      BIGINT UNSIGNED NOT NULL,
@@ -79,13 +79,13 @@ CREATE TABLE department_photos (
   PRIMARY KEY (id),
   UNIQUE KEY uq_dept_photo (department_id, media_id),
   KEY idx_dept_photo (department_id, sort_order),
-  CONSTRAINT fk_deptphoto_dept  FOREIGN KEY (department_id) REFERENCES departments (id)  ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_deptphoto_media FOREIGN KEY (media_id)      REFERENCES media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_deptphoto_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id)  ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_deptphoto_media FOREIGN KEY (media_id)      REFERENCES wp_media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `department_showcase.page_id → pages.id` binds the grid to the "Ollmh Departments" feature page (cascade delete).
-- `department_showcase.department_id → departments.id` reuses the shared **`departments`** catalogue so the same unit is referenced consistently across service/ward pages.
-- `department_showcase.head_staff_id → staff.id` links each department to its head (e.g. the CEO), reusing the shared **`staff`** table.
-- `cover_media_id` and `department_photos.media_id` reference the shared **`media_assets`** library for centrally managed imagery/alt text.
+- `wp_department_showcase.page_id → wp_pages.id` binds the grid to the "Ollmh Departments" feature page (cascade delete).
+- `wp_department_showcase.department_id → wp_departments.id` reuses the shared **`wp_departments`** catalogue so the same unit is referenced consistently across service/ward pages.
+- `wp_department_showcase.head_staff_id → wp_staff.id` links each department to its head (e.g. the CEO), reusing the shared **`wp_staff`** table.
+- `cover_media_id` and `wp_department_photos.media_id` reference the shared **`wp_media_assets`** library for centrally managed imagery/alt text.

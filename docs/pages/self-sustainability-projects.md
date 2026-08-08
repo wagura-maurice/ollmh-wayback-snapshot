@@ -44,7 +44,7 @@
 
 ```sql
 -- Self-sustainability (agriculture) ventures: rice, dairy, poultry, maize...
-CREATE TABLE sustainability_projects (
+CREATE TABLE wp_sustainability_projects (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   slug           VARCHAR(191)    NOT NULL,
@@ -64,12 +64,12 @@ CREATE TABLE sustainability_projects (
   UNIQUE KEY uq_susproj_slug (slug),
   KEY idx_susproj_page (page_id),
   KEY idx_susproj_category (category),
-  CONSTRAINT fk_susproj_page  FOREIGN KEY (page_id)        REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_susproj_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_susproj_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_susproj_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Seasonal production / yield records to support impact metrics
-CREATE TABLE sustainability_production_records (
+CREATE TABLE wp_sustainability_production_records (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   project_id BIGINT UNSIGNED NOT NULL,
   season_label VARCHAR(100)  NULL,               -- e.g. "2013 Long Rains"
@@ -81,11 +81,11 @@ CREATE TABLE sustainability_production_records (
   updated_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_susprod_project (project_id),
-  CONSTRAINT fk_susprod_project FOREIGN KEY (project_id) REFERENCES sustainability_projects (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_susprod_project FOREIGN KEY (project_id) REFERENCES wp_sustainability_projects (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Per-project gallery images from the shared media library
-CREATE TABLE sustainability_project_media (
+CREATE TABLE wp_sustainability_project_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   project_id BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -93,13 +93,13 @@ CREATE TABLE sustainability_project_media (
   sort_order INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_susproj_media (project_id, media_id),
-  CONSTRAINT fk_spm_project FOREIGN KEY (project_id) REFERENCES sustainability_projects (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_spm_media   FOREIGN KEY (media_id)   REFERENCES media_assets (id)            ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_spm_project FOREIGN KEY (project_id) REFERENCES wp_sustainability_projects (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_spm_media   FOREIGN KEY (media_id)   REFERENCES wp_media_assets (id)            ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `sustainability_projects.page_id` → `pages.id` ties each venture to the `/self-sustainability-projects.html` page (cascades on page delete).
-- `sustainability_projects.cover_media_id` and `sustainability_project_media.media_id` → `media_assets.id` reuse the shared media library.
-- `sustainability_production_records.project_id` → `sustainability_projects.id` records seasonal yields powering the impact metrics.
-- `sustainability_project_media` is the ordered gallery bridge between projects and `media_assets`.
+- `wp_sustainability_projects.page_id` → `wp_pages.id` ties each venture to the `/self-sustainability-projects.html` page (cascades on page delete).
+- `wp_sustainability_projects.cover_media_id` and `wp_sustainability_project_media.media_id` → `wp_media_assets.id` reuse the shared media library.
+- `wp_sustainability_production_records.project_id` → `wp_sustainability_projects.id` records seasonal yields powering the impact metrics.
+- `wp_sustainability_project_media` is the ordered gallery bridge between projects and `wp_media_assets`.

@@ -44,7 +44,7 @@
 - Sidebar with recent posts, categories, and newsletter signup.
 
 **Functionality & integrations**
-- Email/newsletter subscription for new posts (see `newsletter_subscribers`
+- Email/newsletter subscription for new posts (see `wp_newsletter_subscribers`
   table below).
 - Social sharing on each card, related-articles module on article pages.
 - Comment moderation on article pages (see
@@ -60,7 +60,7 @@
 | Field | Value |
 | --- | --- |
 | Route | `/news/` |
-| Page type (in `pages` table) | `news` |
+| Page type (in `wp_pages` table) | `news` |
 | Layout | `news-feed` — card grid + sidebar |
 | Canonical URL | `https://ollmh.example/news/` |
 | Meta title | "News & Announcements — OLLMH" |
@@ -94,16 +94,16 @@ author + date, and a "Read more" link to `/news/<slug>`.
 
 ## 5. Database Schema Design
 
-The listing page itself is a row in the shared `pages` table
+The listing page itself is a row in the shared `wp_pages` table
 (`page_type = 'news'`). The articles that populate the feed live in
-`news_articles` (defined in
+`wp_news_articles` (defined in
 [`article-template.md`](./article-template.md)). The tables below are
 **feed-level** concerns: taxonomy, newsletter subscribers, and the join that
 links articles to the listing page.
 
 ```sql
 -- News categories (hierarchical taxonomy)
-CREATE TABLE news_categories (
+CREATE TABLE wp_news_categories (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name       VARCHAR(191)    NOT NULL,
   slug       VARCHAR(191)    NOT NULL,
@@ -112,11 +112,11 @@ CREATE TABLE news_categories (
   updated_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_newscat_slug (slug),
-  CONSTRAINT fk_newscat_parent FOREIGN KEY (parent_id) REFERENCES news_categories (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_newscat_parent FOREIGN KEY (parent_id) REFERENCES wp_news_categories (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Flat tag set
-CREATE TABLE news_tags (
+CREATE TABLE wp_news_tags (
   id   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(191)    NOT NULL,
   slug VARCHAR(191)    NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE news_tags (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Newsletter subscribers (for post notifications)
-CREATE TABLE newsletter_subscribers (
+CREATE TABLE wp_newsletter_subscribers (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   email         VARCHAR(191)    NOT NULL,
   is_confirmed  TINYINT(1)      NOT NULL DEFAULT 0,
@@ -136,16 +136,16 @@ CREATE TABLE newsletter_subscribers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> `news_articles`, `news_article_tags`, `news_article_media`,
-> `news_article_revisions`, and `news_comments` are defined in
+> `wp_news_articles`, `wp_news_article_tags`, `wp_news_article_media`,
+> `wp_news_article_revisions`, and `wp_news_comments` are defined in
 > [`article-template.md`](./article-template.md) because they belong to each
 > **individual article page**, not the listing.
 
 **Relationships**
-- The listing page is a `pages` row (`page_type = 'news'`); every
-  `news_articles.page_id → pages.id` points back to it.
-- `news_categories.parent_id` self-references for nested categories.
-- `newsletter_subscribers` is standalone (no FK) — used by the notification
+- The listing page is a `wp_pages` row (`page_type = 'news'`); every
+  `wp_news_articles.page_id → wp_pages.id` points back to it.
+- `wp_news_categories.parent_id` self-references for nested categories.
+- `wp_newsletter_subscribers` is standalone (no FK) — used by the notification
   pipeline to alert subscribers when a new article is published.
 
 ## 6. Articles in This Directory

@@ -10,7 +10,7 @@
   - A single paragraph: *"This page was not available in the Wayback Machine archive. Content will be added soon."*
   - A **"← Back to Home"** link.
 - **No** genuine archived headings, paragraphs, images, galleries, lists, tables, or interactive elements exist for this page.
-- **Related content note:** Actual inpatient/nursing narrative content was archived under the sibling **Special Medical Services** page (heading "Inpatient Department (Nursing Application)") and the **Wards** page; those can inform the rebuild of this page. See `special-medical-services.md` and `wards.md`.
+- **Related content note:** Actual inpatient/nursing narrative content was archived under the sibling **Special Medical Services** page (heading "Inpatient Department (Nursing Application)") and the **Wards** page; those can inform the rebuild of this page. See `special-medical-services.md` and `wp_wards.md`.
 
 ## 2. Gap Analysis & Feature Enhancements
 
@@ -35,7 +35,7 @@
 
 ```sql
 -- Inpatient department profile / feature blocks for the page
-CREATE TABLE inpatient_dept_sections (
+CREATE TABLE wp_inpatient_dept_sections (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   department_id BIGINT UNSIGNED NULL,
@@ -51,13 +51,13 @@ CREATE TABLE inpatient_dept_sections (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_ipd_page (page_id, sort_order),
-  CONSTRAINT fk_ipd_page  FOREIGN KEY (page_id)       REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_ipd_dept  FOREIGN KEY (department_id) REFERENCES departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_ipd_media FOREIGN KEY (hero_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_ipd_page  FOREIGN KEY (page_id)       REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_ipd_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_ipd_media FOREIGN KEY (hero_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Pre-admission / admission enquiry submissions
-CREATE TABLE inpatient_admission_enquiries (
+CREATE TABLE wp_inpatient_admission_enquiries (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   department_id  BIGINT UNSIGNED NULL,
   patient_name   VARCHAR(191)    NOT NULL,
@@ -70,11 +70,11 @@ CREATE TABLE inpatient_admission_enquiries (
   updated_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_ipd_enq_status (status, created_at),
-  CONSTRAINT fk_ipd_enq_dept FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_ipd_enq_dept FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `inpatient_dept_sections.page_id` ties the rebuilt content to the shared **`pages`** row for `/in-patient-dept.html`.
-- `department_id` on both tables links to the shared **`departments`** table (inpatient category), and section hero imagery references the shared **`media_assets`** library (with galleries via the platform `page_media` join).
-- Admission enquiries feed the CMS workflow managed by shared **`users`**; wards themselves live in the Wards page schema (`wards` table) and can join here via `departments`.
+- `wp_inpatient_dept_sections.page_id` ties the rebuilt content to the shared **`wp_pages`** row for `/in-patient-dept.html`.
+- `department_id` on both tables links to the shared **`wp_departments`** table (inpatient category), and section hero imagery references the shared **`wp_media_assets`** library (with galleries via the platform `wp_page_media` join).
+- Admission enquiries feed the CMS workflow managed by shared **`wp_users`**; wards themselves live in the Wards page schema (`wp_wards` table) and can join here via `wp_departments`.

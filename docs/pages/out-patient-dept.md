@@ -42,7 +42,7 @@
 
 ```sql
 -- Facilities/equipment highlights shown on the OPD page (icon feature grid)
-CREATE TABLE opd_facilities (
+CREATE TABLE wp_opd_facilities (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   department_id BIGINT UNSIGNED NULL,
@@ -58,12 +58,12 @@ CREATE TABLE opd_facilities (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_opd_fac_page (page_id, sort_order),
-  CONSTRAINT fk_opd_fac_page FOREIGN KEY (page_id)       REFERENCES pages (id)       ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_opd_fac_dept FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_opd_fac_page FOREIGN KEY (page_id)       REFERENCES wp_pages (id)       ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_opd_fac_dept FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- OPD operating hours (supports the "24 hours a day" statement, per weekday if needed)
-CREATE TABLE opd_operating_hours (
+CREATE TABLE wp_opd_operating_hours (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   department_id BIGINT UNSIGNED NOT NULL,
   day_of_week   ENUM('mon','tue','wed','thu','fri','sat','sun','all') NOT NULL DEFAULT 'all',
@@ -75,11 +75,11 @@ CREATE TABLE opd_operating_hours (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_opd_hours (department_id, day_of_week),
-  CONSTRAINT fk_opd_hours_dept FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_opd_hours_dept FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Consultation rooms / minor theatre resources used for appointment scheduling
-CREATE TABLE opd_consultation_rooms (
+CREATE TABLE wp_opd_consultation_rooms (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   department_id BIGINT UNSIGNED NOT NULL,
   room_label    VARCHAR(100)    NOT NULL,          -- e.g. "Consultation Room 1", "Minor Theatre"
@@ -89,11 +89,11 @@ CREATE TABLE opd_consultation_rooms (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_opd_room (department_id, room_label),
-  CONSTRAINT fk_opd_room_dept FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_opd_room_dept FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Online OPD appointment requests
-CREATE TABLE opd_appointments (
+CREATE TABLE wp_opd_appointments (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   department_id  BIGINT UNSIGNED NOT NULL,
   room_id        BIGINT UNSIGNED NULL,
@@ -109,14 +109,14 @@ CREATE TABLE opd_appointments (
   PRIMARY KEY (id),
   KEY idx_opd_appt_dept (department_id, requested_at),
   KEY idx_opd_appt_status (status),
-  CONSTRAINT fk_opd_appt_dept  FOREIGN KEY (department_id) REFERENCES departments (id)          ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_opd_appt_room  FOREIGN KEY (room_id)       REFERENCES opd_consultation_rooms (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_opd_appt_staff FOREIGN KEY (clinician_id)  REFERENCES staff (id)                ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_opd_appt_dept  FOREIGN KEY (department_id) REFERENCES wp_departments (id)          ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_opd_appt_room  FOREIGN KEY (room_id)       REFERENCES wp_opd_consultation_rooms (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_opd_appt_staff FOREIGN KEY (clinician_id)  REFERENCES wp_staff (id)                ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `opd_facilities.page_id`, `opd_appointments` (indirectly via department) and all page-facing rows tie back to the **`pages`** row for the OPD route.
-- Every table links to **`departments`** so the OPD's clinical data is anchored to the shared Outpatient department record.
-- `opd_appointments.clinician_id` references **`staff`**, reusing the shared clinician directory.
-- Facility/room imagery is served through the shared **`media_assets`** + **`page_media`** gallery join (no redefinition needed here).
+- `wp_opd_facilities.page_id`, `wp_opd_appointments` (indirectly via department) and all page-facing rows tie back to the **`wp_pages`** row for the OPD route.
+- Every table links to **`wp_departments`** so the OPD's clinical data is anchored to the shared Outpatient department record.
+- `wp_opd_appointments.clinician_id` references **`wp_staff`**, reusing the shared clinician directory.
+- Facility/room imagery is served through the shared **`wp_media_assets`** + **`wp_page_media`** gallery join (no redefinition needed here).

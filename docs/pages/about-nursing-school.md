@@ -36,7 +36,7 @@
 
 ```sql
 -- Core profile for the School of Nursing (single canonical record per page)
-CREATE TABLE nursing_school_profile (
+CREATE TABLE wp_nursing_school_profile (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   name          VARCHAR(191)    NOT NULL DEFAULT 'Our Lady of Lourdes School of Nursing',
@@ -53,12 +53,12 @@ CREATE TABLE nursing_school_profile (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uq_nsp_page (page_id),
-  CONSTRAINT fk_nsp_page FOREIGN KEY (page_id)       REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_nsp_hero FOREIGN KEY (hero_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_nsp_page FOREIGN KEY (page_id)       REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_nsp_hero FOREIGN KEY (hero_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Programmes/courses offered by the school
-CREATE TABLE nursing_programmes (
+CREATE TABLE wp_nursing_programmes (
   id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   school_profile_id BIGINT UNSIGNED NOT NULL,
   name              VARCHAR(191)    NOT NULL,  -- e.g. "Diploma in Nursing (KRCHN)"
@@ -73,11 +73,11 @@ CREATE TABLE nursing_programmes (
   PRIMARY KEY (id),
   UNIQUE KEY uq_prog_slug (slug),
   KEY idx_prog_school (school_profile_id, sort_order),
-  CONSTRAINT fk_prog_school FOREIGN KEY (school_profile_id) REFERENCES nursing_school_profile (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_prog_school FOREIGN KEY (school_profile_id) REFERENCES wp_nursing_school_profile (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Facilities / campus features to showcase
-CREATE TABLE nursing_facilities (
+CREATE TABLE wp_nursing_facilities (
   id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   school_profile_id BIGINT UNSIGNED NOT NULL,
   name              VARCHAR(191)    NOT NULL,  -- e.g. "Skills Lab", "Dormitory"
@@ -86,12 +86,12 @@ CREATE TABLE nursing_facilities (
   sort_order        INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   KEY idx_fac_school (school_profile_id, sort_order),
-  CONSTRAINT fk_fac_school FOREIGN KEY (school_profile_id) REFERENCES nursing_school_profile (id) ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_fac_media  FOREIGN KEY (media_id)          REFERENCES media_assets (id)           ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_fac_school FOREIGN KEY (school_profile_id) REFERENCES wp_nursing_school_profile (id) ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_fac_media  FOREIGN KEY (media_id)          REFERENCES wp_media_assets (id)           ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Admission intake windows
-CREATE TABLE nursing_intakes (
+CREATE TABLE wp_nursing_intakes (
   id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   programme_id      BIGINT UNSIGNED NOT NULL,
   intake_label      VARCHAR(100)    NOT NULL,  -- e.g. "September 2026"
@@ -101,12 +101,12 @@ CREATE TABLE nursing_intakes (
   is_open           TINYINT(1)      NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   KEY idx_intake_prog (programme_id, opens_on),
-  CONSTRAINT fk_intake_prog FOREIGN KEY (programme_id) REFERENCES nursing_programmes (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_intake_prog FOREIGN KEY (programme_id) REFERENCES wp_nursing_programmes (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `nursing_school_profile.page_id → pages.id` makes this page the canonical home for the school (one profile per page).
-- `nursing_programmes` and `nursing_facilities` hang off `nursing_school_profile` (cascade delete); `nursing_intakes` hang off programmes.
-- Media everywhere references the shared **`media_assets`** library; `hero_media_id`/`media_id` use `ON DELETE SET NULL`.
-- `nursing_programmes` are the natural target for the application workflow defined in [`medical-school-application-form.md`](./medical-school-application-form.md) (`applications.programme_id → nursing_programmes.id`) and for intake announcements in [`news-events.md`](./news-events.md).
+- `wp_nursing_school_profile.page_id → wp_pages.id` makes this page the canonical home for the school (one profile per page).
+- `wp_nursing_programmes` and `wp_nursing_facilities` hang off `wp_nursing_school_profile` (cascade delete); `wp_nursing_intakes` hang off programmes.
+- Media everywhere references the shared **`wp_media_assets`** library; `hero_media_id`/`media_id` use `ON DELETE SET NULL`.
+- `wp_nursing_programmes` are the natural target for the application workflow defined in [`medical-school-application-form.md`](./medical-school-application-form.md) (`wp_applications.programme_id → wp_nursing_programmes.id`) and for intake announcements in [`news-wp_events.md`](./news-wp_events.md).

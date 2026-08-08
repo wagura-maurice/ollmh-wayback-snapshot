@@ -46,7 +46,7 @@
 
 ```sql
 -- Distinct community outreach programs described on this page
-CREATE TABLE community_programs (
+CREATE TABLE wp_community_programs (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   department_id  BIGINT UNSIGNED NULL,          -- e.g. community/outpatient dept
@@ -68,13 +68,13 @@ CREATE TABLE community_programs (
   UNIQUE KEY uq_commprog_slug (slug),
   KEY idx_commprog_page (page_id),
   KEY idx_commprog_type (program_type),
-  CONSTRAINT fk_commprog_page  FOREIGN KEY (page_id)        REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_commprog_dept  FOREIGN KEY (department_id)  REFERENCES departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_commprog_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_commprog_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_commprog_dept  FOREIGN KEY (department_id)  REFERENCES wp_departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_commprog_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Outreach events / visits associated with a program (dates, locations, reach)
-CREATE TABLE community_outreach_events (
+CREATE TABLE wp_community_outreach_events (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   program_id   BIGINT UNSIGNED NOT NULL,
   title        VARCHAR(255)    NOT NULL,
@@ -86,11 +86,11 @@ CREATE TABLE community_outreach_events (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_commevent_program (program_id),
-  CONSTRAINT fk_commevent_program FOREIGN KEY (program_id) REFERENCES community_programs (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_commevent_program FOREIGN KEY (program_id) REFERENCES wp_community_programs (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Volunteer sign-ups (CHV recruitment) captured from this page
-CREATE TABLE community_volunteer_signups (
+CREATE TABLE wp_community_volunteer_signups (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   program_id   BIGINT UNSIGNED NULL,
   full_name    VARCHAR(191)    NOT NULL,
@@ -102,11 +102,11 @@ CREATE TABLE community_volunteer_signups (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_commvol_program (program_id),
-  CONSTRAINT fk_commvol_program FOREIGN KEY (program_id) REFERENCES community_programs (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_commvol_program FOREIGN KEY (program_id) REFERENCES wp_community_programs (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Per-program gallery images from the shared media library
-CREATE TABLE community_program_media (
+CREATE TABLE wp_community_program_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   program_id BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -114,14 +114,14 @@ CREATE TABLE community_program_media (
   sort_order INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_commprog_media (program_id, media_id),
-  CONSTRAINT fk_cpm_program FOREIGN KEY (program_id) REFERENCES community_programs (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_cpm_media   FOREIGN KEY (media_id)   REFERENCES media_assets (id)       ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_cpm_program FOREIGN KEY (program_id) REFERENCES wp_community_programs (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_cpm_media   FOREIGN KEY (media_id)   REFERENCES wp_media_assets (id)       ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `community_programs.page_id` → `pages.id` binds each outreach program to the `/community-support.html` page.
-- `community_programs.department_id` → `departments.id` associates programs with a community/outpatient department (nullable, `SET NULL`).
-- `community_programs.cover_media_id` and `community_program_media.media_id` → `media_assets.id` reuse the shared media library.
-- `community_outreach_events.program_id` → `community_programs.id` logs individual visits and their reach metrics.
-- `community_volunteer_signups.program_id` → `community_programs.id` captures volunteer applications (kept even if a program is removed, via `SET NULL`).
+- `wp_community_programs.page_id` → `wp_pages.id` binds each outreach program to the `/community-support.html` page.
+- `wp_community_programs.department_id` → `wp_departments.id` associates programs with a community/outpatient department (nullable, `SET NULL`).
+- `wp_community_programs.cover_media_id` and `wp_community_program_media.media_id` → `wp_media_assets.id` reuse the shared media library.
+- `wp_community_outreach_events.program_id` → `wp_community_programs.id` logs individual visits and their reach metrics.
+- `wp_community_volunteer_signups.program_id` → `wp_community_programs.id` captures volunteer applications (kept even if a program is removed, via `SET NULL`).

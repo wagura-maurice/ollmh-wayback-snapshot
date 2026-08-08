@@ -32,7 +32,7 @@
 
 ```sql
 -- A named clinic offered by the hospital (e.g. Antenatal, Immunization, CCC)
-CREATE TABLE clinics (
+CREATE TABLE wp_clinics (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   department_id BIGINT UNSIGNED NULL,
@@ -49,12 +49,12 @@ CREATE TABLE clinics (
   PRIMARY KEY (id),
   UNIQUE KEY uq_clinics_slug (slug),
   KEY idx_clinics_page (page_id, sort_order),
-  CONSTRAINT fk_clinics_page FOREIGN KEY (page_id)       REFERENCES pages (id)       ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_clinics_dept FOREIGN KEY (department_id) REFERENCES departments (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_clinics_page FOREIGN KEY (page_id)       REFERENCES wp_pages (id)       ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_clinics_dept FOREIGN KEY (department_id) REFERENCES wp_departments (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- The weekly schedule: one row per clinic session (the timetable table)
-CREATE TABLE clinic_schedules (
+CREATE TABLE wp_clinic_schedules (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   clinic_id     BIGINT UNSIGNED NOT NULL,
   clinician_id  BIGINT UNSIGNED NULL,               -- staff member running the session
@@ -71,12 +71,12 @@ CREATE TABLE clinic_schedules (
   PRIMARY KEY (id),
   KEY idx_sched_day (day_of_week, start_time),
   KEY idx_sched_clinic (clinic_id),
-  CONSTRAINT fk_sched_clinic FOREIGN KEY (clinic_id)    REFERENCES clinics (id) ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_sched_staff  FOREIGN KEY (clinician_id) REFERENCES staff (id)   ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_sched_clinic FOREIGN KEY (clinic_id)    REFERENCES wp_clinics (id) ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_sched_staff  FOREIGN KEY (clinician_id) REFERENCES wp_staff (id)   ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- One-off overrides: closures, holidays, or rescheduled sessions
-CREATE TABLE clinic_schedule_exceptions (
+CREATE TABLE wp_clinic_schedule_exceptions (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   schedule_id  BIGINT UNSIGNED NOT NULL,
   exception_date DATE          NOT NULL,
@@ -88,11 +88,11 @@ CREATE TABLE clinic_schedule_exceptions (
   updated_at   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_sched_exception (schedule_id, exception_date),
-  CONSTRAINT fk_exc_sched FOREIGN KEY (schedule_id) REFERENCES clinic_schedules (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_exc_sched FOREIGN KEY (schedule_id) REFERENCES wp_clinic_schedules (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Booking requests for a specific clinic session
-CREATE TABLE clinic_bookings (
+CREATE TABLE wp_clinic_bookings (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   schedule_id   BIGINT UNSIGNED NOT NULL,
   booking_date  DATE            NOT NULL,
@@ -105,12 +105,12 @@ CREATE TABLE clinic_bookings (
   PRIMARY KEY (id),
   KEY idx_booking_sched (schedule_id, booking_date),
   KEY idx_booking_status (status),
-  CONSTRAINT fk_booking_sched FOREIGN KEY (schedule_id) REFERENCES clinic_schedules (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_booking_sched FOREIGN KEY (schedule_id) REFERENCES wp_clinic_schedules (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `clinics.page_id` binds the schedule to the shared **`pages`** row for `/clinic-days.html`.
-- `clinics.department_id` links each clinic to the shared **`departments`** table (e.g. outpatient/clinical), and `clinic_schedules.clinician_id` references the shared **`staff`** directory for the clinician running each session.
-- `clinic_schedules` provides the row-per-session data that renders the weekly timetable table; `clinic_schedule_exceptions` and `clinic_bookings` extend it for closures and appointment booking.
-- Any clinic imagery would use the shared **`media_assets`** library via the platform `page_media` join (not redefined here).
+- `wp_clinics.page_id` binds the schedule to the shared **`wp_pages`** row for `/clinic-days.html`.
+- `wp_clinics.department_id` links each clinic to the shared **`wp_departments`** table (e.g. outpatient/clinical), and `wp_clinic_schedules.clinician_id` references the shared **`wp_staff`** directory for the clinician running each session.
+- `wp_clinic_schedules` provides the row-per-session data that renders the weekly timetable table; `wp_clinic_schedule_exceptions` and `wp_clinic_bookings` extend it for closures and appointment booking.
+- Any clinic imagery would use the shared **`wp_media_assets`** library via the platform `wp_page_media` join (not redefined here).

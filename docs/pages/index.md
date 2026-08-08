@@ -75,7 +75,7 @@ Captions are present in markup but empty.
 - Drive the scroller from the real **news/articles** table with dates, categories, and a "View all news" link; add auto-rotation with manual controls.
 
 **Department showcases**
-- Pull the three department columns dynamically from `departments`/`services`, each linking to its full page; add icons and consistent captioned galleries.
+- Pull the three department columns dynamically from `wp_departments`/`services`, each linking to its full page; add icons and consistent captioned galleries.
 
 **Accessibility & SEO**
 - Provide descriptive `alt` text for every slide and thumbnail (all currently empty).
@@ -91,7 +91,7 @@ Captions are present in markup but empty.
 
 ```sql
 -- Hero slideshow slides (Xpert Slider replacement)
-CREATE TABLE home_slides (
+CREATE TABLE wp_home_slides (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   media_id      BIGINT UNSIGNED NOT NULL,
@@ -107,13 +107,13 @@ CREATE TABLE home_slides (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_home_slides_page (page_id, sort_order),
-  CONSTRAINT fk_slide_page  FOREIGN KEY (page_id)      REFERENCES pages (id)         ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_slide_media FOREIGN KEY (media_id)     REFERENCES media_assets (id)  ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_slide_link  FOREIGN KEY (link_page_id) REFERENCES pages (id)         ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_slide_page  FOREIGN KEY (page_id)      REFERENCES wp_pages (id)         ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_slide_media FOREIGN KEY (media_id)     REFERENCES wp_media_assets (id)  ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_slide_link  FOREIGN KEY (link_page_id) REFERENCES wp_pages (id)         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- "In Focus" promo banners
-CREATE TABLE home_in_focus_items (
+CREATE TABLE wp_home_in_focus_items (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   media_id      BIGINT UNSIGNED NULL,
@@ -130,13 +130,13 @@ CREATE TABLE home_in_focus_items (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_infocus_page (page_id, sort_order),
-  CONSTRAINT fk_infocus_page  FOREIGN KEY (page_id)      REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_infocus_media FOREIGN KEY (media_id)     REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_infocus_link  FOREIGN KEY (link_page_id) REFERENCES pages (id)        ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_infocus_page  FOREIGN KEY (page_id)      REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_infocus_media FOREIGN KEY (media_id)     REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_infocus_link  FOREIGN KEY (link_page_id) REFERENCES wp_pages (id)        ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Feature blocks: tabbed intro tabs AND the department-showcase columns
-CREATE TABLE home_feature_blocks (
+CREATE TABLE wp_home_feature_blocks (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   block_type    ENUM('tab','showcase_column') NOT NULL DEFAULT 'tab',
@@ -154,15 +154,15 @@ CREATE TABLE home_feature_blocks (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_feature_page (page_id, block_type, sort_order),
-  CONSTRAINT fk_feature_page  FOREIGN KEY (page_id)           REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_feature_media FOREIGN KEY (media_id)          REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_feature_dept  FOREIGN KEY (department_id)     REFERENCES departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_feature_rmore FOREIGN KEY (read_more_page_id) REFERENCES pages (id)        ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_feature_page  FOREIGN KEY (page_id)           REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_feature_media FOREIGN KEY (media_id)          REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_feature_dept  FOREIGN KEY (department_id)     REFERENCES wp_departments (id)  ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_feature_rmore FOREIGN KEY (read_more_page_id) REFERENCES wp_pages (id)        ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Curated "News & Projects" scroller items shown on the homepage.
 -- (Full article bodies live in the news-events schema; this table selects/orders promos.)
-CREATE TABLE home_news_promos (
+CREATE TABLE wp_home_news_promos (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   article_id    BIGINT UNSIGNED NULL,       -- optional FK to news_articles (news-events page)
@@ -178,15 +178,15 @@ CREATE TABLE home_news_promos (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_news_promo_page (page_id, sort_order),
-  CONSTRAINT fk_news_promo_page  FOREIGN KEY (page_id)  REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_news_promo_media FOREIGN KEY (media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_news_promo_page  FOREIGN KEY (page_id)  REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_news_promo_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
   -- Optional FK to news_articles(id) is added where the news-events schema is installed:
-  -- CONSTRAINT fk_news_promo_article FOREIGN KEY (article_id) REFERENCES news_articles (id) ON DELETE SET NULL ON UPDATE CASCADE
+  -- CONSTRAINT fk_news_promo_article FOREIGN KEY (article_id) REFERENCES wp_news_articles (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- Every homepage table carries `page_id → pages.id` for the `home`-type page, so all regions render from one page record and cascade-delete cleanly.
-- `home_slides`, `home_in_focus_items`, `home_feature_blocks`, and `home_news_promos` all reference **`media_assets`** for their imagery instead of hardcoding file paths.
-- `home_feature_blocks.department_id → departments.id` links the three showcase columns (Outpatient/Specialised/Inpatient) to the shared department records; `read_more_page_id`/`link_page_id → pages.id` wire internal navigation.
-- `home_news_promos.article_id` optionally references the **`news_articles`** table defined on the news-events page, letting the homepage scroller reuse real articles rather than duplicate content.
+- Every homepage table carries `page_id → wp_pages.id` for the `home`-type page, so all regions render from one page record and cascade-delete cleanly.
+- `wp_home_slides`, `wp_home_in_focus_items`, `wp_home_feature_blocks`, and `wp_home_news_promos` all reference **`wp_media_assets`** for their imagery instead of hardcoding file paths.
+- `wp_home_feature_blocks.department_id → wp_departments.id` links the three showcase columns (Outpatient/Specialised/Inpatient) to the shared department records; `read_more_page_id`/`link_page_id → wp_pages.id` wire internal navigation.
+- `wp_home_news_promos.article_id` optionally references the **`wp_news_articles`** table defined on the news-events page, letting the homepage scroller reuse real articles rather than duplicate content.

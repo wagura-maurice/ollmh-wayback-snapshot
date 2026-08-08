@@ -45,7 +45,7 @@
 
 ```sql
 -- Individual development / infrastructure projects shown on this page
-CREATE TABLE development_projects (
+CREATE TABLE wp_development_projects (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id        BIGINT UNSIGNED NOT NULL,
   department_id  BIGINT UNSIGNED NULL,           -- e.g. Radiology, ICU dept
@@ -67,13 +67,13 @@ CREATE TABLE development_projects (
   UNIQUE KEY uq_devproj_slug (slug),
   KEY idx_devproj_page (page_id),
   KEY idx_devproj_status (project_status, status),
-  CONSTRAINT fk_devproj_page  FOREIGN KEY (page_id)        REFERENCES pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT fk_devproj_dept  FOREIGN KEY (department_id)  REFERENCES departments (id)  ON DELETE SET NULL  ON UPDATE CASCADE,
-  CONSTRAINT fk_devproj_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL  ON UPDATE CASCADE
+  CONSTRAINT fk_devproj_page  FOREIGN KEY (page_id)        REFERENCES wp_pages (id)        ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT fk_devproj_dept  FOREIGN KEY (department_id)  REFERENCES wp_departments (id)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT fk_devproj_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL  ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- The strategic plan(s) that framed development (e.g. 2009-2013, CRS Kenya)
-CREATE TABLE development_strategic_plans (
+CREATE TABLE wp_development_strategic_plans (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   title         VARCHAR(255)    NOT NULL,
@@ -86,23 +86,23 @@ CREATE TABLE development_strategic_plans (
   updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_stratplan_page (page_id),
-  CONSTRAINT fk_stratplan_page FOREIGN KEY (page_id)           REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_stratplan_doc  FOREIGN KEY (document_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_stratplan_page FOREIGN KEY (page_id)           REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_stratplan_doc  FOREIGN KEY (document_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Link projects to the strategic objective(s) they fulfil
-CREATE TABLE development_project_plan_links (
+CREATE TABLE wp_development_project_plan_links (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   project_id BIGINT UNSIGNED NOT NULL,
   plan_id    BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uq_projplan (project_id, plan_id),
-  CONSTRAINT fk_ppl_project FOREIGN KEY (project_id) REFERENCES development_projects (id)        ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_ppl_plan    FOREIGN KEY (plan_id)    REFERENCES development_strategic_plans (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_ppl_project FOREIGN KEY (project_id) REFERENCES wp_development_projects (id)        ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ppl_plan    FOREIGN KEY (plan_id)    REFERENCES wp_development_strategic_plans (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Per-project gallery images (ordered) drawn from the media library
-CREATE TABLE development_project_media (
+CREATE TABLE wp_development_project_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   project_id BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -110,12 +110,12 @@ CREATE TABLE development_project_media (
   sort_order INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   UNIQUE KEY uq_devproj_media (project_id, media_id),
-  CONSTRAINT fk_dpm_project FOREIGN KEY (project_id) REFERENCES development_projects (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_dpm_media   FOREIGN KEY (media_id)   REFERENCES media_assets (id)         ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_dpm_project FOREIGN KEY (project_id) REFERENCES wp_development_projects (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_dpm_media   FOREIGN KEY (media_id)   REFERENCES wp_media_assets (id)         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Optional quantified impact metrics per project (beds added, patients served...)
-CREATE TABLE development_project_metrics (
+CREATE TABLE wp_development_project_metrics (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   project_id   BIGINT UNSIGNED NOT NULL,
   metric_label VARCHAR(191)    NOT NULL,
@@ -124,14 +124,14 @@ CREATE TABLE development_project_metrics (
   sort_order   INT UNSIGNED    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
   KEY idx_dpmetric_project (project_id),
-  CONSTRAINT fk_dpmetric_project FOREIGN KEY (project_id) REFERENCES development_projects (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_dpmetric_project FOREIGN KEY (project_id) REFERENCES wp_development_projects (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Relationships**
-- `development_projects.page_id` → `pages.id` binds every project to the `/development-projects.html` page (cascade delete with the page).
-- `development_projects.department_id` → `departments.id` links projects such as ICU/Radiology to the responsible department (nullable, `SET NULL`).
-- `development_projects.cover_media_id` and `development_project_media.media_id` → `media_assets.id` reuse the shared media library for cover images and galleries.
-- `development_strategic_plans.page_id` → `pages.id` and `document_media_id` → `media_assets.id` store the strategic plan and its downloadable document.
-- `development_project_plan_links` is the many-to-many bridge between `development_projects` and `development_strategic_plans`.
-- `development_project_metrics.project_id` → `development_projects.id` attaches impact figures to each project.
+- `wp_development_projects.page_id` → `wp_pages.id` binds every project to the `/development-projects.html` page (cascade delete with the page).
+- `wp_development_projects.department_id` → `wp_departments.id` links projects such as ICU/Radiology to the responsible department (nullable, `SET NULL`).
+- `wp_development_projects.cover_media_id` and `wp_development_project_media.media_id` → `wp_media_assets.id` reuse the shared media library for cover images and galleries.
+- `wp_development_strategic_plans.page_id` → `wp_pages.id` and `document_media_id` → `wp_media_assets.id` store the strategic plan and its downloadable document.
+- `wp_development_project_plan_links` is the many-to-many bridge between `wp_development_projects` and `wp_development_strategic_plans`.
+- `wp_development_project_metrics.project_id` → `wp_development_projects.id` attaches impact figures to each project.

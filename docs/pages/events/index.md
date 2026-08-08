@@ -41,7 +41,7 @@
 - RSVP / registration on event pages (see [`event-template.md`](./event-template.md)).
 - Email/SMS notifications to registrants when event details change.
 - Newsletter subscription for event announcements (shares
-  `newsletter_subscribers` with the news feed).
+  `wp_newsletter_subscribers` with the news feed).
 
 **Accessibility & SEO**
 - `alt` text on all thumbnails, `Event` schema.org markup on the listing,
@@ -52,7 +52,7 @@
 | Field | Value |
 | --- | --- |
 | Route | `/events/` |
-| Page type (in `pages` table) | `news` (events share the news page-type family) |
+| Page type (in `wp_pages` table) | `news` (events share the news page-type family) |
 | Layout | `events-calendar` — calendar grid + list + sidebar |
 | Canonical URL | `https://ollmh.example/events/` |
 | Meta title | "Events & Calendar — OLLMH" |
@@ -88,13 +88,13 @@ date/time, venue, excerpt, and a "View event" link to `/events/<slug>`.
 
 ## 5. Database Schema Design
 
-The listing page itself is a row in the shared `pages` table. The events that
-populate the calendar live in the `events` table (defined in
+The listing page itself is a row in the shared `wp_pages` table. The events that
+populate the calendar live in the `wp_events` table (defined in
 [`event-template.md`](./event-template.md)).
 
 ```sql
 -- Event categories (hierarchical taxonomy, parallel to news_categories)
-CREATE TABLE event_categories (
+CREATE TABLE wp_event_categories (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name       VARCHAR(191)    NOT NULL,
   slug       VARCHAR(191)    NOT NULL,
@@ -103,20 +103,20 @@ CREATE TABLE event_categories (
   updated_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_eventcat_slug (slug),
-  CONSTRAINT fk_eventcat_parent FOREIGN KEY (parent_id) REFERENCES event_categories (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_eventcat_parent FOREIGN KEY (parent_id) REFERENCES wp_event_categories (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> `events`, `event_registrations`, and `event_media` are defined in
+> `wp_events`, `wp_event_registrations`, and `wp_event_media` are defined in
 > [`event-template.md`](./event-template.md) because they belong to each
-> **individual event page**, not the listing. `newsletter_subscribers` is
+> **individual event page**, not the listing. `wp_newsletter_subscribers` is
 > shared with the news feed (defined in [`../news/index.md`](../news/index.md)).
 
 **Relationships**
-- The listing page is a `pages` row; every `events.page_id → pages.id` points
+- The listing page is a `wp_pages` row; every `wp_events.page_id → wp_pages.id` points
   back to it.
-- `event_categories.parent_id` self-references for nested categories.
-- `newsletter_subscribers` (defined in the news index) is reused for event
+- `wp_event_categories.parent_id` self-references for nested categories.
+- `wp_newsletter_subscribers` (defined in the news index) is reused for event
   announcements.
 
 ## 6. Events in This Directory

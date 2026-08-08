@@ -41,7 +41,7 @@
 
 ```sql
 -- Captioned gallery items for the "Ollmh Outlook" visual showcase
-CREATE TABLE outlook_gallery_items (
+CREATE TABLE wp_outlook_gallery_items (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   album_id      BIGINT UNSIGNED NULL,
@@ -56,13 +56,13 @@ CREATE TABLE outlook_gallery_items (
   deleted_at    TIMESTAMP       NULL,
   PRIMARY KEY (id),
   KEY idx_outlook_page (page_id, sort_order),
-  CONSTRAINT fk_outlook_page  FOREIGN KEY (page_id)  REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_outlook_album FOREIGN KEY (album_id) REFERENCES outlook_albums (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_outlook_media FOREIGN KEY (media_id) REFERENCES media_assets (id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_outlook_page  FOREIGN KEY (page_id)  REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_outlook_album FOREIGN KEY (album_id) REFERENCES wp_outlook_albums (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_outlook_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Optional grouping of gallery items into named albums
-CREATE TABLE outlook_albums (
+CREATE TABLE wp_outlook_albums (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,
   name          VARCHAR(191)    NOT NULL,   -- e.g. "Frontage", "Administration"
@@ -78,14 +78,14 @@ CREATE TABLE outlook_albums (
   PRIMARY KEY (id),
   UNIQUE KEY uq_outlook_album_slug (slug),
   KEY idx_outlook_album_page (page_id, sort_order),
-  CONSTRAINT fk_outlook_album_page  FOREIGN KEY (page_id)       REFERENCES pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_outlook_album_cover FOREIGN KEY (cover_media_id) REFERENCES media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_outlook_album_page  FOREIGN KEY (page_id)       REFERENCES wp_pages (id)        ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_outlook_album_cover FOREIGN KEY (cover_media_id) REFERENCES wp_media_assets (id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> Note: create `outlook_albums` before `outlook_gallery_items` (or add the FK afterwards) since the item table references it.
+> Note: create `wp_outlook_albums` before `wp_outlook_gallery_items` (or add the FK afterwards) since the item table references it.
 
 **Relationships**
-- Both tables carry `page_id → pages.id` so the gallery belongs to the "Ollmh Outlook" feature page and cascade-deletes with it.
-- `outlook_gallery_items.media_id` and `outlook_albums.cover_media_id` reference the shared **`media_assets`** library, so imagery is centrally managed (with alt text, dimensions, captions) rather than hardcoded.
-- `outlook_gallery_items.album_id → outlook_albums.id` provides optional album grouping while keeping a flat, orderable gallery by default.
+- Both tables carry `page_id → wp_pages.id` so the gallery belongs to the "Ollmh Outlook" feature page and cascade-deletes with it.
+- `wp_outlook_gallery_items.media_id` and `wp_outlook_albums.cover_media_id` reference the shared **`wp_media_assets`** library, so imagery is centrally managed (with alt text, dimensions, captions) rather than hardcoded.
+- `wp_outlook_gallery_items.album_id → wp_outlook_albums.id` provides optional album grouping while keeping a flat, orderable gallery by default.

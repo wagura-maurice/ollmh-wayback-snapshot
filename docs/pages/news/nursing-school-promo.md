@@ -79,7 +79,7 @@
 | Field | Value |
 | --- | --- |
 | Route | `/news/nursing-school-launch` |
-| Page type | `news` (row in `news_articles`, not a standalone `pages` row) |
+| Page type | `news` (row in `wp_news_articles`, not a standalone `wp_pages` row) |
 | Layout | `news-article` — hero + body + gallery + sidebar |
 | Slug | `nursing-school-launch` |
 | Category | Education / School of Nursing |
@@ -125,12 +125,12 @@
 | 3 | `news_events/studphoto2.JPG` | 305×153 | Nursing Students taking their Theory Lessons | "Nursing students during a theory lesson" |
 | 4 | `news_events/studentprac.JPG` | 288×153 | A student Taking practical Lesson in Healthcare | "A nursing student during a practical lesson" |
 
-These map to `news_article_media` rows (ordered gallery) referencing the shared
-`media_assets` library.
+These map to `wp_news_article_media` rows (ordered gallery) referencing the shared
+`wp_media_assets` library.
 
 ## 6. Database Schema Design
 
-This article is a **row in `news_articles`** (defined in
+This article is a **row in `wp_news_articles`** (defined in
 [`article-template.md`](./article-template.md)). No article-specific tables are
 needed beyond what the template defines. The article's relationships are:
 
@@ -154,14 +154,14 @@ needed beyond what the template defines. The article's relationships are:
 ```
 
 **Relationships**
-- `news_articles.page_id → pages.id` (the `/news/` listing page).
-- `news_articles.category_id → news_categories.id` (defined in
+- `wp_news_articles.page_id → wp_pages.id` (the `/news/` listing page).
+- `wp_news_articles.category_id → wp_news_categories.id` (defined in
   [`index.md`](./index.md)).
-- `news_articles.author_id → users.id` (shared CMS users).
-- `news_articles.hero_media_id → media_assets.id` (shared media library).
-- `news_article_media.article_id → news_articles.id` (the 4-image gallery).
-- `news_article_media.media_id → media_assets.id` (shared media library).
+- `wp_news_articles.author_id → wp_users.id` (shared CMS users).
+- `wp_news_articles.hero_media_id → wp_media_assets.id` (shared media library).
+- `wp_news_article_media.article_id → wp_news_articles.id` (the 4-image gallery).
+- `wp_news_article_media.media_id → wp_media_assets.id` (shared media library).
 
 See [`article-template.md`](./article-template.md) for the full `CREATE TABLE`
-statements for `news_articles`, `news_article_media`, `news_article_revisions`,
-`news_article_tags`, and `news_comments`.
+statements for `wp_news_articles`, `wp_news_article_media`, `wp_news_article_revisions`,
+`wp_news_article_tags`, and `wp_news_comments`.

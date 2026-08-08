@@ -1,7 +1,7 @@
 # Event Page Template (`/events/<slug>`)
 
 > This is the **reusable template** for every standalone event page on the
-> site. Each event lives at `/events/<slug>` and is a row in the `events`
+> site. Each event lives at `/events/<slug>` and is a row in the `wp_events`
 > table. The calendar/listing page is documented in [`index.md`](./index.md).
 >
 > No events were captured in the Wayback Machine archive — all event pages will
@@ -49,7 +49,7 @@
 | Field | Value |
 | --- | --- |
 | Route | `/events/<slug>` |
-| Page type | `news` (row in `events`) |
+| Page type | `news` (row in `wp_events`) |
 | Layout | `event-detail` — hero + details + RSVP + gallery |
 | Slug | _(fill in)_ |
 | Category | _(fill in)_ |
@@ -94,7 +94,7 @@ and referenced by all event docs.
 
 ```sql
 -- Events (one row per standalone event page)
-CREATE TABLE events (
+CREATE TABLE wp_events (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   page_id       BIGINT UNSIGNED NOT NULL,       -- the /events/ listing page
   category_id   BIGINT UNSIGNED NULL,
@@ -114,13 +114,13 @@ CREATE TABLE events (
   PRIMARY KEY (id),
   UNIQUE KEY uq_event_slug (slug),
   KEY idx_event_start (status, starts_at),
-  CONSTRAINT fk_event_page FOREIGN KEY (page_id)       REFERENCES pages (id)          ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT fk_event_cat  FOREIGN KEY (category_id)   REFERENCES event_categories (id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_event_hero FOREIGN KEY (hero_media_id) REFERENCES media_assets (id)   ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_event_page FOREIGN KEY (page_id)       REFERENCES wp_pages (id)          ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT fk_event_cat  FOREIGN KEY (category_id)   REFERENCES wp_event_categories (id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_event_hero FOREIGN KEY (hero_media_id) REFERENCES wp_media_assets (id)   ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Event RSVP / registration with capacity + status tracking
-CREATE TABLE event_registrations (
+CREATE TABLE wp_event_registrations (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   event_id      BIGINT UNSIGNED NOT NULL,
   attendee_name VARCHAR(191)    NOT NULL,
@@ -132,11 +132,11 @@ CREATE TABLE event_registrations (
   PRIMARY KEY (id),
   UNIQUE KEY uq_event_attendee (event_id, attendee_email),
   KEY idx_event_reg (event_id, status),
-  CONSTRAINT fk_ereg_event FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_ereg_event FOREIGN KEY (event_id) REFERENCES wp_events (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ordered image gallery attached to an event (beyond the hero image)
-CREATE TABLE event_media (
+CREATE TABLE wp_event_media (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   event_id   BIGINT UNSIGNED NOT NULL,
   media_id   BIGINT UNSIGNED NOT NULL,
@@ -145,20 +145,20 @@ CREATE TABLE event_media (
   PRIMARY KEY (id),
   UNIQUE KEY uq_event_media (event_id, media_id),
   KEY idx_event_media (event_id, sort_order),
-  CONSTRAINT fk_evmedia_event FOREIGN KEY (event_id) REFERENCES events (id)      ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_evmedia_media FOREIGN KEY (media_id) REFERENCES media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_evmedia_event FOREIGN KEY (event_id) REFERENCES wp_events (id)      ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_evmedia_media FOREIGN KEY (media_id) REFERENCES wp_media_assets (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> `event_categories` is defined in [`index.md`](./index.md) (listing-level
-> taxonomy). `newsletter_subscribers` is shared with the news feed (defined in
+> `wp_event_categories` is defined in [`index.md`](./index.md) (listing-level
+> taxonomy). `wp_newsletter_subscribers` is shared with the news feed (defined in
 > [`../news/index.md`](../news/index.md)).
 
 **Relationships**
-- `events.page_id → pages.id` (the `/events/` listing page).
-- `events.category_id → event_categories.id` (defined in [`index.md`](./index.md)).
-- `events.hero_media_id → media_assets.id` (shared media library).
-- `event_registrations.event_id → events.id` records RSVPs, unique per
+- `wp_events.page_id → wp_pages.id` (the `/events/` listing page).
+- `wp_events.category_id → wp_event_categories.id` (defined in [`index.md`](./index.md)).
+- `wp_events.hero_media_id → wp_media_assets.id` (shared media library).
+- `wp_event_registrations.event_id → wp_events.id` records RSVPs, unique per
   attendee email per event, with waitlist/attendance states.
-- `event_media.event_id → events.id` and `event_media.media_id → media_assets.id`
+- `wp_event_media.event_id → wp_events.id` and `wp_event_media.media_id → wp_media_assets.id`
   (ordered per-event gallery).
