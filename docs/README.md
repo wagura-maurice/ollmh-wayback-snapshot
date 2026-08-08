@@ -38,6 +38,14 @@ static archive to a **fully dynamic, database-driven application**.
   mapping all 80 database tables into CPTs, custom taxonomies, settings
   pages, and management screens, with a capability/role matrix for 8 custom
   user roles.
+- **[`USER-ROLES.md`](./USER-ROLES.md)** — confirmation and explanation of
+  the 6 default WordPress user roles (Super Admin, Administrator, Editor,
+  Author, Contributor, Subscriber), their mapping to OLLMH operational
+  needs, a redundancy analysis (which defaults are utilized vs. redundant),
+  and full definitions of 6 custom roles (hospital_admin, hr_manager,
+  nursing_admin, admissions_officer, receptionist, community_coordinator)
+  with capabilities, admin-sidebar access, a combined capability matrix,
+  role-assignment workflow, and PHP registration code.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
