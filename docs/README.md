@@ -24,6 +24,10 @@ static archive to a **fully dynamic, database-driven application**.
   WordPress header (top navigation) and footer information architecture:
   menu hierarchy, sub-pages, labels, footer columns, and the mapping of every
   item to `wp_menu_items` rows.
+- **[`COLOR-SCHEMA.md`](./COLOR-SCHEMA.md)** — the complete color palette
+  extracted from the archived site's CSS, organized into primary, secondary,
+  accent, background, text, border, and inline content colors with hex codes,
+  CSS source selectors, WordPress CSS variables, and a `theme.json` palette.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
