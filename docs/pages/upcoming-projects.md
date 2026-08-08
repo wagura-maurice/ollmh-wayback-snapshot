@@ -6,7 +6,7 @@
 
 - **Page title (`h1.title`):** "Upcoming Projects".
 - **CT-SCAN section:** Heading "CT-SCAN" with a paragraph stating the **CT-Scan unit has already been finished and launched**, and the hospital now has a **fully equipped S.M.I Diagnostic Centre with a 16-slice Sensation CT Scan.** The text includes a "SEE" pointer linking to the **DIAGNOSTIC CENTRE** article (internal Joomla article link).
-- **Nursing School Tuition Block section:** Heading "Nursing school Tuition block" with a paragraph stating the **building has undergone completion of its first phase, which is now operational**, and that the remaining part will be finished as soon as possible.
+- **Nursing School Tuition Block section:** Heading "Nursing school Tuition block" with a paragraph stating the **building has undergone completion of its first phase, which is now operational**, and that the remaining part will be "finished soonest possible".
 - **Links present in the body:**
   - "DIAGNOSTIC CENTRE" → internal Joomla content article (id 75) describing the diagnostic centre.
   - Standard Print / Email article actions (boilerplate).

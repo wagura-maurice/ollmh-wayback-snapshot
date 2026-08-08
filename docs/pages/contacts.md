@@ -12,10 +12,10 @@
 
 - **Invitation line:** "Feel free to Contact us and even to visit us. Someone is waiting for your Call."
 - **Email:** Rendered via Joomla's spam-protection cloak — displayed as *"This email address is being protected from spambots. You need JavaScript enabled to view it."* The JavaScript decodes to **info@ourladyoflourdesmweahospital.org**.
-- **Phone numbers (labelled "Pnone No" — sic):**
-  - **+254 737 801707**
-  - **+254 0722 260748**
-  - **+254 0202 032382**
+- **Phone numbers (labelled "Pnone No" — sic; rendered without spacing in the source):**
+  - **+254737801707**
+  - **+2540722260748**
+  - **+2540202032382**
 - **Closing line:** "We check our mails frequently, feel free to email us and [we] will give feedback as quickly as we receive it."
 
 **Images (2 inline photos, empty `alt`):**
