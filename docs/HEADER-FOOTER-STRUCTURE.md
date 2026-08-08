@@ -328,21 +328,22 @@ Mobile (off-canvas):
 ### Layout arrangement
 
 The footer is a multi-section block at the bottom of every page, arranged
-top-to-bottom in four horizontal bands:
+top-to-bottom in four horizontal bands. This organization follows the
+pattern used by [WardWatch 2027](https://wardwatch2027.co.ke) — brand
+section, newsletter signup, five link columns (with Legal as a column
+rather than a separate band), and a bottom bar:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │  BAND 1: Brand section (logo + tagline + description paragraph)             │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │  BAND 2: Newsletter signup (heading + email input + subscribe button)       │
-├────────────────┬──────────────────┬──────────────────┬──────────────────────┤
-│  BAND 3: Link columns (4 columns side by side)                             │
-│  Quick Links    │  Our Services    │  Support         │  Contact             │
-├────────────────┴──────────────────┴──────────────────┴──────────────────────┤
-│  BAND 4: Legal links row (Privacy Policy · Terms of Service · Data          │
-│          Protection)                                                        │
-├──────────────────────────────────────────────────────────────────────────────┤
-│  BAND 5: Bottom bar (copyright · accreditation badge · builder credit)     │
+├──────────┬──────────┬──────────┬──────────┬──────────────────────────────────┤
+│  BAND 3: Link columns (5 columns side by side)                              │
+│  Quick    │  Our     │  Support │  Legal   │  Contact                       │
+│  Links    │  Services│          │          │                                │
+├──────────┴──────────┴──────────┴──────────┴──────────────────────────────────┤
+│  BAND 4: Bottom bar (copyright · accreditation badge · builder credit)     │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -351,30 +352,32 @@ top-to-bottom in four horizontal bands:
 2. **Band 2 — Newsletter signup**: a heading ("Stay Updated"), a one-line
    description, an email input field, and a subscribe button — all on one row.
    Below the form, a small privacy/terms consent line.
-3. **Band 3 — Link columns**: four columns of links, side by side on desktop
+3. **Band 3 — Link columns**: five columns of links, side by side on desktop
    and stacked on mobile. Each column has a heading and a vertical list of
-   links.
-4. **Band 4 — Legal links**: a centered horizontal row of legal page links.
-5. **Band 5 — Bottom bar**: copyright notice on the left, accreditation badge
+   links. The five columns are: **Quick Links**, **Our Services**,
+   **Support**, **Legal**, and **Contact**.
+4. **Band 4 — Bottom bar**: copyright notice on the left, accreditation badge
    in the center, and builder credit on the right.
 
-On mobile (≤ 768px) all bands stack vertically; the four link columns become
+On mobile (≤ 768px) all bands stack vertically; the five link columns become
 accordion sections.
 
 ### Design principles
 
-- **No "Electoral Positions" section** — this section type is explicitly
-  excluded; it is not relevant to a hospital website.
 - **Brand-first**: the footer opens with the hospital's identity (logo +
   description), reinforcing the brand after the page content ends.
 - **Newsletter prominence**: the signup form gets its own band (Band 2)
   immediately below the brand section, making it prominent without competing
   with the link columns.
-- **Column balance**: each of the four link columns serves a distinct purpose
-  — navigation, services, support, and contact — so no column is overloaded.
-- **Legal separation**: legal links are in their own band (Band 4), distinct
-  from the navigational link columns, so they are easy to find without being
-  confused with site content.
+- **Five-column balance**: each column serves a distinct purpose —
+  navigation (Quick Links), services (Our Services), help (Support), legal
+  (Legal), and contact (Contact) — so no column is overloaded and visitors
+  can quickly find what they need.
+- **Legal as a column**: legal links (Privacy Policy, Terms of Service, Data
+  Protection) are placed in their own column alongside the other link
+  columns, rather than in a separate full-width band. This keeps all
+  footer links in a single row, making the footer more compact and easier
+  to scan.
 - **Bottom bar attribution**: the bottom bar carries the copyright,
   accreditation, and credit in a single full-width strip.
 
@@ -434,7 +437,7 @@ Full-width, centered.
 
 #### Band 3: Link columns
 
-Four columns, side by side on desktop.
+Five columns, side by side on desktop.
 
 ##### Column 1: Quick Links
 
@@ -516,22 +519,49 @@ Links to visitor/patient support resources.
 
 ---
 
-##### Column 4: Contact
+##### Column 4: Legal
+
+Links to the site's legal and compliance pages. Placing these in a column
+(rather than a separate full-width band) keeps all footer links in a single
+row, making the footer more compact and easier to scan.
+
+| # | Type | Content / Label | Target page | Notes |
+| --- | --- | --- | --- | --- |
+| 4.1 | **Heading** | **Legal** | — | |
+| 4.2 | Link | **Privacy Policy** | `privacy-policy` | New page: how patient and visitor data is collected, used, and protected. `wp_pages` row, `page_type = 'generic'`. |
+| 4.3 | Link | **Terms of Service** | `terms-of-service` | New page: terms governing use of the website and online services (appointments, applications). `wp_pages` row, `page_type = 'generic'`. |
+| 4.4 | Link | **Data Protection** | `data-protection` | New page: data protection statement compliant with Kenya's Data Protection Act 2019. `wp_pages` row, `page_type = 'generic'`. |
+
+**Wording rationale:**
+- "Legal" as the heading is the standard label for a column of compliance
+  links — concise and universally understood.
+- "Privacy Policy", "Terms of Service", and "Data Protection" are the three
+  legal pages required for professional websites, especially those that
+  collect patient information and newsletter subscriptions.
+- Placing legal links in a column (alongside Quick Links, Our Services, and
+  Support) rather than a separate band keeps the footer compact — all links
+  are visible in a single row on desktop.
+- These pages will be created as new `wp_pages` rows during the WordPress
+  build.
+
+---
+
+##### Column 5: Contact
 
 Displays the hospital's contact details directly (not as links, except where
 noted). This is the rightmost column for immediate visibility.
 
 | # | Type | Content / Label | Details |
 | --- | --- | --- | --- |
-| 4.1 | **Heading** | **Contact** | Column heading. |
-| 4.2 | Email | General enquiries email | `mailto:` link, sourced from `wp_contact_channels` (type = 'email'). |
-| 4.3 | Email | Appointments / bookings email (if separate) | `mailto:` link, sourced from `wp_contact_channels` (type = 'email'). |
-| 4.4 | Phone | Primary phone number | `tel:` link, sourced from `wp_contact_channels` (type = 'phone'). |
-| 4.5 | Phone | Emergency / ambulance number (if separate) | `tel:` link, sourced from `wp_contact_channels` (type = 'emergency'). |
-| 4.6 | Address | Physical address | Multi-line plain text, sourced from `wp_contact_channels` (type = 'address'). Example: "Our Lady of Lourdes Mwea Hospital\nMwea, Kirinyaga County\nKenya" |
-| 4.7 | Map link | "View on Map" | External link to Google Maps pin for the hospital location. Opens in a new tab. Rendered as a small text link beneath the address. |
-| 4.8 | Hours | Operating hours | Multi-line plain text. Example: "Outpatient: Mon–Sat, 7am–8pm\nEmergency: 24 hours\nClinics: By appointment" |
-| 4.9 | Social icons | Facebook · YouTube · X (Twitter) | Row of social media icon links, sourced from `wp_settings` (`social_facebook`, `social_youtube`, `social_twitter` settings). Each icon is an inline SVG (see [`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md) → Icons) that links to the hospital's social profile, opening in a new tab with `rel="noopener noreferrer"`. Rendered beneath the hours. |
+| 5.1 | **Heading** | **Contact** | Column heading. |
+| 5.2 | Email | General enquiries email | `mailto:` link, sourced from `wp_contact_channels` (type = 'email'). |
+| 5.3 | Email | Appointments / bookings email (if separate) | `mailto:` link, sourced from `wp_contact_channels` (type = 'email'). |
+| 5.4 | Phone | Primary phone number | `tel:` link, sourced from `wp_contact_channels` (type = 'phone'). |
+| 5.5 | Phone | Emergency / ambulance number (if separate) | `tel:` link, sourced from `wp_contact_channels` (type = 'emergency'). |
+| 5.6 | Address | Physical address | Multi-line plain text, sourced from `wp_contact_channels` (type = 'address'). Example: "Our Lady of Lourdes Mwea Hospital\nMwea, Kirinyaga County\nKenya" |
+| 5.7 | Map link | "View on Map" | External link to Google Maps pin for the hospital location. Opens in a new tab. Rendered as a small text link beneath the address. |
+| 5.8 | Hours | Operating hours | Multi-line plain text. Example: "Outpatient: Mon–Sat, 7am–8pm\nEmergency: 24 hours\nClinics: By appointment" |
+| 5.9 | Social icons | Facebook · YouTube · X (Twitter) | Row of social media icon links, sourced from `wp_settings` (`social_facebook`, `social_youtube`, `social_twitter` settings). Each icon is an inline SVG (see [`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md) → Icons) that links to the hospital's social profile, opening in a new tab with `rel="noopener noreferrer"`. Rendered beneath the hours. |
 
 **Wording rationale:**
 - "Contact" as the heading is short and direct.
@@ -557,38 +587,15 @@ noted). This is the rightmost column for immediate visibility.
 
 ---
 
-#### Band 4: Legal links
-
-A centered horizontal row of legal page links, visually separated from the
-link columns above.
-
-| # | Content / Label | Target page |
-| --- | --- | --- |
-| 4.1 | **Privacy Policy** | `privacy-policy` (`wp_pages` row, `page_type = 'generic'`) |
-| 4.2 | **Terms of Service** | `terms-of-service` (`wp_pages` row, `page_type = 'generic'`) |
-| 4.3 | **Data Protection** | `data-protection` (`wp_pages` row, `page_type = 'generic'`) |
-
-**Wording rationale:**
-- "Privacy Policy", "Terms of Service", and "Data Protection" are standard
-  legal pages required for professional websites, especially those that
-  collect patient information and newsletter subscriptions.
-- Placing them in their own band (rather than inside a link column) separates
-  legal notices from navigational content, following professional web design
-  conventions.
-- These pages will be created as new `wp_pages` rows during the WordPress
-  build.
-
----
-
-#### Band 5: Bottom bar
+#### Band 4: Bottom bar
 
 A full-width strip at the very bottom of the footer.
 
 | # | Position | Content / Label | Details |
 | --- | --- | --- | --- |
-| 5.1 | Left | **Copyright notice** | "Copyright © 2024 Our Lady of Lourdes Mwea Hospital. All rights reserved." (year auto-updated server-side). |
-| 5.2 | Center | **Accreditation badge** | Text badge indicating accreditation, e.g. "Nursing Council of Kenya Accredited" or "KMPDC Accredited". Rendered as a small pill/badge element. |
-| 5.3 | Right | **Builder credit** | "Built with ♥ by [Builder Name]" — a small, muted credit link. |
+| 4.1 | Left | **Copyright notice** | "Copyright © 2024 Our Lady of Lourdes Mwea Hospital. All rights reserved." (year auto-updated server-side). |
+| 4.2 | Center | **Accreditation badge** | Text badge indicating accreditation, e.g. "Nursing Council of Kenya Accredited" or "KMPDC Accredited". Rendered as a small pill/badge element. |
+| 4.3 | Right | **Builder credit** | "Built with ♥ by [Builder Name]" — a small, muted credit link. |
 
 **Wording rationale:**
 - The copyright notice uses the full hospital name for formality.
@@ -613,25 +620,25 @@ A full-width strip at the very bottom of the footer.
 │  Get the latest news, announcements, and event updates from OLLMH.           │
 │  [ Enter your email address          ] [ Subscribe ]                         │
 │  By subscribing you agree to our Privacy Policy and Terms of Service.        │
-├──────────────────┬──────────────────┬──────────────────┬────────────────────┤
-│  Quick Links     │  Our Services    │  Support         │  Contact           │
-│                  │                  │                  │                    │
-│  Home            │  Inpatient Dept. │  Patient         │  [email]           │
-│  About Us        │  Outpatient Dept.│    Information   │  [email]           │
-│  Services        │  Wards           │  FAQ             │  [phone]           │
-│  Departments     │  Special Medical │  Clinic Days &   │  [phone]           │
-│  Projects &      │    Services      │    Schedule      │  [address          │
-│    Community     │  Clinic Days &   │  Send Us a       │   line 1           │
-│  Nursing School  │    Schedule      │    Message       │   line 2           │
-│  News            │  All Departments │  Webmail Login   │   line 3]          │
-│  Events          │  OLLMH Outlook   │                  │  View on Map →     │
-│  Contact Us      │    (Photo Gallery)│                  │  [hours            │
-│  Apply Now       │                  │                  │   line 1           │
-│                  │                  │                  │   line 2]          │
-│                  │                  │                  │  [f] [▶] [𝕏]       │
-├──────────────────┴──────────────────┴──────────────────┴────────────────────┤
-│              Privacy Policy  ·  Terms of Service  ·  Data Protection         │
-├──────────────────────────────────────────────────────────────────────────────┤
+├────────────┬────────────┬────────────┬────────────┬──────────────────────────┤
+│  Quick     │  Our       │  Support   │  Legal     │  Contact                 │
+│  Links     │  Services  │            │            │                          │
+│            │            │            │            │  [email]                 │
+│  Home      │  Inpatient │  Patient   │  Privacy   │  [email]                 │
+│  About Us  │    Dept.   │    Info    │  Policy    │  [phone]                 │
+│  Services  │  Outpatient│  FAQ       │  Terms of  │  [phone]                 │
+│  Departments│   Dept.   │  Clinic    │  Service   │  [address                │
+│  Projects  │  Wards     │    Days    │  Data      │   line 1                 │
+│    & Comm. │  Special   │  Send Us a │  Protection│   line 2                 │
+│  Nursing   │    Medical │    Message │            │   line 3]                │
+│    School  │    Services│  Webmail   │            │  View on Map →           │
+│  News      │  Clinic    │    Login   │            │  [hours                  │
+│  Events    │    Days    │            │            │   line 1                 │
+│  Contact   │  All       │            │            │   line 2]                │
+│    Us      │    Depts.  │            │            │  [f] [▶] [𝕏]             │
+│  Apply Now │  OLLMH     │            │            │                          │
+│            │    Outlook │            │            │                          │
+├────────────┴────────────┴────────────┴────────────┴──────────────────────────┤
 │ Copyright © 2024 OLLMH.   [NCK Accredited]              Built by [Name]     │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -699,9 +706,9 @@ database schema.
 | footer | Support | Send Us a Message | `wp_pages.id` (contacts) | NULL | |
 | footer | Support | Webmail Login | NULL | (external webmail URL) | |
 | footer | Contact | (emails, phones, address, hours) | — | — | Rendered from `wp_contact_channels`, not `wp_menu_items` |
-| footer | Legal band | Privacy Policy | `wp_pages.id` (privacy-policy) | NULL | New page |
-| footer | Legal band | Terms of Service | `wp_pages.id` (terms-of-service) | NULL | New page |
-| footer | Legal band | Data Protection | `wp_pages.id` (data-protection) | NULL | New page |
+| footer | Legal | Privacy Policy | `wp_pages.id` (privacy-policy) | NULL | New page |
+| footer | Legal | Terms of Service | `wp_pages.id` (terms-of-service) | NULL | New page |
+| footer | Legal | Data Protection | `wp_pages.id` (data-protection) | NULL | New page |
 
 ### New pages to create
 
@@ -712,9 +719,9 @@ created as new `wp_pages` rows during the WordPress build:
 | --- | --- | --- | --- |
 | Patient Information | `patient-information` | `generic` | Footer → Support column |
 | FAQ | `faq` | `generic` | Footer → Support column |
-| Privacy Policy | `privacy-policy` | `generic` | Footer → Legal band, Newsletter consent |
-| Terms of Service | `terms-of-service` | `generic` | Footer → Legal band, Newsletter consent |
-| Data Protection | `data-protection` | `generic` | Footer → Legal band |
+| Privacy Policy | `privacy-policy` | `generic` | Footer → Legal column, Newsletter consent |
+| Terms of Service | `terms-of-service` | `generic` | Footer → Legal column, Newsletter consent |
+| Data Protection | `data-protection` | `generic` | Footer → Legal column |
 
 ---
 
@@ -728,11 +735,11 @@ This section summarizes what changed from the prior version of this document
 | Header had no brand tagline; logo was just a placeholder | Header brand block now includes site name + full hospital name as tagline | Reinforces brand identity; first-time visitors immediately see the full hospital name. |
 | Header had 8 top-level items, with "News & Events" as a combined parent dropdown | Header now has 10 items: News and Events are separate top-level direct links | Separating News and Events gives each content type its own discoverable entry point; they are direct links (not dropdowns) because the listing pages are the drill-down starting points. |
 | Header had no CTA button; "Contact Us" was a dropdown with Webmail Login | Header now ends with a distinct "Apply Now" CTA button; Contact Us is a direct link; Webmail Login moved to footer | A single high-conversion CTA at the end of the nav bar is a proven pattern; Contact Us as a direct link is simpler; webmail is a staff utility that belongs in the footer, not the main nav. |
-| Footer had 4 columns (Contact, About OLLMH, Our Services, Projects & Community) + bottom bar | Footer now has 5 bands: Brand section, Newsletter signup, 4 link columns (Quick Links, Our Services, Support, Contact), Legal links band, Bottom bar | The brand section + newsletter band give the footer a richer, more professional structure; the 4 columns are reorganized for better balance. |
+| Footer had 4 columns (Contact, About OLLMH, Our Services, Projects & Community) + bottom bar | Footer now has 4 bands: Brand section, Newsletter signup, 5 link columns (Quick Links, Our Services, Support, Legal, Contact), Bottom bar | The brand section + newsletter band give the footer a richer, more professional structure; the 5 columns are reorganized for better balance; Legal is now a column (following the WardWatch 2027 pattern) rather than a separate band, keeping all links in a single row. |
 | Footer had no newsletter signup | Footer now has a dedicated newsletter signup band (Band 2) with email input, subscribe button, and consent line | Newsletter signup is a key engagement tool; giving it its own band makes it prominent without cluttering the link columns. |
-| Footer had no legal links band | Footer now has a dedicated legal links band (Band 4) with Privacy Policy, Terms of Service, and Data Protection | Separating legal notices from navigational content follows professional web design conventions; Data Protection is added for compliance. |
+| Footer had no legal links | Footer now has a Legal column (Column 4) with Privacy Policy, Terms of Service, and Data Protection | Legal pages are required for professional websites that collect patient information and newsletter subscriptions; placing them in a column keeps the footer compact. |
 | Footer had no brand description | Footer now opens with a brand description paragraph | Reinforces the hospital's mission and scope for visitors who scroll to the bottom. |
-| Footer bottom bar had Privacy Policy, Terms, News & Events, Webmail Login | Footer bottom bar now has copyright, accreditation badge, and builder credit only | Legal links moved to their own band; News/Events/Webmail are in the link columns; the bottom bar is now purely attribution. |
+| Footer bottom bar had Privacy Policy, Terms, News & Events, Webmail Login | Footer bottom bar now has copyright, accreditation badge, and builder credit only | Legal links moved to the Legal column; News/Events/Webmail are in the link columns; the bottom bar is now purely attribution. |
 | Footer had no accreditation badge | Footer bottom bar now includes an accreditation badge (e.g. "NCK Accredited") | Trust signal for patients and prospective students. |
 | Footer Contact column had "View on Map" and "Send Us a Message" links | Footer Contact column now displays emails, phones, address, and hours directly | Visitors get complete contact information without clicking; "Send Us a Message" moved to the Support column. |
 | Footer had no Support column | Footer now has a Support column with Patient Information, FAQ, Clinic Days, Contact form, Webmail Login | Gives patients and visitors a dedicated help-resources section, a standard pattern for service-oriented websites. |
@@ -760,7 +767,7 @@ navigation (documented in [`header-footer-links.md`](./header-footer-links.md)).
 | Footer "Send Your onours" typo and dead link | Replaced with "Send Us a Message" in the Support column. |
 | Footer "Future Projection" unclear heading | Replaced with "Our Services" column (clearer, service-focused). |
 | Footer "Core Values" column with all dead links | Replaced with "Support" column (real, navigable links to Patient Information, FAQ, etc.). |
-| No privacy policy or terms of service links | Added as a dedicated Legal band with Privacy Policy, Terms of Service, and Data Protection. |
+| No privacy policy or terms of service links | Added as a Legal column (Column 4) with Privacy Policy, Terms of Service, and Data Protection. |
 | No newsletter signup | Added as a dedicated band (Band 2) with email input, subscribe button, and consent line. |
 | No brand description in footer | Added a description paragraph in the brand section (Band 1). |
 | No accreditation badge | Added to the bottom bar as a trust signal. |
