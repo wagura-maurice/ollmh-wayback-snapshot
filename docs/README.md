@@ -33,6 +33,11 @@ static archive to a **fully dynamic, database-driven application**.
   every `font-family` stack, type scale (`font-size`), weights, styles, line
   heights, per-page inline usage, WordPress CSS variables, and a
   `theme.json` typography configuration.
+- **[`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md)** — the complete WordPress
+  admin sidebar menu structure: 20 top-level items (12 custom + 8 core)
+  mapping all 80 database tables into CPTs, custom taxonomies, settings
+  pages, and management screens, with a capability/role matrix for 8 custom
+  user roles.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
