@@ -529,7 +529,9 @@ noted). This is the rightmost column for immediate visibility.
 | 4.4 | Phone | Primary phone number | `tel:` link, sourced from `wp_contact_channels` (type = 'phone'). |
 | 4.5 | Phone | Emergency / ambulance number (if separate) | `tel:` link, sourced from `wp_contact_channels` (type = 'emergency'). |
 | 4.6 | Address | Physical address | Multi-line plain text, sourced from `wp_contact_channels` (type = 'address'). Example: "Our Lady of Lourdes Mwea Hospital\nMwea, Kirinyaga County\nKenya" |
-| 4.7 | Hours | Operating hours | Multi-line plain text. Example: "Outpatient: Mon–Sat, 7am–8pm\nEmergency: 24 hours\nClinics: By appointment" |
+| 4.7 | Map link | "View on Map" | External link to Google Maps pin for the hospital location. Opens in a new tab. Rendered as a small text link beneath the address. |
+| 4.8 | Hours | Operating hours | Multi-line plain text. Example: "Outpatient: Mon–Sat, 7am–8pm\nEmergency: 24 hours\nClinics: By appointment" |
+| 4.9 | Social icons | Facebook · YouTube · X (Twitter) | Row of social media icon links, sourced from `wp_settings` (`social_facebook`, `social_youtube`, `social_twitter` settings). Each icon is an inline SVG (see [`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md) → Icons) that links to the hospital's social profile, opening in a new tab with `rel="noopener noreferrer"`. Rendered beneath the hours. |
 
 **Wording rationale:**
 - "Contact" as the heading is short and direct.
@@ -541,6 +543,17 @@ noted). This is the rightmost column for immediate visibility.
 - Operating hours are included because patients frequently need to know when
   services are available — this is one of the most sought-after pieces of
   information on a hospital website.
+- The "View on Map" link gives visitors a one-click path to directions,
+  especially useful on mobile devices where the Google Maps app can open
+  directly.
+- Social media icons (Facebook, YouTube, X) are included in the Contact column
+  so visitors can connect with the hospital on their preferred platform. The
+  icons use inline SVGs (no icon font library — see
+  [`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md)) and open in a
+  new tab with `rel="noopener noreferrer"` for security. The profile URLs are
+  sourced from `wp_settings` (`social_facebook`, `social_youtube`,
+  `social_twitter`), so they can be updated from the admin without code
+  changes.
 
 ---
 
@@ -611,9 +624,11 @@ A full-width strip at the very bottom of the footer.
 │    Community     │  Clinic Days &   │  Send Us a       │   line 1           │
 │  Nursing School  │    Schedule      │    Message       │   line 2           │
 │  News            │  All Departments │  Webmail Login   │   line 3]          │
-│  Events          │  OLLMH Outlook   │                  │  [hours            │
-│  Contact Us      │    (Photo Gallery)│                  │   line 1           │
-│  Apply Now       │                  │                  │   line 2]          │
+│  Events          │  OLLMH Outlook   │                  │  View on Map →     │
+│  Contact Us      │    (Photo Gallery)│                  │  [hours            │
+│  Apply Now       │                  │                  │   line 1           │
+│                  │                  │                  │   line 2]          │
+│                  │                  │                  │  [f] [▶] [𝕏]       │
 ├──────────────────┴──────────────────┴──────────────────┴────────────────────┤
 │              Privacy Policy  ·  Terms of Service  ·  Data Protection         │
 ├──────────────────────────────────────────────────────────────────────────────┤
