@@ -12,14 +12,23 @@
 
 ## 1. Dependency policy
 
+> **Architectural decisions:** See
+> [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) →
+> ADR-002 (Turnstile with vanilla JS) and ADR-003 (no Tailwind CSS,
+> pure CSS and native WordPress styling).
+
 - **Minimize dependencies.** Every external library adds page weight and
   maintenance burden. Use vanilla JS and CSS where possible.
 - **No jQuery for theme code.** WordPress bundles jQuery, but the OLLMH
-  theme is written in vanilla ES6+ JS. jQuery is only loaded if a
-  third-party plugin requires it.
-- **No Bootstrap, Tailwind, or Bulma.** The theme uses custom CSS with
-  CSS custom properties (variables) and CSS Grid/Flexbox. A framework is
-  unnecessary overhead for a site with a fixed design.
+  child theme is written in vanilla ES6+ JS. jQuery is only loaded if a
+  third-party plugin requires it. This optimizes performance and
+  minimizes front-end dependencies (ADR-002).
+- **No Tailwind CSS, Bootstrap, Bulma, or Foundation.** The child theme
+  uses `theme.json` design tokens (inheriting from Twenty Twenty-Five)
+  for block styling, plus pure CSS (custom properties + Grid + Flexbox)
+  for complex layouts. No external CSS framework is included (ADR-003).
+  This ensures lightweight performance and maximum compatibility with
+  WordPress core updates.
 - **No build step required.** The theme works without npm/webpack. Sass
   and JS minification are optional optimizations (see
   [`ENVIRONMENT-SETUP.md`](./ENVIRONMENT-SETUP.md) → Front-end build tools).

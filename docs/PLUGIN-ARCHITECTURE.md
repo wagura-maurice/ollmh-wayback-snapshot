@@ -13,14 +13,23 @@
 
 ## 1. Plugin inventory
 
-Four custom plugins handle all OLLMH-specific functionality:
+Three **core** custom plugins handle OLLMH-specific functionality, plus
+one **optional** plugin for M-Pesa payments:
 
-| Plugin | Slug | Purpose | Tables managed |
-|---|---|---|---|
-| **OLLMH Core** | `ollmh-core` | CPT/taxonomy registration, settings UI, capability management, cron jobs, database table creation | All 81 tables (creation), `wp_settings` (admin UI) |
-| **OLLMH Forms** | `ollmh-forms` | Front-end form handlers (contact, appointment, application, event registration) via REST API | `wp_contact_submissions`, `wp_clinic_bookings`, `wp_opd_appointments`, `wp_applications`, `wp_applicants`, `wp_application_*`, `wp_event_registrations` |
-| **OLLMH Payments** | `ollmh-payments` | M-Pesa Daraja API integration (STK Push, C2B, B2C) for application fees | `wp_application_payments` |
-| **OLLMH Notifications** | `ollmh-notifications` | Transactional email + SMS sending (appointment reminders, application status updates, contact auto-replies) | None (reads from settings, sends via SMTP/SMS gateway) |
+| Plugin | Slug | Status | Purpose | Tables managed |
+|---|---|---|---|---|
+| **OLLMH Core** | `ollmh-core` | Core (required) | CPT/taxonomy registration, settings UI, capability management, cron jobs, database table creation | All 81 tables (creation), `wp_settings` (admin UI) |
+| **OLLMH Forms** | `ollmh-forms` | Core (required) | Front-end form handlers (contact, appointment, application, event registration) via REST API | `wp_contact_submissions`, `wp_clinic_bookings`, `wp_opd_appointments`, `wp_applications`, `wp_applicants`, `wp_application_*`, `wp_event_registrations` |
+| **OLLMH Notifications** | `ollmh-notifications` | Core (required) | Transactional email + SMS sending (appointment reminders, application status updates, contact auto-replies) | None (reads from settings, sends via SMTP/SMS gateway) |
+| **OLLMH Payments** | `ollmh-payments` | **Optional** (pending client approval) | M-Pesa Daraja G2 API integration (STK Push) for application fees | `wp_application_payments` |
+
+> **Architectural decision:** The M-Pesa payment integration is an
+> optional, modular feature — see
+> [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-004
+> for the full context, rationale, and cPanel feasibility analysis.
+> The `ollmh-payments` plugin can be activated or deactivated
+> independently. When inactive, the application form operates without
+> online payment (applicants pay offline).
 
 **Plus 6 third-party plugins** (see [`SEO-STRATEGY.md`](./SEO-STRATEGY.md)):
 Rank Math, Site Kit by Google, Redirection, WP Rocket, Broken Link Checker,
@@ -158,7 +167,27 @@ All public-facing forms are protected by Cloudflare Turnstile (see
 
 ---
 
-## 4. `ollmh-payments` — M-Pesa integration
+## 4. `ollmh-payments` — M-Pesa integration (OPTIONAL)
+
+> **Status:** Optional — pending client approval.
+> See [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) →
+> ADR-004 for the full decision record, cPanel feasibility analysis,
+> and implementation conditions.
+
+### Overview
+
+The `ollmh-payments` plugin is a **modular, optional** plugin that
+integrates the M-Pesa Daraja (G2) API to facilitate STK Push (Lipa Na
+M-Pesa Online) payments for nursing school application fees. It is
+**not part of the core WordPress functionality** — the site operates
+fully without it. When activated, it adds online payment capability to
+the application form.
+
+**Technical feasibility on cPanel shared hosting has been confirmed.**
+The Daraja G2 API operates over standard HTTPS REST calls and requires
+only PHP with cURL — no DNS changes, server migration, or special
+infrastructure. Development will proceed once the client design is
+finalized and approval is granted.
 
 ### Directory structure
 
@@ -166,30 +195,35 @@ All public-facing forms are protected by Cloudflare Turnstile (see
 ollmh-payments/
 ├── ollmh-payments.php
 ├── includes/
-│   ├── class-ollmh-mpesa.php           # Daraja API client (STK Push, C2B, B2C)
+│   ├── class-ollmh-mpesa.php           # Daraja G2 API client (STK Push, transaction query)
 │   ├── class-ollmh-payment-handler.php  # Payment processing logic
 │   ├── class-ollmh-payment-callback.php # Callback URL handler (Daraja webhook)
 │   ├── class-ollmh-mpesa-auth.php       # OAuth token management (caches access token)
-│   └── class-ollmh-payment-query.php    # Query transaction status
+│   └── class-ollmh-payment-query.php    # Query transaction status (cron fallback)
 ├── assets/
-│   ├── css/payment.css
-│   └── js/payment.js                    # STK Push status polling
+│   ├── css/payment.css                 # Payment UI styling (pure CSS, no framework)
+│   └── js/payment.js                   # STK Push status polling (vanilla JS, no jQuery)
 └── logs/
     └── .gitkeep                         # M-Pesa transaction logs (gitignored)
 ```
 
-### Payment flow (STK Push)
+### Payment flow (STK Push — Lipa Na M-Pesa Online)
 
 1. User submits application form → application saved with status `submitted`
 2. System triggers STK Push to user's phone (M-Pesa prompt)
 3. User enters M-Pesa PIN → payment confirmed or cancelled
-4. Daraja API sends callback to `/ollmh/v1/payments/callback`
+4. Daraja G2 API sends callback to `/ollmh/v1/payments/callback`
 5. Callback handler updates `wp_application_payments` with transaction status
 6. If successful → application status updated to `screening`, notification sent
 7. If failed → application remains `submitted`, user can retry payment
 
+**Fallback:** If the Daraja callback is not received within 5 minutes,
+a WP-Cron job polls the Daraja `QueryTransactionStatus` API to check
+the transaction status — ensuring payment confirmation is not lost
+even if the callback fails (a known issue on shared hosting under load).
+
 See [`SETTINGS.md`](./SETTINGS.md) → `financial` group for all M-Pesa
-configuration keys.
+configuration keys (conditional: only used when this plugin is active).
 
 ---
 

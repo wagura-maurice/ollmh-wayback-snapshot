@@ -12,155 +12,228 @@
 
 ---
 
-## 1. Theme type: Classic (PHP) theme
+## 1. Theme type: Child theme extending Twenty Twenty-Five (block/FSE)
 
-The OLLMH theme is a **classic PHP theme** (not a block/FSE theme). Rationale:
+> **Architectural decision:** See
+> [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-001
+> for the full context, rationale, and implications.
 
-- The site has complex custom layouts (home page slideshow + tabs + news
-  scroller + department columns, ward bed-status tables, clinic schedule
-  grids, application multi-step forms, photo galleries) that are easier to
-  build with PHP templates than block patterns.
-- The hospital staff who will manage content are non-technical — they need
-  CPT admin screens (handled by plugins, see
-  [`PLUGIN-ARCHITECTURE.md`](./PLUGIN-ARCHITECTURE.md)), not the block
-  editor for layout.
-- Classic themes have a larger ecosystem of compatible plugins (Rank Math,
-  Site Kit, Redirection, WP Rocket, Broken Link Checker — all confirmed
-  compatible).
-- The archived site's layout is fixed and well-documented in
-  [`HEADER-FOOTER-STRUCTURE.md`](./HEADER-FOOTER-STRUCTURE.md) — there is
-  no need for editorial layout flexibility.
+The OLLMH theme is a **custom child theme extending the official
+WordPress Twenty Twenty-Five theme** — the default block theme shipped
+with WordPress 6.7+.
 
-**WordPress version target:** 6.4+ (minimum 6.2 for stability).
+Twenty Twenty-Five is a **block theme / Full Site Editing (FSE) theme**.
+The child theme inherits the parent's block template structure,
+`theme.json` design token system, Site Editor compatibility, and block
+patterns. The child theme adds OLLMH-specific overrides:
+
+- A `theme.json` that overrides the parent's color palette with OLLMH
+  brand colors and the OLLMH font stack
+- Custom block templates / template parts for OLLMH-specific page layouts
+- A `functions.php` for asset enqueuing, image sizes, breadcrumbs, schema
+  output, and template helpers
+- Classic PHP template files for complex CPT pages where block templates
+  are insufficient (multi-step application form, single news article,
+  single event with registration) — WordPress supports this hybrid
+  approach: PHP template files take precedence over block templates
+- Custom block patterns for OLLMH content blocks (department card, staff
+  card, clinic schedule, ward status, hero section, CTA band)
+
+**Why a child theme (not a standalone theme):**
+
+- The parent theme is maintained by the WordPress core team — security
+  patches, block editor improvements, and responsive behavior flow to
+  the child theme automatically
+- The client's ICT team maintains only the overrides, not the entire
+  theme — reduced maintenance burden
+- Extending the official default theme ensures maximum compatibility
+  with current and future WordPress core releases
+- Hospital staff can use the Site Editor for minor layout adjustments
+  without touching PHP code
+
+**Why hybrid (block templates + classic PHP templates):**
+
+- Standard pages (home, about, contacts, departments listing, clinic
+  days, philosophy, administration, projects, community, gallery) use
+  block templates — editable in the Site Editor
+- Complex CPT pages (multi-step application form, single news article
+  with custom layout, single event with registration form) use classic
+  PHP template files — these take precedence over block templates in
+  the WordPress template hierarchy, giving full PHP control where needed
+
+**WordPress version target:** 6.7+ (Twenty Twenty-Five is the default
+theme for WP 6.7, released November 2024).
 
 ---
 
 ## 2. Theme directory structure
 
+The child theme (`ollmh-child`) extends Twenty Twenty-Five. It contains
+only overrides and additions — the parent theme provides the base block
+templates, `theme.json`, and block patterns.
+
 ```
-ollmh-theme/
-├── style.css                  # Theme header + front-end CSS entry point
-├── theme.json                 # Color palette + font variables (WP 6.x)
-├── functions.php              # Theme bootstrap (loads includes/)
-├── index.php                  # Fallback template (last in hierarchy)
-├── front-page.php             # Home page template
-├── header.php                 # Site header (logo, nav, top bar)
-├── footer.php                 # Site footer (links, contact, social)
-├── sidebar.php                # Sidebar (if used — likely not for OLLMH)
+ollmh-child/
+├── style.css                  # Child theme header (Template: twentytwentyfive)
+├── theme.json                 # Overrides parent's colors, fonts, spacing
+├── functions.php              # Theme bootstrap (loads includes/, enqueues assets)
+├── screenshot.png             # Theme preview (1200×900px)
+├── README.md                  # Theme documentation
+│
+├── templates/                 # Block templates (override parent's)
+│   ├── front-page.html        # Home page (slideshow + tabs + news + departments)
+│   ├── page-about.html        # About / Location page
+│   ├── page-contacts.html     # Contact page (form + map + channels)
+│   ├── page-departments.html  # Departments grid page
+│   ├── page-wards.html        # Wards & inpatient page
+│   ├── page-opd.html          # Outpatient department page
+│   ├── page-clinic-days.html  # Clinic days schedule page
+│   ├── page-special-services.html  # Special medical services page
+│   ├── page-philosophy.html   # Philosophy of care page
+│   ├── page-administration.html   # Administration / governance page
+│   ├── page-hr-capacity.html  # HR capacity / staff page
+│   ├── page-nursing-school.html   # Nursing school page
+│   ├── page-projects.html     # Projects overview page
+│   ├── page-community.html    # Community / SMI page
+│   ├── page-gallery.html      # Photo gallery (Outlook) page
+│   ├── page-news-events.html  # News & Events combined listing page
+│   ├── page-faq.html          # FAQ page (accordion)
+│   ├── page-patient-information.html  # Patient information page
+│   ├── page-privacy-policy.html      # Privacy policy page
+│   ├── page-terms-of-service.html    # Terms of service page
+│   ├── page-data-protection.html     # Data protection page
+│   ├── archive-news_article.html     # News listing (block template)
+│   ├── archive-event.html           # Events listing (block template)
+│   ├── archive-department.html      # Departments archive (block template)
+│   ├── archive-development_project.html  # Development projects archive
+│   ├── archive-sustainability_project.html  # Sustainability projects archive
+│   ├── archive-upcoming_project.html      # Upcoming projects archive
+│   ├── archive-outlook_album.html         # Gallery albums archive
+│   ├── archive-staff_member.html          # Staff archive
+│   ├── 404.html                            # 404 not found page
+│   └── search.html                         # Search results page
+│
+├── parts/                     # Template parts (block markup)
+│   ├── header.html            # Site header (logo, nav, top bar)
+│   ├── footer.html            # Site footer (links, contact, social, newsletter)
+│   ├── sidebar.html           # Sidebar (if used)
+│   ├── breadcrumbs.html       # Breadcrumb bar
+│   ├── hero.html              # Page hero (title + intro + image)
+│   └── cta.html               # Call-to-action band
+│
+├── patterns/                  # Block patterns (registered for Site Editor)
+│   ├── department-card.php    # Department card pattern
+│   ├── staff-card.php         # Staff profile card pattern
+│   ├── clinic-schedule.php    # Clinic schedule table pattern
+│   ├── ward-status.php        # Ward status table pattern
+│   ├── news-scroller.php      # News scroller pattern
+│   ├── hero-slideshow.php     # Home page hero slideshow pattern
+│   ├── feature-blocks.php     # Home page feature blocks pattern
+│   └── dept-columns.php       # Home page department columns pattern
+│
+├── single-news_article.php    # Classic PHP: single news article (custom layout)
+├── single-event.php           # Classic PHP: single event (with registration form)
+├── single-department.php      # Classic PHP: single department (custom layout)
+├── single-staff_member.php    # Classic PHP: single staff member profile
+├── single-development_project.php  # Classic PHP: single project
+├── single-outlook_album.php   # Classic PHP: single gallery album
+├── page-application-form.php  # Classic PHP: multi-step application form
 ├── searchform.php             # Custom search form markup
-├── 404.php                    # 404 not found page
-├── page.php                   # Generic page template
-├── single.php                 # Generic single post template
-├── archive.php                # Generic archive/listing template
 │
-├── page-templates/            # Custom page templates (selectable per page)
-│   ├── page-about.php         # About / Location page
-│   ├── page-contacts.php      # Contact page (form + map + channels)
-│   ├── page-departments.php   # Departments grid page
-│   ├── page-wards.php         # Wards & inpatient page
-│   ├── page-opd.php           # Outpatient department page
-│   ├── page-clinic-days.php   # Clinic days schedule page
-│   ├── page-special-services.php  # Special medical services page
-│   ├── page-philosophy.php    # Philosophy of care page
-│   ├── page-administration.php    # Administration / governance page
-│   ├── page-hr-capacity.php   # HR capacity / staff page
-│   ├── page-nursing-school.php    # Nursing school page
-│   ├── page-application-form.php  # Application form page (multi-step)
-│   ├── page-projects.php      # Projects overview (dev + sustainability + upcoming)
-│   ├── page-community.php     # Community / SMI page
-│   ├── page-gallery.php       # Photo gallery (Outlook) page
-│   └── page-news-events.php   # News & Events combined listing page
-│
-├── template-parts/            # Reusable template parts
-│   ├── content-news-article.php   # Single news article card
-│   ├── content-event.php          # Single event card
-│   ├── content-department.php     # Department card (grid item)
-│   ├── content-staff-member.php   # Staff profile card
-│   ├── content-ward.php           # Ward info block
-│   ├── content-clinic-schedule.php # Clinic schedule table
-│   ├── content-project.php        # Project card
-│   ├── content-community-program.php # Community program card
-│   ├── content-gallery-item.php   # Gallery image item
-│   ├── home-slideshow.php         # Home page hero slideshow
-│   ├── home-feature-blocks.php    # Home page feature blocks
-│   ├── home-in-focus.php          # Home page "In Focus" section
-│   ├── home-news-scroller.php     # Home page news scroller
-│   ├── home-dept-columns.php      # Home page department columns
-│   ├── section-breadcrumbs.php    # Breadcrumb bar
-│   ├── section-hero.php           # Page hero (title + intro + image)
-│   ├── section-sidebar.php        # Page sidebar (related links)
-│   └── section-cta.php            # Call-to-action band
-│
-├── includes/                  # PHP classes/functions (loaded by functions.php)
-│   ├── class-ollmh-theme.php      # Theme setup (supports, menus, image sizes)
-│   ├── class-ollmh-assets.php     # CSS/JS enqueuing
+├── includes/                  # PHP classes (loaded by functions.php)
+│   ├── class-ollmh-theme.php      # Theme setup (supports, image sizes, block patterns)
+│   ├── class-ollmh-assets.php     # CSS/JS enqueuing (vanilla JS, pure CSS)
 │   ├── class-ollmh-menu.php       # Menu walkers (mega-menu, footer menu)
 │   ├── class-ollmh-helpers.php    # Template helpers (get_setting, render_section)
 │   ├── class-ollmh-schema.php     # Schema.org JSON-LD output
 │   └── class-ollmh-breadcrumbs.php # Breadcrumb generator
 │
-├── assets/                    # Static assets
-│   ├── css/
-│   │   ├── base.css            # Reset, variables, typography
-│   │   ├── layout.css          # Grid, containers, header/footer
-│   │   ├── components.css      # Buttons, cards, tables, forms, sliders
-│   │   ├── pages.css           # Page-specific styles
-│   │   ├── responsive.css      # @media queries
-│   │   └── print.css           # Print styles
-│   ├── js/
-│   │   ├── main.js             # General interactions (menu toggle, smooth scroll)
-│   │   ├── slideshow.js        # Home page slideshow
-│   │   ├── tabs.js             # Tabbed content sections
-│   │   ├── news-scroller.js    # News ticker/scroller
-│   │   ├── gallery.js          # Lightbox/gallery
-│   │   └── forms.js            # Form validation + AJAX submission
-│   ├── images/                 # Theme images (logo, icons, backgrounds)
-│   └── fonts/                  # If any web fonts are added (currently system fonts)
-│
-├── screenshot.png             # Theme preview (1200×900px)
-└── README.md                  # Theme documentation
+└── assets/                    # Static assets
+    ├── css/
+    │   ├── base.css            # Reset, custom properties, typography overrides
+    │   ├── layout.css          # Grid, containers, header/footer overrides
+    │   ├── components.css      # Buttons, cards, tables, forms, sliders, Turnstile
+    │   ├── pages.css           # Page-specific styles
+    │   ├── responsive.css      # @media queries
+    │   └── print.css           # Print styles
+    ├── js/                     # Vanilla ES6+ (no jQuery — see ADR-002)
+    │   ├── main.js             # General interactions (menu toggle, smooth scroll)
+    │   ├── slideshow.js        # Home page slideshow
+    │   ├── tabs.js             # Tabbed content sections
+    │   ├── news-scroller.js    # News ticker/scroller
+    │   ├── gallery.js          # Lightbox/gallery
+    │   ├── forms.js            # Form validation + AJAX submission + Turnstile
+    │   └── cookie-consent.js   # Cookie consent banner
+    ├── images/                 # Theme images (logo, icons, backgrounds)
+    └── fonts/                  # If any web fonts are added (currently system fonts)
 ```
+
+**Key differences from a standalone theme:**
+
+- `style.css` contains only the theme header (`Template: twentytwentyfive`)
+  and minimal CSS — the parent theme provides the base styling
+- `templates/*.html` are block templates that override the parent's —
+  standard WordPress block markup, editable in the Site Editor
+- `parts/*.html` are block template parts (header, footer, etc.) that
+  override the parent's
+- `patterns/*.php` register custom block patterns for the Site Editor
+- `single-*.php` and `page-application-form.php` are classic PHP
+  templates for complex CPT pages — these take precedence over block
+  templates in the WordPress hierarchy
+- `includes/` and `assets/` work identically to a standalone theme —
+  `functions.php` loads the classes and enqueues CSS/JS the same way
 
 ---
 
 ## 3. Template hierarchy mapping
 
-Each OLLMH page type maps to a specific WordPress template:
+The child theme uses a **hybrid approach**: block templates (`.html`) for
+standard pages and classic PHP templates (`.php`) for complex CPT pages.
+PHP templates take precedence over block templates in the WordPress
+template hierarchy.
 
-| Page type | WordPress template | CPT/archive? |
+| Page type | Template | Type |
 |---|---|---|
-| Home | `front-page.php` | — |
-| About / Location | `page-templates/page-about.php` | — |
-| Contacts | `page-templates/page-contacts.php` | — |
-| Departments listing | `page-templates/page-departments.php` | `archive-department.php` (CPT) |
-| Single department | `single-department.php` | CPT |
-| Wards & Inpatient | `page-templates/page-wards.php` | — |
-| OPD | `page-templates/page-opd.php` | — |
-| Clinic Days | `page-templates/page-clinic-days.php` | — |
-| Special Medical Services | `page-templates/page-special-services.php` | — |
-| Philosophy of Care | `page-templates/page-philosophy.php` | — |
-| Administration | `page-templates/page-administration.php` | — |
-| HR Capacity / Staff | `page-templates/page-hr-capacity.php` | `archive-staff_member.php` (CPT) |
-| Nursing School | `page-templates/page-nursing-school.php` | — |
-| Application Form | `page-templates/page-application-form.php` | — |
-| Projects overview | `page-templates/page-projects.php` | — |
-| Development projects | `archive-development_project.php` | CPT |
-| Sustainability projects | `archive-sustainability_project.php` | CPT |
-| Upcoming projects | `archive-upcoming_project.php` | CPT |
-| Community / SMI | `page-templates/page-community.php` | — |
-| Gallery (Outlook) | `page-templates/page-gallery.php` | `archive-outlook_album.php` (CPT) |
-| News listing | `archive-news_article.php` | CPT |
-| Single news article | `single-news_article.php` | CPT |
-| Events listing | `archive-event.php` | CPT |
-| Single event | `single-event.php` | CPT |
-| Search results | `search.php` | — |
-| 404 | `404.php` | — |
+| Home | `templates/front-page.html` | Block |
+| About / Location | `templates/page-about.html` | Block |
+| Contacts | `templates/page-contacts.html` | Block |
+| Departments listing | `templates/archive-department.html` | Block (CPT archive) |
+| Single department | `single-department.php` | Classic PHP (CPT) |
+| Wards & Inpatient | `templates/page-wards.html` | Block |
+| OPD | `templates/page-opd.html` | Block |
+| Clinic Days | `templates/page-clinic-days.html` | Block |
+| Special Medical Services | `templates/page-special-services.html` | Block |
+| Philosophy of Care | `templates/page-philosophy.html` | Block |
+| Administration | `templates/page-administration.html` | Block |
+| HR Capacity / Staff | `templates/page-hr-capacity.html` + `templates/archive-staff_member.html` | Block |
+| Single staff member | `single-staff_member.php` | Classic PHP (CPT) |
+| Nursing School | `templates/page-nursing-school.html` | Block |
+| Application Form | `page-application-form.php` | Classic PHP (multi-step form) |
+| Projects overview | `templates/page-projects.html` | Block |
+| Development projects | `templates/archive-development_project.html` | Block (CPT archive) |
+| Sustainability projects | `templates/archive-sustainability_project.html` | Block (CPT archive) |
+| Upcoming projects | `templates/archive-upcoming_project.html` | Block (CPT archive) |
+| Single project | `single-development_project.php` | Classic PHP (CPT) |
+| Community / SMI | `templates/page-community.html` | Block |
+| Gallery (Outlook) | `templates/page-gallery.html` + `templates/archive-outlook_album.html` | Block |
+| Single gallery album | `single-outlook_album.php` | Classic PHP (CPT) |
+| News listing | `templates/archive-news_article.html` | Block (CPT archive) |
+| Single news article | `single-news_article.php` | Classic PHP (CPT) |
+| Events listing | `templates/archive-event.html` | Block (CPT archive) |
+| Single event | `single-event.php` | Classic PHP (CPT, with registration form) |
+| FAQ | `templates/page-faq.html` | Block |
+| Patient Information | `templates/page-patient-information.html` | Block |
+| Privacy Policy | `templates/page-privacy-policy.html` | Block |
+| Terms of Service | `templates/page-terms-of-service.html` | Block |
+| Data Protection | `templates/page-data-protection.html` | Block |
+| Search results | `templates/search.html` | Block |
+| 404 | `templates/404.html` | Block |
 
-**Note:** CPT single/archive templates (`single-news_article.php`,
-`archive-news_article.php`, etc.) take precedence over `single.php` and
-`archive.php` in the WordPress template hierarchy. The custom
-`page-templates/*.php` files are selected via the Page Attributes meta box
-when editing a page.
+**Note:** Classic PHP templates (`single-*.php`, `page-application-form.php`)
+take precedence over block templates in the WordPress template hierarchy.
+This hybrid approach gives full PHP control for complex pages (forms,
+custom CPT layouts) while leveraging block templates and the Site Editor
+for standard content pages.
 
 ---
 

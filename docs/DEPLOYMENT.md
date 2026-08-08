@@ -41,9 +41,17 @@
 | Cloudways | Managed VPS | DigitalOcean/Linode/AWS Vultr backends, managed WP |
 | Cloudflare Pages | Static/Edge | For static assets only (not full WP hosting) |
 
-**Recommendation:** Start with a managed VPS (Cloudways or Truehost VPS)
-for better performance and control. Shared hosting often has resource
-limits that affect WordPress performance.
+**Recommendation:** A managed VPS (Cloudways or Truehost VPS) is
+preferred for better performance and control. However, **cPanel shared
+hosting is confirmed feasible** for all OLLMH functionality including the
+optional M-Pesa Daraja G2 API integration (see
+[`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-004).
+The Daraja G2 API operates over standard HTTPS REST calls and requires
+only PHP with cURL — no DNS changes, server migration, or special
+infrastructure. A WP-Cron fallback mechanism ensures payment
+confirmation is not lost if Daraja callbacks fail under shared hosting
+load. Shared hosting is acceptable for the initial launch; upgrade to
+VPS if performance or callback reliability becomes an issue.
 
 ---
 

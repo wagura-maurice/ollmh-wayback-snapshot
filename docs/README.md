@@ -9,6 +9,15 @@ static archive to a **fully dynamic, database-driven application**.
 
 ## Contents
 
+- **[`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md)** —
+  formal architectural decision records (ADRs) for the OLLMH rebuild:
+  **ADR-001** child theme extending Twenty Twenty-Five (block/FSE),
+  **ADR-002** Cloudflare Turnstile with vanilla JavaScript,
+  **ADR-003** no Tailwind CSS (pure CSS and native WordPress styling),
+  **ADR-004** M-Pesa Daraja G2 API as optional modular integration
+  (pending client approval, cPanel feasibility confirmed). **Read this
+  first** — these decisions supersede any conflicting guidance in other
+  documentation files.
 - **[`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md)** — shared, platform-wide
   tables (`wp_pages`, `wp_media_assets`, `wp_page_media`, `wp_users`, `wp_menu_items`,
   `wp_departments`, `wp_staff`) and conventions that every per-page schema references
