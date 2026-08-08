@@ -106,63 +106,117 @@ define('FORCE_SSL_ADMIN', true);
 
 ## 4. Deployment process
 
+> **Architectural constraint:** WP-CLI is available in development only,
+> not on production (cPanel shared hosting). See
+> [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-005.
+> The deployment process below uses WP-CLI in dev/staging and cPanel
+> tools (File Manager, phpMyAdmin) + WordPress admin UI on production.
+
 ### Staging → Production workflow
 
 ```
-Local Dev (Docker) → Staging (staging.ollmh.org) → Production (ollmh.org)
+Local Dev (Docker, WP-CLI) → Staging (staging.ollmh.org, WP-CLI) → Production (cPanel, no WP-CLI)
 ```
 
 ### Step-by-step deployment
 
-1. **Prepare the deployment package:**
-   ```bash
-   # Export database from staging
-   wp db export staging-export.sql
+#### Phase 1: Prepare in dev/staging (WP-CLI available)
 
-   # Create a tarball of custom themes and plugins
+1. **Export database from staging:**
+   ```bash
+   wp db export staging-export.sql
+   ```
+
+2. **Search/replace staging URLs with production URLs:**
+   ```bash
+   wp search-replace 'staging.ollmh.org' 'ourladyoflourdesmweahospital.org'
+   wp db export staging-export-final.sql
+   ```
+
+3. **Create a tarball of custom theme and plugins:**
+   ```bash
    tar -czf ollmh-deploy.tar.gz \
-     wp-content/themes/ollmh-theme \
+     wp-content/themes/ollmh-child \
      wp-content/plugins/ollmh-core \
      wp-content/plugins/ollmh-forms \
-     wp-content/plugins/ollmh-payments \
      wp-content/plugins/ollmh-notifications
+   # Note: ollmh-payments is optional — include only if client has approved M-Pesa
    ```
 
-2. **On the production server:**
-   ```bash
-   # Backup current production
-   wp db export backup-pre-deploy.sql
-   tar -czf backup-pre-deploy.tar.gz wp-content/
+4. **Export content via WordPress admin (Tools → Export):**
+   - Export all content (pages, posts, CPTs, media)
+   - This produces a WXR XML file as a backup/alternative to DB import
 
-   # Upload and extract deployment package
-   scp ollmh-deploy.tar.gz user@server:/tmp/
-   ssh user@server
-   cd /var/www/ollmh
-   tar -xzf /tmp/ollmh-deploy.tar.gz -C wp-content/
+#### Phase 2: Deploy to production (cPanel — no WP-CLI)
 
-   # Import database (with search-replace for URLs)
-   wp db import /tmp/staging-export.sql
-   wp search-replace 'staging.ollmh.org' 'ourladyoflourdesmweahospital.org'
+5. **Backup current production:**
+   - cPanel → phpMyAdmin → select database → Export → save `.sql` file
+   - cPanel → File Manager → compress `wp-content/` to `backup-pre-deploy.zip`
 
-   # Activate theme and plugins
-   wp theme activate ollmh-theme
-   wp plugin activate ollmh-core ollmh-forms ollmh-payments ollmh-notifications
+6. **Upload theme and plugins via cPanel File Manager:**
+   - cPanel → File Manager → `wp-content/themes/`
+   - Upload `ollmh-deploy.tar.gz`
+   - Extract (cPanel extracts tar.gz and zip files)
+   - Move theme to `wp-content/themes/ollmh-child/`
+   - Move plugins to `wp-content/plugins/ollmh-*/`
+   - Delete the uploaded `.tar.gz` file
 
-   # Flush rewrite rules
-   wp rewrite flush
+   **Alternative:** Upload individual files via FTP (FileZilla) if
+   cPanel File Manager has upload size limits.
 
-   # Clear cache
-   wp cache flush
-   wp rocket clear --if-active
-   ```
+7. **Import database via phpMyAdmin:**
+   - cPanel → phpMyAdmin → select production database
+   - Import → choose `staging-export-final.sql` → Go
+   - If the database is large (> 50MB), use BigDump or split the SQL file
 
-3. **Post-deployment verification:**
-   - Visit the homepage → verify it loads
-   - Test all forms (contact, appointment, application)
-   - Check redirects (old `.html` URLs → new URLs)
-   - Verify SSL certificate is valid
-   - Check `wp-content/debug.log` for errors
-   - Run a speed test (PageSpeed Insights)
+   **Alternative (no DB import):** If the production database already
+   has content and you only need to deploy code changes:
+   - Skip DB import
+   - Use WordPress admin → Tools → Import → upload WXR XML file from step 4
+
+8. **Search/replace URLs if needed (if DB import was used):**
+   - Install "Better Search Replace" plugin via WP admin → Plugins → Add New
+   - WP admin → Tools → Better Search Replace
+   - Search: `staging.ollmh.org` → Replace: `ourladyoflourdesmweahospital.org`
+   - Select all tables → Run dry run first, then live run
+   - Uninstall the plugin after use
+
+#### Phase 3: Activate and configure (WordPress admin UI)
+
+9. **Activate theme:**
+   - WP admin → Appearance → Themes → Activate "OLLMH Child"
+
+10. **Activate plugins:**
+    - WP admin → Plugins → Activate each OLLMH plugin
+    - Plugin activation triggers `register_activation_hook()` which
+      creates all database tables — identical to `wp plugin activate`
+
+11. **Flush rewrite rules:**
+    - WP admin → Settings → Permalinks → scroll to bottom → Save Changes
+    - This flushes the rewrite rules cache — identical to `wp rewrite flush`
+
+12. **Clear cache:**
+    - WP admin → Settings → WP Rocket → Clear Cache (if WP Rocket is active)
+    - Or: WP admin → Performance → Clear All Caches
+
+13. **Configure settings:**
+    - WP admin → OLLMH Settings → enter production values for all settings
+    - (Hospital name, contact info, Turnstile keys, SMTP settings, etc.)
+
+#### Phase 4: Post-deployment verification
+
+14. **Verify the site:**
+    - Visit the homepage → verify it loads
+    - Test all forms (contact, appointment, application)
+    - Check redirects (old `.html` URLs → new URLs) via WP admin → Tools → Redirection
+    - Verify SSL certificate is valid (browser padlock icon)
+    - Check `wp-content/debug.log` for errors
+    - Run a speed test (PagePageSpeed Insights)
+
+15. **Monitor for 48 hours:**
+    - Check error log via cPanel → Errors or cPanel → Logs
+    - Verify forms are submitting correctly
+    - Check that cron jobs are running (WP admin → OLLMH Settings → System Status)
 
 ---
 

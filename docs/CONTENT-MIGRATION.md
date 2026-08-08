@@ -107,6 +107,13 @@ before inserting into WordPress:
 
 ## 4. Migration script
 
+> **Dev-only:** This script runs via WP-CLI in the development
+> environment only. WP-CLI is not available on production (cPanel shared
+> hosting) — see [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md)
+> → ADR-005. After running the migration in dev, content is deployed to
+> production via WordPress export/import (Tools → Export in dev, Tools →
+> Import on production) or via database export/import through phpMyAdmin.
+
 Create a PHP script at `scripts/migrate-content.php` that runs via WP-CLI:
 
 ```php

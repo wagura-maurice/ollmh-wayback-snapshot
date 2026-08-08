@@ -15,9 +15,11 @@ static archive to a **fully dynamic, database-driven application**.
   **ADR-002** Cloudflare Turnstile with vanilla JavaScript,
   **ADR-003** no Tailwind CSS (pure CSS and native WordPress styling),
   **ADR-004** M-Pesa Daraja G2 API as optional modular integration
-  (pending client approval, cPanel feasibility confirmed). **Read this
-  first** — these decisions supersede any conflicting guidance in other
-  documentation files.
+  (pending client approval, cPanel feasibility confirmed),
+  **ADR-005** WP-CLI available in development only, not production
+  (cPanel shared hosting — production-safe alternatives documented for
+  every WP-CLI task). **Read this first** — these decisions supersede
+  any conflicting guidance in other documentation files.
 - **[`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md)** — shared, platform-wide
   tables (`wp_pages`, `wp_media_assets`, `wp_page_media`, `wp_users`, `wp_menu_items`,
   `wp_departments`, `wp_staff`) and conventions that every per-page schema references
@@ -99,12 +101,13 @@ static archive to a **fully dynamic, database-driven application**.
 - **[`CONTENT-MIGRATION.md`](./CONTENT-MIGRATION.md)** — how to extract
   content from archived HTML, clean Joomla-specific markup, convert image
   URLs and internal links, and insert into WordPress pages and CPTs.
-  Includes a WP-CLI migration script with HTML extraction, cleaning, and
-  URL conversion functions.
+  Includes a WP-CLI migration script (dev-only — see ADR-005) with HTML
+  extraction, cleaning, and URL conversion functions.
 - **[`ASSET-MIGRATION.md`](./ASSET-MIGRATION.md)** — how to migrate ~133
   images from the archive into the WordPress media library: filename
   cleaning, alt text assignment, WebP conversion, logo/favicon handling,
-  and a WP-CLI migration script with URL mapping file generation.
+  and a WP-CLI migration script (dev-only — see ADR-005) with URL
+  mapping file generation.
 - **[`ENVIRONMENT-SETUP.md`](./ENVIRONMENT-SETUP.md)** — local development
   environment with Docker Compose (WordPress + MySQL + phpMyAdmin +
   MailHog), first-time setup commands, daily workflow, `wp-config.php`

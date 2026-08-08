@@ -66,6 +66,13 @@ These PDFs are linked in the HTML but were not captured by the Wayback Machine:
 
 ## 2. Migration script
 
+> **Dev-only:** This script runs via WP-CLI in the development
+> environment only. WP-CLI is not available on production (cPanel shared
+> hosting) — see [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md)
+> → ADR-005. After running the migration in dev, media assets are deployed
+> to production by uploading the `wp-content/uploads/` directory via
+> cPanel File Manager (or FTP), and importing the database via phpMyAdmin.
+
 Create a PHP script at `scripts/migrate-assets.php` that runs via WP-CLI:
 
 ```php

@@ -24,6 +24,11 @@
 
 ### Framework: PHPUnit + WP-CLI
 
+> **Dev-only:** WP-CLI test scaffolding and PHPUnit tests run in the
+> development environment only. Tests are never run on production (cPanel
+> shared hosting, no WP-CLI) — see
+> [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-005.
+
 ```bash
 # Install WP-CLI testing framework
 docker exec ollmh-wp wp scaffold plugin-tests ollmh-core --allow-root

@@ -149,7 +149,10 @@ Rank Math includes a basic 404 monitor and redirect manager, but the
 - **Redirect groups** for organization (e.g., "old Joomla URLs", "rebrands")
 - **Regex redirects** for pattern-based URL matching
 - **HTTP cache header** configuration
-- **WP-CLI support** for command-line redirect management
+- **WP-CLI support** for command-line redirect management (dev only — on
+  production, redirects are managed via the WordPress admin UI at Tools →
+  Redirection; see [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md)
+  → ADR-005)
 
 **Why this is critical for OLLMH:** The site is migrating from a Joomla
 archive to WordPress. Every old Joomla URL

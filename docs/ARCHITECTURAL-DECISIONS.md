@@ -580,6 +580,214 @@ are not used and the application form operates without online payment
 
 ---
 
+## ADR-005: WP-CLI available in development only, not production
+
+**Status:** Approved
+**Date:** 2024
+
+### Context
+
+WP-CLI (WordPress Command-Line Interface) is a powerful tool for
+WordPress administration — it enables scripted content migration, bulk
+database operations, plugin/theme management, cache clearing, test
+scaffolding, and performance monitoring from the command line.
+
+The OLLMH project has two environments:
+
+| Environment | Hosting | SSH access | WP-CLI |
+|---|---|---|---|
+| **Development** | Docker Compose (local) or VPS | Full SSH access | ✅ Available |
+| **Production** | cPanel shared hosting | Limited or no SSH | ❌ Not available |
+
+The client's production cPanel shared hosting environment does **not**
+provide WP-CLI. Most cPanel shared hosting plans do not offer SSH access,
+and even those that do typically do not install WP-CLI (it requires PHP
+CLI SAPI and command-line execution, which many shared hosts disable for
+security). The client's ICT team has confirmed that WP-CLI will not be
+available on production.
+
+### Decision
+
+**WP-CLI is used in the development environment only.** All WP-CLI-based
+workflows are documented as development-only procedures with
+production-safe alternatives documented for every task.
+
+### Tasks and their production alternatives
+
+Every task currently documented with WP-CLI has an equivalent
+production-safe method that works through the WordPress admin UI, REST
+API, or cPanel File Manager / phpMyAdmin:
+
+| Task | WP-CLI (dev only) | Production alternative |
+|---|---|---|
+| **Content migration** (importing archived pages into WordPress) | `wp eval-file scripts/migrate-content.php` | Run migration in dev → export via WP export (Tools → Export) → import on production via Tools → Import. Or: run migration script as a WP-CLI-style PHP file accessed via browser with a secret token. |
+| **Asset migration** (importing images into media library) | `wp eval-file scripts/migrate-assets.php` | Same as content migration — run in dev, then export/import. Or: use the WordPress media uploader manually for small batches. |
+| **Database table creation** (plugin activation) | `wp plugin activate ollmh-core` | Activate plugin via WP admin → Plugins page. The `register_activation_hook()` creates all tables identically. |
+| **Plugin/theme activation** | `wp plugin activate ollmh-core` / `wp theme activate ollmh-child` | WP admin → Plugins → Activate; Appearance → Themes → Activate. |
+| **Cache clearing** | `wp cache flush` / `wp rocket flush` | WP admin → Settings → WP Rocket → Clear Cache; or WP admin → Performance → Clear All Caches. |
+| **Database size monitoring** | `wp db size` | phpMyAdmin → database name → size column; or a custom admin dashboard widget that queries `SUM(data_length + index_length)` from `information_schema.TABLES`. |
+| **User management** | `wp user create` / `wp user list` | WP admin → Users → Add New / All Users. |
+| **Rewrite rules flush** | `wp rewrite flush` | WP admin → Settings → Permalinks → Save (flushes rewrite rules). |
+| **Test scaffolding** | `wp scaffold plugin-tests ollmh-core` | Dev only — tests are run in dev, not on production. |
+| **Redirect management** (Redirection plugin) | `wp redirection ...` | WP admin → Tools → Redirection → manage redirects via UI. |
+| **Search/replace in DB** | `wp search-replace 'old.com' 'new.com'` | Use the "Better Search Replace" plugin (WP admin → Tools → Better Search Replace) or run a SQL query via phpMyAdmin (with serialized data caution). |
+| **WordPress core update** | `wp core update` | WP admin → Dashboard → Updates → Update Now. |
+| **Plugin/theme updates** | `wp plugin update --all` | WP admin → Dashboard → Updates → Update plugins/themes. |
+
+### Rationale
+
+1. **Environment separation:** Development uses Docker Compose with full
+   WP-CLI access for rapid iteration, scripted migrations, and automated
+   testing. Production uses cPanel shared hosting where WP-CLI is not
+   available — this is a common and well-understood constraint.
+2. **No production dependency on WP-CLI:** Every WP-CLI command in the
+   documentation has a production-safe alternative via the WordPress
+   admin UI, REST API, or cPanel tools (phpMyAdmin, File Manager). The
+   site is fully operable without WP-CLI.
+3. **Migration strategy:** Content and asset migration (the heaviest
+   WP-CLI usage) is performed entirely in the development environment.
+   The migrated content is then deployed to production via WordPress
+   export/import (XML) for content, and via file upload (tar/zip via
+   cPanel File Manager) for media assets. This is a one-time operation
+   during initial deployment.
+4. **Monitoring alternative:** Database size monitoring (the only
+   recurring WP-CLI use on production) is replaced with a custom admin
+   dashboard widget that displays database size using a standard SQL
+   query — no WP-CLI needed.
+
+### Migration workflow (dev → production)
+
+Since WP-CLI is not available on production, the migration from
+development to production follows this workflow:
+
+```
+DEVELOPMENT (Docker, WP-CLI available)          PRODUCTION (cPanel, no WP-CLI)
+========================================        ====================================
+
+1. Run content migration via WP-CLI
+   wp eval-file scripts/migrate-content.php
+
+2. Run asset migration via WP-CLI
+   wp eval-file scripts/migrate-assets.php
+
+3. Verify content in dev WP admin
+
+4. Export content (WP admin → Tools → Export)   →  5. Import content (WP admin → Tools → Import)
+    - All pages, posts, CPTs                         - Upload WXR XML file
+    - Media (if "Download media" checked)            - Or upload media separately via File Manager
+
+6. Export database (WP-CLI or phpMyAdmin)       →  7. Import database (phpMyAdmin → Import)
+   wp db export ollmh-dev.sql                       - Upload .sql file
+   - Or: phpMyAdmin → Export                            - phpMyAdmin → Import
+   - Search/replace URLs if domain differs          - Run search/replace via Better Search Replace plugin
+
+8. Deploy theme + plugins (Git or tar)          →  9. Upload via cPanel File Manager
+   tar -czf ollmh-theme.tar.gz ollmh-child/         - Upload to wp-content/themes/
+   tar -czf ollmh-plugins.tar.gz ollmh-*/            - Upload to wp-content/plugins/
+                                                     - Extract via cPanel
+
+                                                10. Activate theme + plugins (WP admin)
+                                                    - Appearance → Themes → Activate ollmh-child
+                                                    - Plugins → Activate all
+
+                                                11. Flush rewrite rules
+                                                    - Settings → Permalinks → Save
+
+                                                12. Configure settings (WP admin → OLLMH Settings)
+                                                    - Enter production values for all settings
+```
+
+### Custom admin dashboard widget for database monitoring
+
+Since `wp db size` is not available on production, a custom dashboard
+widget provides the same information:
+
+```php
+<?php
+// ollmh-core/includes/class-ollmh-dashboard-widget.php
+
+class OLLMH_Dashboard_Widget {
+
+    public static function init(): void {
+        add_action('wp_dashboard_setup', [self::class, 'add_widget']);
+    }
+
+    public static function add_widget(): void {
+        wp_add_dashboard_widget(
+            'ollmh_db_stats',
+            __('OLLMH Database Statistics', 'ollmh'),
+            [self::class, 'render']
+        );
+    }
+
+    public static function render(): void {
+        global $wpdb;
+
+        $size = $wpdb->get_var(
+            "SELECT SUM(data_length + index_length)
+             FROM information_schema.TABLES
+             WHERE table_schema = DATABASE()"
+        );
+
+        $size_mb = $size ? round($size / 1024 / 1024, 2) : 0;
+        $size_gb = $size ? round($size / 1024 / 1024 / 1024, 4) : 0;
+
+        $table_count = $wpdb->get_var(
+            "SELECT COUNT(*) FROM information_schema.TABLES
+             WHERE table_schema = DATABASE()"
+        );
+
+        $largest_tables = $wpdb->get_results(
+            "SELECT table_name,
+                    ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb
+             FROM information_schema.TABLES
+             WHERE table_schema = DATABASE()
+             ORDER BY (data_length + index_length) DESC
+             LIMIT 5"
+        );
+
+        echo '<ul>';
+        echo '<li><strong>Database size:</strong> ' . esc_html($size_mb) . ' MB (' . esc_html($size_gb) . ' GB)</li>';
+        echo '<li><strong>Tables:</strong> ' . esc_html($table_count) . '</li>';
+        echo '</ul>';
+
+        if ($size_mb > 1024) {
+            echo '<p class="notice notice-warning inline"><p>⚠️ Database exceeds 1 GB — consider archiving old records.</p></p>';
+        }
+
+        echo '<h4>Largest tables</h4><ul>';
+        foreach ($largest_tables as $table) {
+            echo '<li>' . esc_html($table->table_name) . ': ' . esc_html($table->size_mb) . ' MB</li>';
+        }
+        echo '</ul>';
+    }
+}
+```
+
+This widget appears on the WordPress admin dashboard and shows the same
+information that `wp db size` would provide — no WP-CLI needed.
+
+### Implications for other documentation
+
+- [`DEPLOYMENT.md`](./DEPLOYMENT.md): deployment workflow updated to
+  document the dev → production migration without WP-CLI; cPanel File
+  Manager and phpMyAdmin are the production tools
+- [`CONTENT-MIGRATION.md`](./CONTENT-MIGRATION.md): WP-CLI migration
+  script marked as **dev-only**; production import via WP export/import
+- [`ASSET-MIGRATION.md`](./ASSET-MIGRATION.md): WP-CLI migration script
+  marked as **dev-only**; production import via file upload + media
+  library
+- [`PERFORMANCE-BUDGET.md`](./PERFORMANCE-BUDGET.md): database size
+  monitoring changed from WP-CLI to custom admin dashboard widget
+- [`ENVIRONMENT-SETUP.md`](./ENVIRONMENT-SETUP.md): WP-CLI usage
+  clarified as dev-only
+- [`TESTING-PLAN.md`](./TESTING-PLAN.md): WP-CLI test scaffolding
+  clarified as dev-only (tests are never run on production)
+- [`SEO-STRATEGY.md`](./SEO-STRATEGY.md): Redirection plugin's WP-CLI
+  support noted as dev-only; production uses the admin UI
+
+---
+
 ## Decision summary
 
 | ADR | Decision | Status |
@@ -588,3 +796,4 @@ are not used and the application form operates without online payment
 | ADR-002 | Cloudflare Turnstile with vanilla JavaScript | Approved |
 | ADR-003 | No Tailwind CSS — pure CSS and native WordPress styling | Approved |
 | ADR-004 | M-Pesa Daraja G2 API — optional modular integration | Pending client approval |
+| ADR-005 | WP-CLI available in development only, not production | Approved |

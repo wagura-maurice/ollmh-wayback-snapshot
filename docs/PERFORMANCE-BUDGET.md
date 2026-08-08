@@ -242,7 +242,7 @@ connection.
 | Page weight | Lighthouse | Weekly | > 2 MB |
 | Server CPU | Server monitoring | Continuous | > 80% for 5 min |
 | Server memory | Server monitoring | Continuous | > 90% for 5 min |
-| Database size | WP-CLI | Monthly | > 1 GB |
+| Database size | Custom admin dashboard widget | Monthly | > 1 GB |
 
 ---
 

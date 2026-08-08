@@ -17,7 +17,7 @@
 | Docker Compose | 2.20+ | Multi-container orchestration |
 | Git | 2.40+ | Version control |
 | Node.js | 20 LTS | Front-end build tools (optional, for Sass/JS bundling) |
-| WP-CLI | 2.9+ | WordPress command-line interface (included in Docker container) |
+| WP-CLI | 2.9+ | WordPress command-line interface (included in Docker container) — **dev only**, not available on production (see [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-005) |
 
 **OS:** macOS, Linux, or Windows with WSL2.
 
