@@ -406,6 +406,146 @@ form submissions, and each endpoint calls this internally).
 
 ---
 
+### 3.8 Newsletter subscription
+
+```
+POST /ollmh/v1/newsletter/subscribe
+```
+
+Handles the footer newsletter signup form (Band 2 — see
+[`HEADER-FOOTER-STRUCTURE.md`](./HEADER-FOOTER-STRUCTURE.md) → Band 2).
+Implements a **double opt-in** flow for compliance with Kenya's Data
+Protection Act 2019 (see [`COOKIE-CONSENT.md`](./COOKIE-CONSENT.md)).
+
+**Request body:**
+```json
+{
+  "email": "john@example.com",
+  "consent": true,
+  "turnstile_token": "0.xxxxx"
+}
+```
+
+**Validation:**
+- `email`: required, valid email, max 191, not already subscribed
+- `consent`: required, must be `true` (the checkbox on the form must be checked)
+- `turnstile_token`: required if `captcha_on_newsletter_signup` setting is `1`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Thank you for subscribing! Please check your email to confirm your subscription.",
+  "subscriber_id": 321
+}
+```
+
+**Response (400) — already subscribed:**
+```json
+{
+  "success": false,
+  "code": "already_subscribed",
+  "message": "This email address is already subscribed to our newsletter."
+}
+```
+
+**Response (400) — consent missing:**
+```json
+{
+  "success": false,
+  "errors": {
+    "consent": "You must agree to the Privacy Policy and Terms of Service to subscribe."
+  }
+}
+```
+
+**Side effects:**
+1. Insert into `wp_newsletter_subscribers` with `status = 'pending'` and a
+   random `confirmation_token` (32-char hex)
+2. Send a **confirmation email** to the subscriber with a confirmation link:
+   `{site_url}/newsletter/confirm/?token={confirmation_token}`
+3. Store the consent timestamp and IP address for audit trail
+4. Do **not** add to active mailing list until confirmation link is clicked
+
+**Confirmation flow:**
+```
+GET /newsletter/confirm/?token={confirmation_token}
+```
+
+When the user clicks the confirmation link:
+1. Look up the subscriber by `confirmation_token`
+2. If found and `status = 'pending'`:
+   - Update `status` to `subscribed`
+   - Set `confirmed_at` timestamp
+   - Send "Welcome to OLLMH newsletter" email
+   - Show a "Subscription confirmed" success page
+3. If token is invalid or already confirmed:
+   - Show an error or "already subscribed" message
+
+**Unsubscribe flow:**
+```
+GET /newsletter/unsubscribe/?token={subscriber_token}
+```
+
+Every newsletter email includes an unsubscribe link with the subscriber's
+unique token. When clicked:
+1. Look up the subscriber by token
+2. Update `status` to `unsubscribed`
+3. Show an "You have been unsubscribed" confirmation page
+4. Optionally ask for unsubscribe reason (optional feedback, not required)
+
+**Admin notification:**
+On successful confirmation, the admin is not notified (to avoid noise).
+The admin can view all subscribers via the Newsletter admin screen (see
+[`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md)).
+
+---
+
+### 3.9 Cookie consent preference
+
+```
+POST /ollmh/v1/cookie-consent
+```
+
+Stores the user's cookie consent preference (see
+[`COOKIE-CONSENT.md`](./COOKIE-CONSENT.md) for the full cookie consent
+strategy). This endpoint is called by the cookie consent banner JS when
+the user makes a choice.
+
+**Request body:**
+```json
+{
+  "preference": "all",
+  "categories": ["essential", "analytics", "advertising"]
+}
+```
+
+**Validation:**
+- `preference`: required, enum: `all`, `essential_only`, `custom`
+- `categories`: required if `preference` is `custom`, array of strings from
+  enum: `essential`, `analytics`, `advertising`
+- `essential` is always included (cannot be disabled)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "preference": "all",
+  "categories": ["essential", "analytics", "advertising"]
+}
+```
+
+**Side effects:**
+1. Store the preference in a cookie (`ollmh_cookie_consent`) for 365 days
+2. Store the preference in `wp_cookie_consents` table (for audit trail)
+   with IP address, timestamp, and preference
+3. Return the preference so the JS can enable/disable scripts accordingly
+
+**No Turnstile required** — this is a simple preference storage endpoint,
+not a form submission that could be abused by bots.
+
+---
+
 ## 4. Rate limiting
 
 All public endpoints are rate-limited to prevent abuse:
@@ -417,6 +557,8 @@ All public endpoints are rate-limited to prevent abuse:
 | `POST /applications` | 2 requests per IP per 10 minutes |
 | `POST /applications/upload` | 10 requests per application per hour |
 | `POST /events/register` | 5 requests per IP per 10 minutes |
+| `POST /newsletter/subscribe` | 3 requests per IP per 10 minutes |
+| `POST /cookie-consent` | 10 requests per IP per hour |
 | `GET /settings` | 60 requests per IP per minute |
 
 Rate limiting is implemented via WordPress transients (stores request

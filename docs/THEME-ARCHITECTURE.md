@@ -390,3 +390,391 @@ See [`JAVASCRIPT-INTERACTIVITY.md`](./JAVASCRIPT-INTERACTIVITY.md) for the
 detailed JS component specifications and
 [`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md) for library
 choices.
+
+---
+
+## 12. 404 page (`404.php`)
+
+The 404 page is shown when a visitor requests a URL that doesn't exist.
+It should be helpful, not alarming — guide the visitor back to relevant
+content.
+
+### Layout
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  404                                                                         │
+│  Page Not Found                                                              │
+│                                                                              │
+│  The page you're looking for doesn't exist or has been moved.                │
+│                                                                              │
+│  [ Search box: "Search OLLMH..." ]                                           │
+│                                                                              │
+│  Popular pages:                                                              │
+│  • Home                                                                      │
+│  • About OLLMH                                                               │
+│  • Services                                                                  │
+│  • Departments                                                               │
+│  • Contact Us                                                                │
+│  • News                                                                      │
+│  • Events                                                                    │
+│                                                                              │
+│  Need help? Call us at +254-XXX-XXXX or email info@ollmh.org                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Elements
+
+| Element | Description |
+|---|---|
+| Large "404" | Visually prominent, styled with `var(--color-primary)` |
+| "Page Not Found" heading | `<h1>` |
+| Description text | Friendly, non-technical explanation |
+| Search box | WordPress search form (`get_search_form()`) — lets the user search for what they were looking for |
+| Popular pages list | 7 most-visited pages as quick links |
+| Contact help line | Hospital phone and email for visitors who need assistance |
+
+### SEO
+
+- 404 pages should return HTTP status `404` (not `200`) — WordPress
+  handles this automatically
+- Add `noindex` meta tag to prevent search engines from indexing 404 pages
+- Do **not** redirect 404s to the homepage (bad for SEO — search engines
+  need to see the 404 status to remove dead URLs from their index)
+- Monitor 404s via Redirection plugin logs and Broken Link Checker
+
+### Implementation
+
+```php
+<?php
+// 404.php
+get_header();
+?>
+<main id="main-content" class="error-404">
+  <div class="container">
+    <div class="error-404-content">
+      <p class="error-code">404</p>
+      <h1><?php _e('Page Not Found', 'ollmh'); ?></h1>
+      <p><?php _e('The page you\'re looking for doesn\'t exist or has been moved.', 'ollmh'); ?></p>
+
+      <div class="error-404-search">
+        <?php get_search_form(); ?>
+      </div>
+
+      <div class="error-404-links">
+        <h2><?php _e('Popular Pages', 'ollmh'); ?></h2>
+        <ul>
+          <li><a href="<?php echo esc_url(home_url('/')); ?>">Home</a></li>
+          <li><a href="<?php echo esc_url(home_url('/about-ollmh-location/')); ?>">About OLLMH</a></li>
+          <li><a href="<?php echo esc_url(home_url('/out-patient-dept/')); ?>">Services</a></li>
+          <li><a href="<?php echo esc_url(home_url('/ollmh-departments/')); ?>">Departments</a></li>
+          <li><a href="<?php echo esc_url(home_url('/contacts/')); ?>">Contact Us</a></li>
+          <li><a href="<?php echo esc_url(home_url('/news/')); ?>">News</a></li>
+          <li><a href="<?php echo esc_url(home_url('/events/')); ?>">Events</a></li>
+        </ul>
+      </div>
+
+      <p class="error-404-help">
+        <?php printf(
+          __('Need help? Call us at %s or email %s', 'ollmh'),
+          '<a href="tel:' . esc_attr($hospital_phone) . '">' . esc_html($hospital_phone) . '</a>',
+          '<a href="mailto:' . esc_attr($hospital_email) . '">' . esc_html($hospital_email) . '</a>'
+        ); ?>
+      </p>
+    </div>
+  </div>
+</main>
+<?php get_footer(); ?>
+```
+
+---
+
+## 13. Search results page (`search.php`)
+
+The search results page displays results for user queries submitted via
+the search form (in the header top bar and on the 404 page).
+
+### Layout
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  Breadcrumbs: Home → Search Results                                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Search results for: "maternity"                                             │
+│  5 results found                                                             │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │ Maternity Ward                                                          │ │
+│  │ /wards/                                                                 │ │
+│  │ Our maternity ward provides comprehensive care for expectant mothers... │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │ Antenatal Clinic Schedule                                               │ │
+│  │ /clinic-days/                                                           │ │
+│  │ Antenatal clinics run every Monday from 8:00 AM to 12:00 PM...          │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+│  ...                                                                         │
+│                                                                              │
+│  [ ← Previous ]  Page 1 of 2  [ Next → ]                                    │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │ Search again: [ maternity ward                              ] [ Search ]│ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Elements
+
+| Element | Description |
+|---|---|
+| Breadcrumbs | Home → Search Results |
+| Search query display | "Search results for: {query}" — the query is escaped and displayed |
+| Result count | "N results found" |
+| Result cards | Each result shows: title (linked), URL/path, excerpt with highlighted search term |
+| Pagination | WordPress default pagination (`the_posts_pagination()`) — 10 results per page |
+| Search again box | Pre-filled with the current query, allows refining the search |
+
+### Result types
+
+WordPress search returns:
+- Pages (`page` post type)
+- News articles (`news_article` CPT)
+- Events (`event` CPT)
+- Departments (`department` CPT)
+- Staff members (`staff_member` CPT)
+- Job vacancies (`job_vacancy` CPT)
+- Development/sustainability/upcoming projects
+- Community programs / SMI events
+
+Non-searchable (excluded from search):
+- `ward` (non-public CPT)
+- `clinic` (non-public CPT)
+- `special_service` (non-public CPT)
+- `outlook_album` (gallery — searched via separate gallery interface)
+
+### Search customization
+
+The default WordPress search is sufficient for the initial launch. If
+enhanced search is needed later, consider:
+- [SearchWP](https://searchwp.com/) — improves search relevance, supports
+  custom weighting, PDF indexing
+- [WP Search with Algolia](https://wordpress.org/plugins/wp-search-with-algolia/) —
+  typo-tolerant, instant search, faceted filtering
+
+### Implementation
+
+```php
+<?php
+// search.php
+get_header();
+?>
+<main id="main-content" class="search-results">
+  <div class="container">
+    <?php echo do_shortcode('[ollmh_breadcrumbs]'); ?>
+
+    <h1>
+      <?php printf(__('Search results for: %s', 'ollmh'), '<span>' . get_search_query() . '</span>'); ?>
+    </h1>
+
+    <?php if (have_posts()) : ?>
+      <p class="search-count">
+        <?php printf(__('%d results found', 'ollmh'), $wp_query->found_posts); ?>
+      </p>
+
+      <div class="search-results-list">
+        <?php while (have_posts()) : the_post(); ?>
+          <article class="search-result-item">
+            <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+            <p class="search-result-url"><?php echo esc_html(wp_make_link_relative(get_permalink())); ?></p>
+            <p class="search-result-excerpt"><?php the_excerpt(); ?></p>
+          </article>
+        <?php endwhile; ?>
+      </div>
+
+      <?php the_posts_pagination([
+        'prev_text' => __('Previous', 'ollmh'),
+        'next_text' => __('Next', 'ollmh'),
+      ]); ?>
+
+    <?php else : ?>
+      <p><?php _e('No results found. Please try a different search term.', 'ollmh'); ?></p>
+    <?php endif; ?>
+
+    <div class="search-again">
+      <?php get_search_form(); ?>
+    </div>
+  </div>
+</main>
+<?php get_footer(); ?>
+```
+
+### Excluding non-public CPTs from search
+
+```php
+// functions.php or class-ollmh-theme.php
+add_filter('pre_get_posts', function($query) {
+    if (!is_admin() && $query->is_search) {
+        $query->set('post_type', [
+            'page',
+            'news_article',
+            'event',
+            'department',
+            'staff_member',
+            'job_vacancy',
+            'development_project',
+            'sustainability_project',
+            'upcoming_project',
+            'community_program',
+            'smi_event',
+        ]);
+    }
+    return $query;
+});
+```
+
+---
+
+## 14. WP_Query examples for CPT archives
+
+The following examples show how to query custom post types for archive
+pages, shortcodes, and widgets.
+
+### 14.1 News articles (latest 6, with featured image)
+
+```php
+$news_query = new WP_Query([
+    'post_type'      => 'news_article',
+    'posts_per_page' => 6,
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+    'tax_query'      => [[
+        'taxonomy' => 'news_category',
+        'field'    => 'slug',
+        'terms'    => 'announcements',
+    ]],
+]);
+```
+
+### 14.2 Upcoming events (sorted by event date meta)
+
+```php
+$events_query = new WP_Query([
+    'post_type'      => 'event',
+    'posts_per_page' => 5,
+    'meta_key'       => '_event_start_date',
+    'orderby'        => 'meta_value',
+    'order'          => 'ASC',
+    'meta_query'     => [[
+        'key'     => '_event_start_date',
+        'value'   => date('Y-m-d'),
+        'compare' => '>=',
+        'type'    => 'DATE',
+    ]],
+]);
+```
+
+### 14.3 Staff members by department
+
+```php
+$staff_query = new WP_Query([
+    'post_type'      => 'staff_member',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+    'tax_query'      => [[
+        'taxonomy' => 'department',
+        'field'    => 'slug',
+        'terms'    => 'maternity',
+    ]],
+]);
+```
+
+### 14.4 Departments (all, ordered by menu_order)
+
+```php
+$departments_query = new WP_Query([
+    'post_type'      => 'department',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+]);
+```
+
+### 14.5 Job vacancies (open positions only)
+
+```php
+$jobs_query = new WP_Query([
+    'post_type'      => 'job_vacancy',
+    'posts_per_page' => -1,
+    'meta_query'     => [[
+        'key'     => '_job_status',
+        'value'   => 'open',
+        'compare' => '=',
+    ]],
+    'meta_key'       => '_job_closing_date',
+    'orderby'        => 'meta_value',
+    'order'          => 'ASC',
+]);
+```
+
+### 14.6 Gallery albums (with photo count)
+
+```php
+$albums_query = new WP_Query([
+    'post_type'      => 'outlook_album',
+    'posts_per_page' => -1,
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+]);
+```
+
+### 14.7 Custom table query (clinic schedules)
+
+For custom tables (not CPTs), use `$wpdb` directly:
+
+```php
+global $wpdb;
+$schedules = $wpdb->get_results($wpdb->prepare(
+    "SELECT cs.*, d.post_title AS department_name
+     FROM {$wpdb->prefix}clinic_schedules cs
+     LEFT JOIN {$wpdb->posts} d ON cs.department_id = d.ID
+     WHERE cs.day_of_week = %s
+     ORDER BY cs.start_time ASC",
+    'monday'
+));
+```
+
+### 14.8 Cached queries (using transients)
+
+For expensive queries that don't change often (clinic schedules,
+department lists), cache the results with WordPress transients:
+
+```php
+function ollmh_get_clinic_schedules(string $day = ''): array {
+    $cache_key = 'ollmh_clinic_schedules_' . sanitize_key($day);
+    $cached = get_transient($cache_key);
+
+    if (false !== $cached) {
+        return $cached;
+    }
+
+    global $wpdb;
+    $query = "SELECT * FROM {$wpdb->prefix}clinic_schedules";
+    if ($day) {
+        $query .= $wpdb->prepare(" WHERE day_of_week = %s", $day);
+    }
+    $query .= " ORDER BY start_time ASC";
+    $results = $wpdb->get_results($query);
+
+    $ttl = (int) OLLMH_Helpers::get_setting('cache_clinic_schedule_ttl_seconds', 86400);
+    set_transient($cache_key, $results, $ttl);
+
+    return $results;
+}
+```
+
+The transient is automatically cleared when a clinic schedule is updated
+(via the `save_post` hook or a custom admin save handler).

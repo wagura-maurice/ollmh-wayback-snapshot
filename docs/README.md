@@ -169,11 +169,31 @@ static archive to a **fully dynamic, database-driven application**.
   procedures (full site, database-only, single table, file-only), RTO/RPO
   targets, monthly backup verification, and disaster recovery plan for
   server failure, database corruption, hack, and accidental deletion.
+- **[`COOKIE-CONSENT.md`](./COOKIE-CONSENT.md)** — cookie consent strategy
+  compliant with Kenya's Data Protection Act 2019: 3 cookie categories
+  (essential, analytics, advertising), consent banner with Accept All /
+  Reject All / Cookie Settings, per-category toggles, JavaScript
+  implementation for conditional script loading, `wp_cookie_consents`
+  audit trail table, settings, and Cookie Policy page content outline.
+- **[`SHORTCODES.md`](./SHORTCODES.md)** — all 15 custom shortcodes
+  (`[ollmh_clinic_schedule]`, `[ollmh_department_list]`, `[ollmh_staff_grid]`,
+  `[ollmh_ward_status]`, `[ollmh_contact_form]`, `[ollmh_appointment_form]`,
+  `[ollmh_application_form]`, `[ollmh_event_registration]`,
+  `[ollmh_newsletter_form]`, `[ollmh_upcoming_events]`, `[ollmh_latest_news]`,
+  `[ollmh_social_links]`, `[ollmh_hospital_hours]`, `[ollmh_breadcrumbs]`,
+  `[ollmh_gallery]`) with parameters, usage examples, HTML output, and PHP
+  registration code.
 - **[`pages/`](./pages/)** — one standalone documentation file per page, each
   with: **1. Current State Mapping**, **2. Gap Analysis & Feature
   Enhancements**, **3. Database Schema Design**. The News and Events sections
   are split into individual per-entry pages under [`pages/news/`](./pages/news/)
-  and [`pages/events/`](./pages/events/) (see below).
+  and [`pages/events/`](./pages/events/) (see below). New pages created for
+  the WordPress build (not in the archive) are documented in
+  [`pages/patient-information.md`](./pages/patient-information.md),
+  [`pages/faq.md`](./pages/faq.md),
+  [`pages/privacy-policy.md`](./pages/privacy-policy.md),
+  [`pages/terms-of-service.md`](./pages/terms-of-service.md), and
+  [`pages/data-protection.md`](./pages/data-protection.md).
 
 ## Page index
 
@@ -208,10 +228,16 @@ title — a key input for the rebuild.
 | About The Nursing School | [about-nursing-school.md](./pages/about-nursing-school.md) | ❌ Placeholder stub (not archived) |
 | Clinic Days | [clinic-days.md](./pages/clinic-days.md) | ❌ Placeholder stub (not archived) |
 | In Patient Dept | [in-patient-dept.md](./pages/in-patient-dept.md) | ❌ Placeholder stub (not archived) |
+| Patient Information | [patient-information.md](./pages/patient-information.md) | 🆕 New page (footer → Support) |
+| FAQ | [faq.md](./pages/faq.md) | 🆕 New page (footer → Support) |
+| Privacy Policy | [privacy-policy.md](./pages/privacy-policy.md) | 🆕 New page (footer → Legal) |
+| Terms of Service | [terms-of-service.md](./pages/terms-of-service.md) | 🆕 New page (footer → Legal) |
+| Data Protection | [data-protection.md](./pages/data-protection.md) | 🆕 New page (footer → Legal) |
 
 **Legend:** Real content = archived page has substantive content · ⚠️ =
 content present but title/functionality mismatch to address in rebuild · ❌ =
-no real content captured; page must be built from scratch.
+no real content captured; page must be built from scratch · 🆕 = new page
+created for the WordPress build (not in the archive).
 
 ## How the schema fits together
 
