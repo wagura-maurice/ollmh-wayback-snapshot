@@ -788,6 +788,175 @@ information that `wp db size` would provide — no WP-CLI needed.
 
 ---
 
+## ADR-006: Data architecture — WordPress-native (CPT + postmeta + taxonomies), custom tables only for operational data
+
+**Status:** Approved
+**Date:** 2024
+
+### Context
+
+The earlier schema documentation modelled ~80 bespoke SQL tables (see
+[`ERD.md`](./ERD.md), [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md), and the
+per-page files under [`pages/`](./pages/)). At the same time,
+[`CPT-REGISTRATION-CODE.md`](./CPT-REGISTRATION-CODE.md) registered 15 Custom
+Post Types and 4 taxonomies for the **same entities** (news, events,
+departments, wards, clinics, staff, projects, etc.).
+
+This is a contradiction: WordPress stores post content in `wp_posts` +
+`wp_postmeta` and classification in `wp_terms`/`wp_term_taxonomy`/
+`wp_term_relationships`. Defining a CPT **and** a parallel custom table for the
+same entity means two competing sources of truth with no sync strategy — the
+data model cannot be implemented as written. A decision is required before any
+schema or plugin code is generated.
+
+### Decision
+
+**The OLLMH data layer is WordPress-native.** Every entity is classified into
+exactly one storage mechanism:
+
+1. **Core WordPress objects** — pages, media, users, navigation menus,
+   comments, and revisions use core tables (`wp_posts`, `wp_postmeta`,
+   `wp_users`/`wp_usermeta`, `wp_terms*`, `wp_comments`). No custom tables are
+   created for these.
+2. **Custom Post Types (CPTs)** — editable content entities that benefit from
+   the block editor, revisions, and REST API.
+3. **Taxonomies** — classification/grouping terms.
+4. **Post meta / attachments / block content** — attributes and child
+   collections of a CPT (structured fields as postmeta, image galleries as
+   attachments with `post_parent`, curated homepage sections as block
+   patterns/templates authored in the Site Editor).
+5. **Custom tables** — retained **only** for high-volume, transactional, or
+   operational data that is a poor fit for `wp_postmeta` (form submissions,
+   bookings/appointments, application workflow, payments, notification queue,
+   reference/scheduling resources, and the `wp_settings` config store).
+
+**The `CREATE TABLE` blocks in the per-page docs and [`ERD.md`](./ERD.md) are
+retained as _field specifications_** — the column list defines the fields an
+entity needs. For entities classified as CPT/taxonomy/meta below, those columns
+map to post fields, postmeta keys, taxonomy terms, or attachments — **they are
+NOT created as SQL tables.** Only the tables in the "Retained custom tables"
+list below are created as real SQL tables (via `dbDelta()` in the
+`ollmh-core` activation hook). This ADR is the source of truth and supersedes
+the standalone table listings elsewhere.
+
+### Entity classification (all ~80 tables)
+
+**CPTs (15)** — post type slugs per [`CPT-REGISTRATION-CODE.md`](./CPT-REGISTRATION-CODE.md):
+
+| Old table | CPT slug |
+|---|---|
+| `wp_departments` | `department` |
+| `wp_staff` | `staff_member` |
+| `wp_news_articles` | `news_article` |
+| `wp_events` | `event` |
+| `wp_nursing_programmes` | `nursing_programme` |
+| `wp_wards` | `ward` |
+| `wp_clinics` | `clinic` |
+| `wp_special_medical_services` | `special_service` |
+| `wp_development_projects` | `development_project` |
+| `wp_upcoming_projects` | `upcoming_project` |
+| `wp_sustainability_projects` | `sustainability_project` |
+| `wp_community_programs` | `community_program` |
+| `wp_smi_community_events` | `smi_event` |
+| `wp_job_vacancies` | `job_vacancy` |
+| `wp_outlook_albums` | `outlook_album` |
+
+**Taxonomies (4):**
+
+| Old table | Taxonomy slug | Attached to |
+|---|---|---|
+| `wp_news_categories` | `news_category` | `news_article` |
+| `wp_news_tags` | `news_tag` | `news_article` |
+| `wp_event_categories` | `event_category` | `event` |
+| `wp_staff_cadres` | `staff_cadre` | `staff_member` |
+
+**Handled by core WordPress (no custom table):**
+`wp_pages` → core Pages · `wp_media_assets`, `wp_page_media`,
+`wp_*_media`, `wp_*_photos`, `wp_outlook_gallery_items` → Media Library
+attachments (`post_parent` / featured image / gallery blocks) ·
+`wp_users` → core Users · `wp_menu_items` → nav menus / Navigation block ·
+`wp_news_comments` → core comments · `wp_news_article_revisions` → core
+revisions · `wp_news_article_tags` → term relationships.
+
+**Post meta / attachments / block content (folded into the owning CPT or page):**
+`wp_home_slides`, `wp_home_in_focus_items`, `wp_home_feature_blocks`,
+`wp_home_news_promos` (front-page block patterns + query blocks);
+`wp_department_showcase`, `wp_opd_facilities`, `wp_opd_operating_hours`,
+`wp_inpatient_dept_sections`, `wp_service_specialists`, `wp_service_equipment`,
+`wp_mortuary_services`, `wp_nursing_school_profile`, `wp_nursing_facilities`,
+`wp_development_strategic_plans`, `wp_development_project_plan_links`,
+`wp_development_project_metrics`, `wp_upcoming_project_phases`,
+`wp_community_outreach_events`, `wp_smi_community_profile`, `wp_smi_facilities`,
+`wp_about_facts`, `wp_about_milestones`, `wp_location_info`,
+`wp_governance_bodies`, `wp_governance_members`, `wp_care_statements`,
+`wp_care_values`, `wp_hr_capacity_stats`, `wp_contact_channels`,
+`wp_application_form_downloads` (postmeta/attachments/block content on the
+owning CPT or WordPress page; `wp_contact_channels`/`wp_location_info` overlap
+with the `contact` settings group in [`SETTINGS.md`](./SETTINGS.md)).
+
+**Retained custom tables (~26, created via `dbDelta()` in `ollmh-core`):**
+
+| Table | Why it stays a custom table |
+|---|---|
+| `wp_settings` | Config key-value store (already seeded — see [`SETTINGS.md`](./SETTINGS.md)) |
+| `wp_newsletter_subscribers` | Operational mailing list |
+| `wp_event_registrations` | Transactional (event sign-ups) |
+| `wp_applicants` | PII applicant records (application workflow) |
+| `wp_applications` | Transactional application records |
+| `wp_application_documents` | Uploaded-file references per application |
+| `wp_application_status_history` | Audit trail |
+| `wp_application_referees` | Application child data |
+| `wp_application_reviews` | Reviewer workflow |
+| `wp_application_payments` | M-Pesa transactions (optional — ADR-004) |
+| `wp_application_notifications` | Per-application notification log |
+| `wp_nursing_intakes` | Scheduling/capacity counters referenced by applications |
+| `wp_opd_consultation_rooms` | Bookable resource referenced by appointments |
+| `wp_opd_appointments` | Transactional bookings |
+| `wp_clinic_schedules` | Recurring schedules referenced by bookings |
+| `wp_clinic_schedule_exceptions` | Schedule overrides |
+| `wp_clinic_bookings` | Transactional bookings |
+| `wp_ward_bed_status` | Frequently-updated operational status |
+| `wp_inpatient_admission_enquiries` | Form submissions |
+| `wp_service_enquiries` | Form submissions |
+| `wp_smi_vocation_enquiries` | Form submissions |
+| `wp_community_volunteer_signups` | Form submissions |
+| `wp_contact_submissions` | Form submissions |
+| `wp_upcoming_project_pledges` | Transactional pledges/donations |
+| `wp_sustainability_production_records` | Time-series operational data |
+
+### Rationale
+
+1. **One source of truth per entity.** Each entity is a CPT **or** a custom
+   table, never both — removing the central contradiction.
+2. **Leverage the platform.** CPT content gets the block editor, revisions,
+   media handling, search, REST API, and plugin compatibility (Rank Math SEO,
+   Redirection, etc.) for free. Re-implementing these on bespoke tables would
+   be costly and lower quality.
+3. **Custom tables where they earn their place.** Form submissions, bookings,
+   payments, and audit logs are high-volume/transactional and query poorly as
+   `wp_postmeta`; keeping them as normalized custom tables is the same pattern
+   mature plugins (WooCommerce, Gravity Forms, The Events Calendar) use.
+4. **Field specs are preserved.** No analysis is lost — the documented columns
+   become the postmeta/field map for each CPT, so the per-page docs remain
+   useful as field references.
+
+### Implications for other documentation
+
+- [`ERD.md`](./ERD.md), [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md), and
+  [`pages/`](./pages/): the `CREATE TABLE` blocks are field specifications;
+  only the "Retained custom tables" list above is created as SQL. A banner at
+  the top of these files points here.
+- [`ADMIN-SIDEBAR.md`](./ADMIN-SIDEBAR.md): CPT/taxonomy entities appear as
+  native WordPress admin menus; retained custom tables get bespoke admin
+  screens. The "81 custom tables" framing is superseded by this classification.
+- [`PLUGIN-ARCHITECTURE.md`](./PLUGIN-ARCHITECTURE.md): `ollmh-core` activation
+  creates only the ~26 retained custom tables via `dbDelta()`; CPTs and
+  taxonomies are registered on `init` (no table creation).
+- [`CPT-REGISTRATION-CODE.md`](./CPT-REGISTRATION-CODE.md): remains the
+  canonical registration for the 15 CPTs and 4 taxonomies.
+
+---
+
 ## Decision summary
 
 | ADR | Decision | Status |
@@ -797,3 +966,4 @@ information that `wp db size` would provide — no WP-CLI needed.
 | ADR-003 | No Tailwind CSS — pure CSS and native WordPress styling | Approved |
 | ADR-004 | M-Pesa Daraja G2 API — optional modular integration | Pending client approval |
 | ADR-005 | WP-CLI available in development only, not production | Approved |
+| ADR-006 | Data architecture — WordPress-native (CPT + postmeta + taxonomies); custom tables only for operational data | Approved |

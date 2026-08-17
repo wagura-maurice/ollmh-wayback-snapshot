@@ -93,7 +93,7 @@ docker exec ollmh-wp phpunit --allow-root
 - [ ] Appointment form generates reference number
 - [ ] Application form multi-step navigation works (step 1 → 2 → 3 → 4)
 - [ ] Application form document upload works (file size, type validation)
-- [ ] Application form M-Pesa STK Push triggers (sandbox)
+- [ ] Application form M-Pesa STK Push triggers (sandbox) *(only if `ollmh-payments` is active — ADR-004; otherwise verify the form submits without online payment)*
 - [ ] Event registration form works
 - [ ] Turnstile widget renders on all forms
 - [ ] Turnstile validation fails on invalid token
@@ -301,5 +301,5 @@ Have hospital staff (Administrator role) perform these tasks:
 - [ ] Check that backups are running (backup plugin logs)
 - [ ] Monitor Cloudflare analytics for traffic and threats
 - [ ] Test all forms on production (contact, appointment, application)
-- [ ] Verify M-Pesa payments in production mode
+- [ ] Verify M-Pesa payments in production mode *(only if `ollmh-payments` is active and approved — ADR-004)*
 - [ ] Check email delivery (no bounce notifications)

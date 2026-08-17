@@ -5,12 +5,17 @@
 > custom database tables (from the [ERD](./ERD.md)) and WordPress core
 > functionality it manages.
 >
-> The structure groups the **81 custom tables** (80 domain tables + the
-> `wp_settings` configuration table) into logical admin sections
-> using WordPress Custom Post Types (CPTs), custom taxonomy registrations,
-> settings pages, and management screens. The goal is a sidebar that is
-> comprehensive yet scannable — no more than **18 top-level items** — with
-> related tables grouped under a single parent menu.
+> Per [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → **ADR-006**
+> (Approved), the data layer is **WordPress-native**: content entities are
+> Custom Post Types and taxonomies (which surface as native admin menus),
+> while only the ~26 operational tables in ADR-006 have bespoke management
+> screens. The older "**81 custom tables**" framing below is superseded by
+> ADR-006's classification — read the entities here as CPTs / taxonomies /
+> post meta / retained custom tables accordingly. The structure groups these
+> into logical admin sections using WordPress Custom Post Types (CPTs), custom
+> taxonomy registrations, settings pages, and management screens. The goal is a
+> sidebar that is comprehensive yet scannable — no more than **18 top-level
+> items** — with related entities grouped under a single parent menu.
 
 ---
 

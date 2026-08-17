@@ -81,7 +81,7 @@ All emails use a shared HTML wrapper:
 |---|---|---|
 | `{{email_subject}}` | Per template | "Appointment Confirmation" |
 | `{{email_body}}` | Per template | HTML content |
-| `{{logo_url}}` | Theme logo URL | `https://ollmh.org/wp-content/themes/ollmh-theme/assets/images/logo.png` |
+| `{{logo_url}}` | Theme logo URL | `https://ollmh.org/wp-content/themes/ollmh-child/assets/images/logo.png` |
 | `{{hospital_phone}}` | `hospital_phone` setting | `+254700123456` |
 | `{{hospital_email}}` | `hospital_email` setting | `info@ollmh.org` |
 | `{{year}}` | Current year | `2024` |

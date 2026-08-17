@@ -290,7 +290,9 @@ wp_localize_script('ollmh-cookie-consent', 'ollmhConfig', [
 ]);
 ```
 
-The banner HTML is rendered in `footer.php` before the closing `</body>`:
+The banner HTML is injected on the `wp_footer` hook (before the closing
+`</body>`) — the block/FSE child theme has no `footer.php`, so use
+`add_action('wp_footer', ...)` from the theme's `functions.php` or a plugin:
 
 ```php
 <div id="cookie-banner" style="display:none;">

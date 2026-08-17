@@ -246,7 +246,13 @@ turnstile_token: 0.xxxxx
 POST /ollmh/v1/applications
 ```
 
-**Request body:**
+> **Payment fields are optional.** `payment_method` and `mpesa_phone` apply
+> only when the `ollmh-payments` plugin is active and M-Pesa is approved
+> (ADR-004). When the plugin is inactive, omit them — the application is
+> finalised without online payment and the `payment` object is absent from the
+> response.
+
+**Request body (with optional payment — `ollmh-payments` active):**
 ```json
 {
   "step": 4,
@@ -254,6 +260,16 @@ POST /ollmh/v1/applications
   "confirm": true,
   "payment_method": "mpesa_stk",
   "mpesa_phone": "+254712345678",
+  "turnstile_token": "0.xxxxx"
+}
+```
+
+**Request body (no online payment — `ollmh-payments` inactive):**
+```json
+{
+  "step": 4,
+  "application_id": 789,
+  "confirm": true,
   "turnstile_token": "0.xxxxx"
 }
 ```
@@ -272,9 +288,12 @@ POST /ollmh/v1/applications
 }
 ```
 
+> When `ollmh-payments` is inactive, the `payment` object is omitted and
+> `status` is `submitted` immediately.
+
 **Side effects:**
 - Update application status to `submitted`
-- Trigger M-Pesa STK Push to `mpesa_phone`
+- **If `ollmh-payments` is active:** trigger M-Pesa STK Push to `mpesa_phone`
 - Send confirmation email to applicant
 - Send notification to `nursing_school_email`
 

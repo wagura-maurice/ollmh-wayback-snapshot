@@ -1,5 +1,14 @@
 # Consolidated Entity-Relationship Diagram (ERD)
 
+> **⚠️ Read [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) →
+> ADR-006 first.** Per ADR-006 (Approved), the OLLMH data layer is
+> **WordPress-native**: most entities below are implemented as Custom Post
+> Types, taxonomies, or post meta/attachments — **not** as bespoke SQL tables.
+> The `CREATE TABLE` blocks in this ERD and the per-page docs are retained as
+> **field specifications**. Only the ~26 "Retained custom tables" listed in
+> ADR-006 are created as real SQL tables (via `dbDelta()` in `ollmh-core`).
+> ADR-006 supersedes any "N custom tables" framing here.
+
 This document is the **single-source ERD** for the entire OLLMH dynamic website
 schema. It covers all **81 tables** (8 shared/platform + 73 page-specific) and
 their **116 foreign-key relationships**, grouped into logical clusters.

@@ -18,8 +18,13 @@ static archive to a **fully dynamic, database-driven application**.
   (pending client approval, cPanel feasibility confirmed),
   **ADR-005** WP-CLI available in development only, not production
   (cPanel shared hosting — production-safe alternatives documented for
-  every WP-CLI task). **Read this first** — these decisions supersede
-  any conflicting guidance in other documentation files.
+  every WP-CLI task),
+  **ADR-006** data architecture is WordPress-native (Custom Post Types +
+  post meta + taxonomies), with custom SQL tables retained only for
+  operational/transactional data (form submissions, bookings, application
+  workflow, payments, `wp_settings`) — resolves the earlier CPT-vs-custom-table
+  double-modeling and reclassifies all ~80 tables. **Read this first** — these
+  decisions supersede any conflicting guidance in other documentation files.
 - **[`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md)** — shared, platform-wide
   tables (`wp_pages`, `wp_media_assets`, `wp_page_media`, `wp_users`, `wp_menu_items`,
   `wp_departments`, `wp_staff`) and conventions that every per-page schema references

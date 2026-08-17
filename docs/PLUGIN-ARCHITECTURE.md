@@ -18,7 +18,7 @@ one **optional** plugin for M-Pesa payments:
 
 | Plugin | Slug | Status | Purpose | Tables managed |
 |---|---|---|---|---|
-| **OLLMH Core** | `ollmh-core` | Core (required) | CPT/taxonomy registration, settings UI, capability management, cron jobs, database table creation | All 81 tables (creation), `wp_settings` (admin UI) |
+| **OLLMH Core** | `ollmh-core` | Core (required) | CPT/taxonomy registration, settings UI, capability management, cron jobs, database table creation | Registers 15 CPTs + 4 taxonomies (on `init`); creates the ~26 retained custom tables via `dbDelta()` (ADR-006); `wp_settings` (admin UI) |
 | **OLLMH Forms** | `ollmh-forms` | Core (required) | Front-end form handlers (contact, appointment, application, event registration) via REST API | `wp_contact_submissions`, `wp_clinic_bookings`, `wp_opd_appointments`, `wp_applications`, `wp_applicants`, `wp_application_*`, `wp_event_registrations` |
 | **OLLMH Notifications** | `ollmh-notifications` | Core (required) | Transactional email + SMS sending (appointment reminders, application status updates, contact auto-replies) | None (reads from settings, sends via SMTP/SMS gateway) |
 | **OLLMH Payments** | `ollmh-payments` | **Optional** (pending client approval) | M-Pesa Daraja G2 API integration (STK Push) for application fees | `wp_application_payments` |
@@ -74,12 +74,16 @@ ollmh-core/
 
 On plugin activation (`register_activation_hook`):
 
-1. **Create all 81 database tables** via `dbDelta()` — SQL from
-   [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md) and per-page docs.
+1. **Create the ~26 retained custom tables** via `dbDelta()` — only the
+   operational/transactional tables listed in
+   [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-006.
+   Content entities are CPTs/taxonomies (registered on `init`, no table
+   creation). SQL from [`SCHEMA_CONVENTIONS.md`](./SCHEMA_CONVENTIONS.md) and
+   per-page docs (read as field specs per ADR-006).
 2. **Run the settings seeder** — populates `wp_settings` with ~100 defaults
    (see [`seeders/class-ollmh-settings-seeder.php`](../seeders/class-ollmh-settings-seeder.php)).
-3. **Run content seeders** — populates `wp_departments`, `wp_staff`,
-   `wp_pages`, `wp_menu_items` with seed data from the archived site.
+3. **Run content seeders** — populates the `department` and `staff_member`
+   CPTs, core Pages, and nav menus with seed data from the archived site.
 4. **Add CPT capabilities to core roles** — `add_cap()` calls for Editor,
    Author, Contributor (see [`USER-ROLES.md`](./USER-ROLES.md) for the full
    capability list).
@@ -102,7 +106,8 @@ On plugin deactivation (`register_deactivation_hook`):
 
 On plugin uninstall (`uninstall.php`):
 
-1. **Drop all 81 custom tables** — `DROP TABLE IF EXISTS`.
+1. **Drop the ~26 retained custom tables** (ADR-006) — `DROP TABLE IF EXISTS`.
+   CPT content is removed via WordPress post deletion, not table drops.
 2. **Remove all options** — `delete_option('ollmh_*')`.
 3. **Remove all transients** — `delete_transient('ollmh_*')`.
 4. **Remove CPT capabilities from core roles**.

@@ -1,5 +1,16 @@
 # Platform Schema Conventions (Shared Reference)
 
+> **⚠️ Read [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) →
+> ADR-006 first.** Per ADR-006 (Approved), the OLLMH data layer is
+> **WordPress-native**. Most shared entities here map to core WordPress:
+> `wp_pages` → core Pages, `wp_media_assets`/`wp_page_media` → the Media
+> Library (attachments), `wp_users` → core Users, `wp_menu_items` → nav menus,
+> `wp_departments` → the `department` CPT, and `wp_staff` → the `staff_member`
+> CPT. Only `wp_settings` (and the operational tables listed in ADR-006) are
+> created as real SQL tables. The `CREATE TABLE` blocks below are retained as
+> **field specifications**; the conventions still apply to the retained custom
+> tables and to CPT postmeta field design.
+
 This document defines the **shared, platform-wide database tables** that every
 per-page schema in [`docs/pages/`](./pages/) is expected to integrate with via
 foreign keys. It exists so that the site can transition from a static Wayback

@@ -450,14 +450,18 @@ See [`COLOR-SCHEMA.md`](./COLOR-SCHEMA.md) for the full palette and
 All JS is enqueued via `class-ollmh-assets.php` with proper dependencies
 and versioning. No inline JS in templates (WordPress coding standards).
 
+All theme JS is **vanilla ES6+ — no jQuery** (per ADR-002 and
+[`FRONT-END-DEPENDENCIES.md`](./FRONT-END-DEPENDENCIES.md)). jQuery is not
+enqueued as a dependency for any theme script.
+
 | File | Dependencies | Load | Purpose |
 |---|---|---|---|
-| `main.js` | jQuery | Footer | Menu toggle, smooth scroll, accordion, general UI |
-| `slideshow.js` | jQuery, main.js | Footer (home only) | Home page hero slideshow |
-| `tabs.js` | jQuery, main.js | Footer (where tabs used) | Tabbed content sections |
-| `news-scroller.js` | jQuery, main.js | Footer (home only) | News ticker |
-| `gallery.js` | jQuery, main.js | Footer (gallery page only) | Lightbox |
-| `forms.js` | jQuery | Footer (form pages only) | AJAX form submission, validation, Turnstile |
+| `main.js` | none (vanilla ES6) | Footer | Menu toggle, smooth scroll, accordion, general UI |
+| `slideshow.js` | Swiper, main.js | Footer (home only) | Home page hero slideshow |
+| `tabs.js` | main.js | Footer (where tabs used) | Tabbed content sections |
+| `news-scroller.js` | main.js | Footer (home only) | News ticker |
+| `gallery.js` | GLightbox, main.js | Footer (gallery page only) | Lightbox |
+| `forms.js` | main.js | Footer (form pages only) | AJAX form submission (`fetch`), validation, Turnstile |
 
 See [`JAVASCRIPT-INTERACTIVITY.md`](./JAVASCRIPT-INTERACTIVITY.md) for the
 detailed JS component specifications and

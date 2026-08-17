@@ -394,7 +394,7 @@ chmod 644 /var/www/ollmh/.htaccess
 - [ ] Contact form submits and email is received
 - [ ] Appointment booking form works
 - [ ] Application form multi-step works
-- [ ] M-Pesa STK Push works in production mode
+- [ ] M-Pesa STK Push works in production mode *(only if `ollmh-payments` is active and approved — ADR-004; skip otherwise)*
 - [ ] Turnstile captcha validates
 - [ ] Admin login works at `/wp-admin/`
 - [ ] All CPT admin menus are visible

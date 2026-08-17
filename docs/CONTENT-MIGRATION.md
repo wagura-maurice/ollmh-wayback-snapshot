@@ -66,8 +66,10 @@ Each archived HTML page has this structure (Joomla TX Finnix template):
 
 **Extraction target:** The content inside `<div id="mainbody">` (or the
 equivalent component container). Everything else (header, footer, sidebars,
-menu) is template chrome that the WordPress theme will render from
-`header.php` and `footer.php`.
+menu) is template chrome that the WordPress block theme renders from its
+`parts/header.html` and `parts/footer.html` block template parts (this is a
+block/FSE child theme per ADR-001 — there are no `header.php`/`footer.php`
+files).
 
 ---
 

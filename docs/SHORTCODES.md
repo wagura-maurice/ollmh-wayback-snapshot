@@ -469,8 +469,9 @@ page hierarchy.
 [ollmh_breadcrumbs]
 ```
 
-Usually rendered in the theme template (`header.php` or a `breadcrumbs.php`
-template part) rather than in content:
+Usually rendered from the theme (e.g. a `parts/breadcrumbs.html` block
+template part, or via a `wp_body_open` / template hook in `functions.php`)
+rather than in content — the block/FSE child theme has no `header.php`:
 ```php
 echo do_shortcode('[ollmh_breadcrumbs]');
 ```
@@ -626,5 +627,5 @@ ollmh-core/
 ```
 
 These templates are overridable by the theme — a theme can copy any
-template to `wp-content/themes/ollmh-theme/templates/shortcodes/` to
+template to `wp-content/themes/ollmh-child/templates/shortcodes/` to
 customize the output without modifying the plugin.

@@ -15,7 +15,7 @@
 |---|---|---|---|---|
 | Contact form | `/contacts/` | `POST /ollmh/v1/contact` | Yes (if `captcha_on_contact_form=1`) | No |
 | Appointment booking | `/out-patient-dept/` or modal | `POST /ollmh/v1/appointments` | Yes (if `captcha_on_appointment_booking=1`) | No |
-| Nursing school application | `/medical-school-application-form/` | `POST /ollmh/v1/applications` (multi-step) | Yes (if `captcha_on_application_form=1`) | Yes (M-Pesa) |
+| Nursing school application | `/medical-school-application-form/` | `POST /ollmh/v1/applications` (multi-step) | Yes (if `captcha_on_application_form=1`) | Optional (M-Pesa, only if `ollmh-payments` active — ADR-004; otherwise pay offline) |
 | Event registration | Event single page | `POST /ollmh/v1/events/register` | Yes | No |
 
 ---
@@ -200,10 +200,18 @@ with a progress bar.
 
 - Display all entered information for review
 - Show uploaded document thumbnails
+- Confirm checkbox ("I confirm the information is correct")
+- Submit button saves the application
+
+**Payment fields (optional — only when the `ollmh-payments` plugin is active
+and M-Pesa is approved per ADR-004):**
+
 - Display application fee amount (`nursing_application_fee_kes` setting)
 - M-Pesa phone number input
-- Confirm checkbox ("I confirm the information is correct")
-- Submit button triggers M-Pesa STK Push
+- Submit triggers M-Pesa STK Push before finalising
+
+When `ollmh-payments` is inactive, Step 4 omits the payment fields entirely and
+the application is submitted without online payment (applicants pay offline).
 
 ### Progress indicator
 

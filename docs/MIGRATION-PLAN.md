@@ -49,9 +49,9 @@ The migration has 7 phases, each with clear entry/exit criteria. Phases
 **Goal:** Custom plugins and theme are active with empty but functional structure.
 
 **Steps:**
-1. Create the `ollmh-theme` directory in `wp-content/themes/` (see [`THEME-ARCHITECTURE.md`](./THEME-ARCHITECTURE.md))
-2. Create `style.css`, `functions.php`, `theme.json`, `header.php`, `footer.php`, `index.php`
-3. Activate the theme
+1. Create the `ollmh-child` directory in `wp-content/themes/` (block child theme of Twenty Twenty-Five — see [`THEME-ARCHITECTURE.md`](./THEME-ARCHITECTURE.md) and ADR-001)
+2. Create `style.css`, `functions.php`, `theme.json`, `parts/header.html`, `parts/footer.html`, and any `templates/*.html` / `single-*.php` overrides (block templates; header/footer are block template parts, **not** `header.php`/`footer.php` — this is a block/FSE theme per ADR-001)
+3. Activate the theme (Twenty Twenty-Five parent must be installed)
 4. Create the 3 **core** custom plugins in `wp-content/plugins/` (see [`PLUGIN-ARCHITECTURE.md`](./PLUGIN-ARCHITECTURE.md)):
    - `ollmh-core` — activate first
    - `ollmh-forms` — activate after core

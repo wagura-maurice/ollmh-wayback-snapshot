@@ -72,7 +72,7 @@ services:
       - "8080:80"
     volumes:
       - wp_data:/var/www/html
-      - ./wp-content/themes/ollmh-theme:/var/www/html/wp-content/themes/ollmh-theme
+      - ./wp-content/themes/ollmh-child:/var/www/html/wp-content/themes/ollmh-child
       - ./wp-content/plugins/ollmh-core:/var/www/html/wp-content/plugins/ollmh-core
       - ./wp-content/plugins/ollmh-forms:/var/www/html/wp-content/plugins/ollmh-forms
       - ./wp-content/plugins/ollmh-payments:/var/www/html/wp-content/plugins/ollmh-payments
@@ -180,14 +180,15 @@ docker exec ollmh-wp wp core install \
 docker exec ollmh-wp wp rewrite structure '/%postname%/' --allow-root
 docker exec ollmh-wp wp rewrite flush --allow-root
 
-# 7. Activate the theme
-docker exec ollmh-wp wp theme activate ollmh-theme --allow-root
+# 7. Activate the theme (block child theme of Twenty Twenty-Five — ADR-001)
+docker exec ollmh-wp wp theme activate ollmh-child --allow-root
 
 # 8. Activate plugins (in dependency order)
 docker exec ollmh-wp wp plugin activate ollmh-core --allow-root
 docker exec ollmh-wp wp plugin activate ollmh-forms --allow-root
-docker exec ollmh-wp wp plugin activate ollmh-payments --allow-root
 docker exec ollmh-wp wp plugin activate ollmh-notifications --allow-root
+# ollmh-payments is OPTIONAL (M-Pesa) — activate only if approved (ADR-004):
+docker exec ollmh-wp wp plugin activate ollmh-payments --allow-root
 
 # 9. Install third-party plugins
 docker exec ollmh-wp wp plugin install rank-math google-site-kit redirection w3-total-cache broken-link-checker --activate --allow-root
@@ -288,7 +289,7 @@ If using Sass for CSS or bundling JavaScript:
 
 ```bash
 # Install Node.js dependencies
-cd wp-content/themes/ollmh-theme
+cd wp-content/themes/ollmh-child
 npm install
 
 # Watch for changes during development
@@ -302,7 +303,7 @@ Example `package.json` for the theme:
 
 ```json
 {
-  "name": "ollmh-theme",
+  "name": "ollmh-child",
   "version": "1.0.0",
   "scripts": {
     "watch": "sass --watch assets/scss:assets/css",

@@ -12,9 +12,9 @@
 
 | Component | Contents | Frequency | Retention |
 |---|---|---|---|
-| Database | All 81 custom tables + WordPress core tables | Daily | 30 days |
+| Database | All WordPress core tables (CPT content, users, terms) + the ~26 retained custom tables (ADR-006) | Daily | 30 days |
 | Media uploads | `wp-content/uploads/` (all uploaded images, PDFs) | Weekly | 90 days |
-| Theme + plugins | `wp-content/themes/ollmh-theme/` + `wp-content/plugins/ollmh-*/` | On change | 90 days |
+| Theme + plugins | `wp-content/themes/ollmh-child/` + `wp-content/plugins/ollmh-*/` | On change | 90 days |
 | `wp-config.php` | Database credentials, salts, settings | On change | Indefinite (version controlled) |
 | Nginx/Apache config | Server configuration files | On change | Indefinite |
 
@@ -52,7 +52,7 @@ wp db export backup-$(date +%Y%m%d-%H%M%S).sql
 
 # Files backup
 tar -czf backup-files-$(date +%Y%m%d-%H%M%S).tar.gz \
-  wp-content/themes/ollmh-theme \
+  wp-content/themes/ollmh-child \
   wp-content/plugins/ollmh-* \
   wp-content/uploads/
 ```
@@ -144,8 +144,8 @@ wp db import backup-settings.sql
 
 ```bash
 # Restore theme
-rm -rf /var/www/ollmh/wp-content/themes/ollmh-theme
-tar -xzf /tmp/backup-files-*.tar.gz -C /var/www/ollmh/wp-content/ wp-content/themes/ollmh-theme
+rm -rf /var/www/ollmh/wp-content/themes/ollmh-child
+tar -xzf /tmp/backup-files-*.tar.gz -C /var/www/ollmh/wp-content/ wp-content/themes/ollmh-child
 
 # Or restore a single plugin
 rm -rf /var/www/ollmh/wp-content/plugins/ollmh-core
