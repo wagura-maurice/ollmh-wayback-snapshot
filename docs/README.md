@@ -117,6 +117,13 @@ static archive to a **fully dynamic, database-driven application**.
   environment with Docker Compose (WordPress + MySQL + phpMyAdmin +
   MailHog), first-time setup commands, daily workflow, `wp-config.php`
   settings, database access, and troubleshooting.
+- **[`WORDPRESS-INSTALL-MIGRATION.md`](./WORDPRESS-INSTALL-MIGRATION.md)** —
+  remote-VPS workflow (per `work.txt`): clone `wardwatch2027` into
+  `/root/Project/`, `cp -r` it to `Ollmh/`, strip it back to a fresh baseline
+  (remove wardwatch code, config, database, and git history; `git init` a new
+  project), restore vendor/third-party plugins, reinstall WordPress against a
+  new `ollmh` database, and implement this repo's `docs/` + `seeders/` on top
+  to build the OLLMH site.
 - **[`URL-MAPPING.md`](./URL-MAPPING.md)** — complete redirect map from 20
   old Joomla `.html` URLs to new WordPress permalinks, with Redirection
   plugin CSV import, `.htaccess` rules, CPT URL structure, and

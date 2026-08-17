@@ -1,0 +1,11 @@
+on a remote serer where i have cloude athropic 4.8 model on devin cli is where i want to do the thering of the wardwatch2027 projctec into the ollmh folder .
+
+so i will cd to the /root/ of the remove vps server at the ssh root@192.168.1.1 ip an then cd to the /root/Project/ folder an there we will clone the repo (ssh clone git@github.com:wagura-maurice/wardwatch2027.git) an then after cloneing it make a copy of it in the /root/Project/Ollmh/ folder (cp -r /root/Project/wardwatch2027 /root/Project/Ollmh/). inide this ollmh git nitaiate things by first deleting the "/.git" folder from the copied "wardwatch2027" directory in the "Ollmh" folder. This can be done using the command `rm -rf /root/Project/Ollmh/.git`. then after that git init an git add the do git commit messga of that we are starting a new project based on the wardwatch2027 code. to enusr that we are able to repeicate the wardwatch2027 project into the Ollmh folder, we will follow these steps: read the full documented instruction for the convertion of the wardwatch2027 project into the Ollmh folder. an the process of documenting the steps we will follow:
+
+i.e the first step is to clone the wardwatch2027 project into the Ollmh folder.
+
+then pull all the changes from the remote repository. i.e the /root/Project/ollmh-wayback-snapshot so that you have in mid the /docs foler inside it read an then you can use that data to understand exatlt what cahange to make in the Ollmh folder. that is a repleica of the wardwatch2027 project.
+
+on this remote vps we have the devin cli too an then we will have the other thing run
+
+for now read the /var/www/html/wardwatch2027 folder an then enusre the /docs folder in the local "~/Documents/Projects/ollmh-wayback-snapshot". re update to enusre that wehn i push this an pull it in the remote vps the changes will be reflected in the local folder. an then on the remote vps i will be runin the devin clie from the /root/Project folder i,e all the 3 folder are not in the root of this location is the idea. then i can run devin clie there an read the docs from the /root/Projects/ollmh-wayback-snapshot/docs folder. an implenet them in the /
