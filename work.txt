@@ -1,11 +1,289 @@
-on a remote serer where i have cloude athropic 4.8 model on devin cli is where i want to do the thering of the wardwatch2027 projctec into the ollmh folder .
+# OLLMH — Remote VPS Build Instructions (for the Devin CLI)
 
-so i will cd to the /root/ of the remove vps server at the ssh root@192.168.1.1 ip an then cd to the /root/Project/ folder an there we will clone the repo (ssh clone git@github.com:wagura-maurice/wardwatch2027.git) an then after cloneing it make a copy of it in the /root/Project/Ollmh/ folder (cp -r /root/Project/wardwatch2027 /root/Project/Ollmh/). inide this ollmh git nitaiate things by first deleting the "/.git" folder from the copied "wardwatch2027" directory in the "Ollmh" folder. This can be done using the command `rm -rf /root/Project/Ollmh/.git`. then after that git init an git add the do git commit messga of that we are starting a new project based on the wardwatch2027 code. to enusr that we are able to repeicate the wardwatch2027 project into the Ollmh folder, we will follow these steps: read the full documented instruction for the convertion of the wardwatch2027 project into the Ollmh folder. an the process of documenting the steps we will follow:
+## Mission
 
-i.e the first step is to clone the wardwatch2027 project into the Ollmh folder.
+On this remote VPS, **generate the complete OLLMH (Our Lady of Lourdes Mwea
+Hospital) WordPress project**: replicate the `wardwatch2027` codebase into a
+fresh `Ollmh/` baseline, then implement the OLLMH child theme, the four custom
+plugins, and the seeders **exactly as specified** in the
+`ollmh-wayback-snapshot` repo's `docs/` folder.
 
-then pull all the changes from the remote repository. i.e the /root/Project/ollmh-wayback-snapshot so that you have in mid the /docs foler inside it read an then you can use that data to understand exatlt what cahange to make in the Ollmh folder. that is a repleica of the wardwatch2027 project.
+This VPS is a **code-generation environment**. The Devin CLI should do most of
+the work here: clone, copy, strip, write code, restructure files, and syntax
+check. When finished, the new `Ollmh/` project is pushed to GitHub and the
+owner clones it to a local workstation (running **PHP 8.4**) to continue other
+changes. No live/deployed site is required on this VPS.
 
-on this remote vps we have the devin cli too an then we will have the other thing run
+---
 
-for now read the /var/www/html/wardwatch2027 folder an then enusre the /docs folder in the local "~/Documents/Projects/ollmh-wayback-snapshot". re update to enusre that wehn i push this an pull it in the remote vps the changes will be reflected in the local folder. an then on the remote vps i will be runin the devin clie from the /root/Project folder i,e all the 3 folder are not in the root of this location is the idea. then i can run devin clie there an read the docs from the /root/Projects/ollmh-wayback-snapshot/docs folder. an implenet them in the /
+## Environment — what you may use on this VPS
+
+| Capability | Detail |
+|---|---|
+| Working root | `/root/Project/` — run Devin from here; all three folders live here. *(If you actually created `/root/Projects/`, use that path everywhere instead.)* |
+| Git | SSH clones work: `git@github.com:wagura-maurice/...` — credentials already set up. |
+| PHP (linting/tests) | **PHP 8.3** installed on this VPS. Use `php -l <file>` to syntax-check **every** PHP file you create or edit. |
+| MySQL | Available on this VPS — use a throwaway `ollmh` database only to verify the install and schema. This is verification, not deployment. |
+| WP-CLI / Composer | Available; used for the baseline install and to restore dependencies. |
+
+### PHP target rule (important)
+
+The code you generate will run on the owner's local machine with **PHP 8.4**.
+Write PHP that is compatible with **both 8.3 and 8.4**. Do not use features or
+APIs that are deprecated/removed in 8.4 (e.g. implicitly nullable parameter
+types like `function f(Type $x = null)`, string curly-brace offsets
+`$str{0}`, etc.). Always confirm with `php -l` using the VPS's PHP 8.3 binary.
+
+---
+
+## Phase 0 — Pull the instruction repo (the spec)
+
+```bash
+git clone git@github.com:wagura-maurice/ollmh-wayback-snapshot.git /root/Project/ollmh-wayback-snapshot
+# if it already exists:
+cd /root/Project/ollmh-wayback-snapshot && git pull origin main
+```
+
+**Read, in this order, before writing any code:**
+
+1. `docs/ARCHITECTURAL-DECISIONS.md` — the ADRs; they **supersede** any conflicting guidance elsewhere.
+2. `docs/WORDPRESS-INSTALL-MIGRATION.md` — the baseline (clone → copy → strip → fresh install) procedure.
+3. `docs/README.md` — the full docs index; use it to find every doc you must implement.
+
+---
+
+## Phase 1 — Replicate the wardwatch2027 baseline
+
+```bash
+cd /root/Project
+
+# 1. Clone the existing project (the source of the replication)
+git clone git@github.com:wagura-maurice/wardwatch2027.git /root/Project/wardwatch2027
+
+# 2. Make an exact copy for the new OLLMH project
+cp -r /root/Project/wardwatch2027 /root/Project/Ollmh
+```
+
+**Strip the copy — work ONLY in `/root/Project/Ollmh/`, never touch
+`/root/Project/wardwatch2027`:**
+
+```bash
+cd /root/Project/Ollmh
+
+# Runtime data
+rm -rf wp-content/uploads/* wp-content/cache wp-content/w3tc-config \
+       wp-content/advanced-cache.php wp-content/upgrade/* data
+
+# wardwatch-specific plugins and setup scripts
+rm -rf wp-content/plugins/wardwatch2027-api wp-content/plugins/wardwatch2027-db \
+       wp-content/plugins/wordpress-seo
+rm -f  wp-content/plugins/wardwatch2027-setup*.php
+
+# wardwatch child theme (keep the default twenty* themes, incl. twentytwentyfive)
+rm -rf wp-content/themes/wardwatch2027-child
+
+# Root deploy tooling / config → quarantine for reference
+mkdir -p /root/Project/_wardwatch-legacy
+for f in deploy.php deployer.txt vhost.config nginx.conf crontab.config \
+         ecosystem.config.js wp.sh start-wordpress.bat .local .htaccess .gitignore; do
+  [ -e "$f" ] && mv "$f" /root/Project/_wardwatch-legacy/
+done
+rm -f wp.sh start-wordpress.bat
+[ -d admin ] && rm -rf admin
+```
+
+**Reset git history (independence step):**
+
+```bash
+cd /root/Project/Ollmh
+rm -rf .git
+git init
+git add .
+git commit -m "Initialize OLLMH project: fresh baseline derived from wardwatch2027 code"
+git branch -M main
+```
+
+**Verify clean:** no `wardwatch2027` string in tracked code:
+
+```bash
+cd /root/Project/Ollmh
+grep -rIl --exclude-dir=wp-admin --exclude-dir=wp-includes --exclude-dir=vendor \
+  "wardwatch2027" . 2>/dev/null || echo "CLEAN"
+```
+
+---
+
+## Phase 2 — Restore what git ignored (not present in the clone)
+
+```bash
+cd /root/Project/Ollmh
+composer install --no-dev --optimize-autoloader
+
+wp plugin install w3-total-cache --activate
+wp plugin install seo-by-rank-math --activate
+wp plugin install redirection
+wp plugin install google-site-kit
+wp plugin install broken-link-checker
+```
+
+---
+
+## Phase 3 — Fresh database & WordPress install (verification only)
+
+```bash
+# New DB — NEVER reuse the wardwatch2027 database
+mysql -e "CREATE DATABASE ollmh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -e "CREATE USER 'ollmh'@'localhost' IDENTIFIED BY '<strong-password>';"
+mysql -e "GRANT ALL PRIVILEGES ON ollmh.* TO 'ollmh'@'localhost'; FLUSH PRIVILEGES;"
+
+cd /root/Project/Ollmh
+
+# Fresh wp-config (do NOT commit it)
+mv wp-config.php /root/Project/_wardwatch-legacy/wp-config.php.wardwatch
+wp config create --dbname=ollmh --dbuser=ollmh --dbpass='<strong-password>' \
+  --dbhost=localhost --dbcharset=utf8mb4 --skip-check
+wp config shuffle-salts
+wp config set WP_ENV local
+wp config set WP_DEBUG true --raw
+wp config set WP_DEBUG_LOG true --raw
+wp config set DISABLE_WP_CRON true --raw
+
+touch .local
+cat > .gitignore <<'EOF'
+wp-config.php
+.local
+wp-content/uploads/*
+wp-content/cache/*
+wp-content/w3tc-config/*
+wp-content/debug.log
+vendor/*
+EOF
+
+# Fresh install
+wp core install --url="http://ollmh.local" --title="Our Lady of Lourdes Mwea Hospital" \
+  --admin_user="ollmh-admin" --admin_password="<strong-admin-password>" \
+  --admin_email="admin@ourladyoflourdesmweahospital.org" --skip-email
+
+wp option update blogdescription "Faith-Based Healthcare Serving Mwea, Kirinyaga County"
+wp option update timezone_string "Africa/Nairobi"
+wp option update date_format "j F Y"
+wp option update time_format "g:i A"
+wp rewrite structure '/%postname%/' --hard
+wp rewrite flush --hard
+
+wp plugin delete akismet hello
+rm -f wp-content/object-cache.php wp-content/advanced-cache.php wp-content/db.php
+
+git add -A
+git commit -m "Fresh WordPress install: empty OLLMH database, new salts, clean baseline"
+```
+
+---
+
+## Phase 4 — GENERATE the OLLMH code (the main work)
+
+Implement every spec doc into `/root/Project/Ollmh/wp-content/`. Create real,
+working PHP/CSS/JS/block-template files — not stubs.
+
+### 4.1 Theme — `wp-content/themes/ollmh-child/`
+
+Follow `docs/THEME-ARCHITECTURE.md` + `docs/COLOR-SCHEMA.md` +
+`docs/FONT-SCHEMA.md`:
+
+- Child theme of Twenty Twenty-Five (`style.css` with `Template: twentytwentyfive`).
+- `theme.json` overriding the parent's palette with the OLLMH brand colors and font stack.
+- `functions.php` (asset enqueuing, image sizes, breadcrumbs, schema output, template helpers).
+- Block templates under `templates/` for the 20+ page types listed in THEME-ARCHITECTURE.
+- Template parts under `parts/` (header, footer, sidebar, breadcrumbs).
+- The 15 custom shortcodes from `docs/SHORTCODES.md` (clinic schedule, department list, staff grid, ward status, all four forms, newsletter, events, news, social links, hospital hours, breadcrumbs, gallery).
+- Accessibility (`docs/ACCESSIBILITY.md`), responsive breakpoints (`docs/RESPONSIVE-DESIGN.md`), JS interactivity per `docs/JAVASCRIPT-INTERACTIVITY.md` (Swiper, vanilla tabs, scroll-snap, mobile menu).
+
+### 4.2 Plugins — `wp-content/plugins/ollmh-core/`, `ollmh-forms/`, `ollmh-payments/`, `ollmh-notifications/`
+
+Follow `docs/PLUGIN-ARCHITECTURE.md` + `docs/CPT-REGISTRATION-CODE.md`:
+
+- `ollmh-core`: register all **15 CPTs + 4 taxonomies** (code is in CPT-REGISTRATION-CODE), create the operational custom tables on activation (per ADR-006 / ERD.md), admin sidebar menus (`docs/ADMIN-SIDEBAR.md`), settings page with the 19 groups (`docs/SETTINGS.md`), REST API endpoints (`docs/REST-API-SPEC.md`), and the **seeders** integrated (copy them in from `/root/Project/ollmh-wayback-snapshot/seeders/` and register a `wp ollmh seed settings` WP-CLI command).
+- `ollmh-forms`: contact, appointment, application (multi-step), event registration forms per `docs/FRONT-END-FORMS.md`; AJAX submission; Cloudflare Turnstile (vanilla JS) per ADR-002; store submissions in the tables from `docs/FRONT-END-FORMS.md`.
+- `ollmh-payments`: optional M-Pesa Daraja STK Push module per ADR-004 / `docs/REST-API-SPEC.md` (M-Pesa callback endpoint); disabled by default, gated by `wp_settings` group `financial`.
+- `ollmh-notifications`: email/SMS queue per `docs/CRON-JOBS.md` + `docs/EMAIL-TEMPLATES.md`; register the 12 scheduled tasks.
+
+### 4.3 Data layer
+
+- Follow ADR-006: content entities are CPTs/taxonomies/post-meta; custom tables only for operational data (applications, bookings, submissions, payments, `wp_settings`).
+- Follow `docs/SCHEMA_CONVENTIONS.md` and `docs/ERD.md` for shared tables and FK conventions. Write the schema DDL in `ollmh-core`'s activation routine (`dbDelta` or `CREATE TABLE IF NOT EXISTS`).
+- Preserve the `wp_` table prefix.
+
+### 4.4 Testing discipline (required as you go)
+
+- For **every** PHP file created/edited: `php -l <file>` using the VPS's PHP 8.3 — must pass with no output.
+- Write the code to be **PHP 8.4 compatible** (see the PHP target rule above).
+- Activate plugins in order, then the theme:
+  ```bash
+  cd /root/Project/Ollmh
+  wp plugin activate ollmh-core ollmh-forms ollmh-payments ollmh-notifications
+  wp theme activate ollmh-child
+  ```
+- Run the settings seeder and verify:
+  ```bash
+  wp ollmh seed settings
+  mysql -e "USE ollmh; SHOW TABLES;"                 # expect wp_settings, wp_applications, ...
+  mysql -e "USE ollmh; SELECT COUNT(*) FROM wp_settings;"
+  ```
+- Commit frequently with descriptive messages as you complete each doc's scope.
+
+---
+
+## Phase 5 — Final verification
+
+```bash
+cd /root/Project/Ollmh
+
+wp core is-installed && echo OK
+wp theme list --status=active          # ollmh-child
+wp plugin list --status=active         # 5 generic + 4 ollmh plugins
+mysql -e "USE ollmh; SHOW TABLES;"
+mysql -e "SHOW DATABASES;"             # ollmh present; wardwatch2027 untouched
+
+# No wardwatch residue
+grep -rIl --exclude-dir=wp-admin --exclude-dir=wp-includes --exclude-dir=vendor \
+  "wardwatch2027" . 2>/dev/null || echo CLEAN
+
+# PHP 8.3 lint every new/edited PHP file (theme + plugins + seeders)
+find wp-content/themes/ollmh-child wp-content/plugins/ollmh-* \
+  -name '*.php' -print0 | xargs -0 -n1 php -l | grep -v "No syntax errors" || echo "ALL PHP OK"
+
+git status            # everything committed
+```
+
+---
+
+## Phase 6 — Push the finished project to GitHub
+
+```bash
+cd /root/Project/Ollmh
+git add -A
+git commit -m "Implement OLLMH build: theme, plugins, seeders, and data layer per ollmh-wayback-snapshot docs"
+git remote add origin git@github.com:wagura-maurice/ollmh.git
+git push -u origin main
+```
+
+- If the `ollmh` repository does not exist yet, try to create it:
+  `gh repo create wagura-maurice/ollmh --private --source . --push`
+- If that fails (no `gh` auth), report back so the owner creates the repo and pushes.
+
+The owner will then clone `ollmh` to the local workstation (PHP 8.4) to
+continue changes there.
+
+---
+
+## Final report back to the owner (most important deliverable)
+
+Report concisely:
+
+1. Baseline verified clean (no wardwatch strings, fresh git history, fresh `ollmh` DB).
+2. Theme: list of files created under `wp-content/themes/ollmh-child/`.
+3. Plugins: list of files created under `wp-content/plugins/ollmh-*/`.
+4. PHP lint results (count checked, all passing under PHP 8.3, 8.4-compatible).
+5. Seeder output + table verification.
+6. Push status (repo created/pushed or blocked, with the exact reason).
+7. Any deviations from these instructions and why.
