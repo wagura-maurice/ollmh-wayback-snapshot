@@ -16,7 +16,7 @@
 - All shortcodes are registered in `ollmh-core/includes/class-ollmh-shortcodes.php`
 - Shortcodes are **self-contained** — they query the database, render HTML,
   and return a string (never `echo`)
-- Shortcodes are **cache-safe** — they work with WP Rocket page caching
+- Shortcodes are **cache-safe** — they work with W3 Total Cache page caching
   (dynamic content is loaded via AJAX where needed, or the shortcode output
   is cached with the page)
 - Shortcodes use **semantic class names** prefixed with `ollmh-` (e.g.

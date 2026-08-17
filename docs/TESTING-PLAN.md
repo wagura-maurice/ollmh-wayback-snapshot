@@ -206,7 +206,7 @@ Test on these screen sizes:
 - [ ] Images are optimized (WebP format, lazy loaded)
 - [ ] CSS is minified
 - [ ] JS is minified and loaded in footer
-- [ ] WP Rocket cache is active
+- [ ] W3 Total Cache is active
 - [ ] Gzip/Brotli compression is enabled
 - [ ] Browser caching headers are set
 

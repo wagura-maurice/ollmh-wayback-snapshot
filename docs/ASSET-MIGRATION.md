@@ -220,7 +220,7 @@ All migrated images have empty alt text. Assign alt text by:
 
 After migration, optimize all images:
 
-1. Install **ShortPixel** or **Imagify** plugin (or use WP Rocket's image optimization)
+1. Install **ShortPixel** or **Imagify** plugin (or use W3 Total Cache's lazy load + a free image optimizer like **Converter for Media** for WebP conversion)
 2. Bulk-optimize all images in the media library
 3. Convert to **WebP** format (smaller file size, supported by all modern browsers)
 4. Generate responsive `srcset` sizes (WordPress does this automatically for

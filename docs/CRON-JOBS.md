@@ -53,7 +53,7 @@ define('DISABLE_WP_CRON', true);
 | Backup database | `ollmh_backup_db` | Daily | Backup plugin | Database backup (see [`BACKUP-RECOVERY.md`](./BACKUP-RECOVERY.md)) |
 | Backup files | `ollmh_backup_files` | Weekly | Backup plugin | File backup |
 | Update application statuses | `ollmh_auto_expire_applications` | Daily | `ollmh-core` | Mark applications as expired if past deadline |
-| Clear cache | `ollmh_clear_cache` | Daily (3 AM) | WP Rocket | Clear page cache for fresh content |
+| Clear cache | `ollmh_clear_cache` | Daily (3 AM) | W3 Total Cache | Clear page cache for fresh content |
 
 ---
 

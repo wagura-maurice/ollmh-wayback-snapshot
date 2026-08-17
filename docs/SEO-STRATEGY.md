@@ -168,8 +168,8 @@ monitor to avoid duplicate logging. Configure log expiry to 30 days.
 
 ### Layer 5: Performance & Core Web Vitals
 
-**WP Rocket** (premium) or **LiteSpeed Cache** (free, if hosting supports
-LiteSpeed) or **W3 Total Cache** (free).
+**W3 Total Cache** (free) or **LiteSpeed Cache** (free, if hosting supports
+LiteSpeed).
 
 Core Web Vitals are Google ranking factors. The three metrics:
 
@@ -187,9 +187,9 @@ A caching/performance plugin addresses these by:
 - **Database optimization** — cleans post revisions, transients, spam
 - **CDN integration** — serves assets from edge locations (improves LCP globally)
 
-**OLLMH recommendation:** Use **WP Rocket** if budget allows (it is the
-most reliable and user-friendly). Otherwise, **LiteSpeed Cache** if the
-host runs LiteSpeed, or **W3 Total Cache** as a free fallback. Configure
+**OLLMH recommendation:** Use **W3 Total Cache** (free, comprehensive —
+page cache, minify, browser cache, lazy load, database optimization).
+Alternatively, **LiteSpeed Cache** if the host runs LiteSpeed. Configure
 image dimensions on all `<img>` tags (the archived site already has
 `width`/`height` attributes — preserve these in the rebuild to prevent
 CLS).
@@ -346,14 +346,14 @@ starting point.
 | 2 | Google integration | **Site Kit by Google** | Free | **Add — critical** |
 | 3 | Structured data (medical) | **Custom JSON-LD templates** or Schema Markup for Medical Business | Free | **Add — critical for hospital** |
 | 4 | Redirect & 404 | **Redirection** | Free | **Add — critical for Joomla migration** |
-| 5 | Performance / CWV | **WP Rocket** or LiteSpeed Cache | Premium / Free | **Add — critical for Core Web Vitals** |
+| 5 | Performance / CWV | **W3 Total Cache** or LiteSpeed Cache | Free | **Add — critical for Core Web Vitals** |
 | 6 | Broken link monitor | **Broken Link Checker** | Free | **Add — recommended** |
 | 7 | Keyword research | **Google Keyword Planner + Search Console** (via Site Kit) | Free | Already available via Site Kit |
 | 8 | XML sitemap & robots.txt | **Rank Math** (built-in) | Free | Already covered |
 | 9 | Social / Open Graph | **Rank Math** (built-in) | Free | Already covered |
 | 10 | SEO data warehouse | **Metabase** (optional, post-launch) | Free | Optional — defer 6–12 months |
 
-**Net new plugins to install: Site Kit, Redirection, WP Rocket (or
+**Net new plugins to install: Site Kit, Redirection, W3 Total Cache (or
 alternative), Broken Link Checker.** That's 4 plugins beyond Rank Math and
 Google Analytics.
 
@@ -927,7 +927,7 @@ running the initial audit and storing the baseline.
    - New queries driving traffic (add to `wp_seo_keywords`)
    - Pages with high impressions but low CTR (optimize meta title/desc)
    - Pages with indexing errors (fix and resubmit)
-   - Core Web Vitals regressions (optimize with WP Rocket)
+   - Core Web Vitals regressions (optimize with W3 Total Cache)
 
 ### Schema.org JSON-LD seed templates
 
@@ -1072,15 +1072,15 @@ are created; see [`USER-ROLES.md`](./USER-ROLES.md)).
 | Rank Math | 3.0+ | Free version covers on-page SEO, sitemaps, schema, social. PRO adds keyword tracking, internal linking suggestions. |
 | Site Kit by Google | 1.120+ | Free. Connects Search Console, GA4, PageSpeed Insights. |
 | Redirection | 5.7+ | Free. 301 redirect manager + 404 monitor. |
-| WP Rocket | 3.15+ | Premium (~$59/year). Page caching, CSS/JS optimization, lazy load, CDN. Alternative: LiteSpeed Cache (free, requires LiteSpeed server). |
+| W3 Total Cache | 2.7+ | Free. Page caching, CSS/JS minification, browser cache, lazy load, database optimization, CDN integration. Alternative: LiteSpeed Cache (free, requires LiteSpeed server). |
 | Broken Link Checker | 2.0+ | Free. Monitors outbound links. Configure for weekly scans. |
 | Schema Markup for Medical Business | 1.1+ | Free (optional). Medical-specific schema if not using custom JSON-LD. |
 
 **Total plugin count for SEO:** 4–6 plugins (Rank Math, Site Kit,
-Redirection, WP Rocket, Broken Link Checker, optionally Schema Markup for
+Redirection, W3 Total Cache, Broken Link Checker, optionally Schema Markup for
 Medical Business).
 
-**Performance note:** Each plugin adds PHP overhead. WP Rocket mitigates
+**Performance note:** Each plugin adds PHP overhead. W3 Total Cache mitigates
 this by caching pages — the cached HTML is served without executing PHP
 for 95%+ of requests, so the plugin count has minimal impact on
 front-end performance.

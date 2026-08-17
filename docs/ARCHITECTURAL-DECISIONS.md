@@ -624,7 +624,7 @@ API, or cPanel File Manager / phpMyAdmin:
 | **Asset migration** (importing images into media library) | `wp eval-file scripts/migrate-assets.php` | Same as content migration — run in dev, then export/import. Or: use the WordPress media uploader manually for small batches. |
 | **Database table creation** (plugin activation) | `wp plugin activate ollmh-core` | Activate plugin via WP admin → Plugins page. The `register_activation_hook()` creates all tables identically. |
 | **Plugin/theme activation** | `wp plugin activate ollmh-core` / `wp theme activate ollmh-child` | WP admin → Plugins → Activate; Appearance → Themes → Activate. |
-| **Cache clearing** | `wp cache flush` / `wp rocket flush` | WP admin → Settings → WP Rocket → Clear Cache; or WP admin → Performance → Clear All Caches. |
+| **Cache clearing** | `wp cache flush` / `wp w3-total-cache flush` | WP admin → Performance → Empty All Caches (W3 Total Cache). |
 | **Database size monitoring** | `wp db size` | phpMyAdmin → database name → size column; or a custom admin dashboard widget that queries `SUM(data_length + index_length)` from `information_schema.TABLES`. |
 | **User management** | `wp user create` / `wp user list` | WP admin → Users → Add New / All Users. |
 | **Rewrite rules flush** | `wp rewrite flush` | WP admin → Settings → Permalinks → Save (flushes rewrite rules). |

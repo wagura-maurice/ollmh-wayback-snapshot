@@ -415,7 +415,7 @@ WordPress bundles jQuery 3.7+. The OLLMH theme **does not enqueue jQuery**
 unless a specific component requires it. All theme JS is written in vanilla
 ES6+ JavaScript.
 
-If a third-party plugin requires jQuery (e.g., WP Rocket's lazy load), it
+If a third-party plugin requires jQuery (e.g., a plugin's lazy load feature), it
 will enqueue jQuery itself — the theme does not need to.
 
 **Exception:** If Swiper.js is loaded via npm and bundled, it has no

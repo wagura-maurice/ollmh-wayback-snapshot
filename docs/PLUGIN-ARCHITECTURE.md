@@ -32,7 +32,7 @@ one **optional** plugin for M-Pesa payments:
 > online payment (applicants pay offline).
 
 **Plus 6 third-party plugins** (see [`SEO-STRATEGY.md`](./SEO-STRATEGY.md)):
-Rank Math, Site Kit by Google, Redirection, WP Rocket, Broken Link Checker,
+Rank Math, Site Kit by Google, Redirection, W3 Total Cache, Broken Link Checker,
 and optionally Schema Markup for Medical Business.
 
 ---

@@ -196,8 +196,8 @@ Local Dev (Docker, WP-CLI) → Staging (staging.ollmh.org, WP-CLI) → Productio
     - This flushes the rewrite rules cache — identical to `wp rewrite flush`
 
 12. **Clear cache:**
-    - WP admin → Settings → WP Rocket → Clear Cache (if WP Rocket is active)
-    - Or: WP admin → Performance → Clear All Caches
+    - WP admin → Performance → General Settings → Empty All Caches (W3 Total Cache)
+    - Or: WP admin → Performance → Empty All Caches
 
 13. **Configure settings:**
     - WP admin → OLLMH Settings → enter production values for all settings
@@ -402,7 +402,7 @@ chmod 644 /var/www/ollmh/.htaccess
 - [ ] XML sitemap is generated at `/sitemap_index.xml`
 - [ ] Google Site Kit is connected
 - [ ] Rank Math SEO is configured
-- [ ] WP Rocket cache is active
+- [ ] W3 Total Cache is active
 - [ ] Backups are scheduled (see [`BACKUP-RECOVERY.md`](./BACKUP-RECOVERY.md))
 - [ ] `debug.log` is empty (no PHP errors)
 - [ ] PageSpeed score is 80+ on mobile

@@ -101,8 +101,8 @@ The home page slideshow is the heaviest element. Optimize:
   `assets/dist/style.min.css`)
 - **Minified:** Remove comments, whitespace, unnecessary semicolons
 - **Gzip/Brotli:** Server compresses CSS before sending
-- **Critical CSS:** Inline above-the-fold CSS for faster FCP (WP Rocket
-  does this automatically)
+- **Critical CSS:** Inline above-the-fold CSS for faster FCP (W3 Total Cache
+  can inline critical CSS via its minify settings)
 - **No `@import`:** Use `wp_enqueue_style` with dependencies instead
 - **No unused CSS:** Don't load Bootstrap/Tailwind if only using 5% of it
 
@@ -144,7 +144,7 @@ The home page slideshow is the heaviest element. Optimize:
 
 ## 6. Caching strategy
 
-### 6.1 Page caching (WP Rocket)
+### 6.1 Page caching (W3 Total Cache)
 
 - Cache all public pages as static HTML
 - Cache lifetime: 24 hours (or until content changes)
@@ -248,7 +248,7 @@ connection.
 
 ## 10. Performance checklist (pre-launch)
 
-- [ ] WP Rocket is installed and configured
+- [ ] W3 Total Cache is installed and configured
 - [ ] Page caching is active
 - [ ] CSS minification is enabled
 - [ ] JS minification is enabled

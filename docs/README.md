@@ -168,7 +168,7 @@ static archive to a **fully dynamic, database-driven application**.
 - **[`PERFORMANCE-BUDGET.md`](./PERFORMANCE-BUDGET.md)** — Core Web Vitals
   targets (LCP < 2.5s, INP < 200ms, CLS < 0.1), page weight budget (< 700KB
   first view), image optimization (WebP, responsive srcset, lazy loading),
-  CSS/JS optimization, caching strategy (WP Rocket, Redis, Cloudflare CDN),
+  CSS/JS optimization, caching strategy (W3 Total Cache, Redis, Cloudflare CDN),
   database optimization, server tuning, and monitoring.
 - **[`SECURITY-HARDENING.md`](./SECURITY-HARDENING.md)** — 5-layer security
   strategy (Cloudflare edge, WordPress application, server, data,

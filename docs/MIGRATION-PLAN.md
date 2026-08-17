@@ -37,7 +37,7 @@ The migration has 7 phases, each with clear entry/exit criteria. Phases
 3. Run `docker-compose up -d` to start WordPress + MySQL + phpMyAdmin
 4. Complete the WordPress installation wizard
 5. Configure `wp-config.php` with proper salts and debug settings
-6. Install the 6 third-party plugins (Rank Math, Site Kit, Redirection, WP Rocket, Broken Link Checker, Schema Markup)
+6. Install the 6 third-party plugins (Rank Math, Site Kit, Redirection, W3 Total Cache, Broken Link Checker, Schema Markup)
 7. Verify the site loads at `http://localhost:8080`
 
 **Exit criteria:** WordPress loads locally, database is accessible, plugins installed.
@@ -52,17 +52,20 @@ The migration has 7 phases, each with clear entry/exit criteria. Phases
 1. Create the `ollmh-theme` directory in `wp-content/themes/` (see [`THEME-ARCHITECTURE.md`](./THEME-ARCHITECTURE.md))
 2. Create `style.css`, `functions.php`, `theme.json`, `header.php`, `footer.php`, `index.php`
 3. Activate the theme
-4. Create the 4 custom plugins in `wp-content/plugins/` (see [`PLUGIN-ARCHITECTURE.md`](./PLUGIN-ARCHITECTURE.md)):
+4. Create the 3 **core** custom plugins in `wp-content/plugins/` (see [`PLUGIN-ARCHITECTURE.md`](./PLUGIN-ARCHITECTURE.md)):
    - `ollmh-core` — activate first
    - `ollmh-forms` — activate after core
-   - `ollmh-payments` — activate after core
    - `ollmh-notifications` — activate after core
-5. Verify all 4 plugins activate without errors
-6. Register CPTs and taxonomies (see [`CPT-REGISTRATION-CODE.md`](./CPT-REGISTRATION-CODE.md))
-7. Flush rewrite rules
-8. Verify CPT admin menus appear in the sidebar
+5. **Optional:** Create the `ollmh-payments` plugin (M-Pesa integration).
+   This is **gated on client approval** — see [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-004.
+   Skip this step if online payment is not yet approved; the site operates
+   fully without it (applicants pay offline).
+6. Verify all active plugins activate without errors
+7. Register CPTs and taxonomies (see [`CPT-REGISTRATION-CODE.md`](./CPT-REGISTRATION-CODE.md))
+8. Flush rewrite rules
+9. Verify CPT admin menus appear in the sidebar
 
-**Exit criteria:** Theme is active, all 4 plugins are active, CPT admin menus visible.
+**Exit criteria:** Theme is active, all 3 core plugins are active (plus `ollmh-payments` if approved), CPT admin menus visible.
 
 ---
 
@@ -156,27 +159,32 @@ The migration has 7 phases, each with clear entry/exit criteria. Phases
    - Step 1: Personal information
    - Step 2: Academic information
    - Step 3: Document upload (photo, transcripts, ID copy)
-   - Step 4: Review and submit + M-Pesa payment
+   - Step 4: Review and submit
    - REST API endpoints (`/ollmh/v1/applications`, `/ollmh/v1/applications/upload`)
    - Save to `wp_applicants` + `wp_applications` + `wp_application_documents`
-   - M-Pesa STK Push for application fee
    - Email confirmation to applicant
    - Notification to `nursing_school_email`
+   - **Optional (gated on client approval + `ollmh-payments` active):**
+     Add M-Pesa STK Push for the application fee in Step 4. When the
+     payments plugin is inactive, the form submits without online payment
+     (applicants pay offline). See [`ARCHITECTURAL-DECISIONS.md`](./ARCHITECTURAL-DECISIONS.md) → ADR-004.
 4. Build the event registration form
    - REST API endpoint (`/ollmh/v1/events/register`)
    - Save to `wp_event_registrations`
    - Email confirmation
 5. Configure SMTP (see [`SETTINGS.md`](./SETTINGS.md) → `email` group)
-6. Configure M-Pesa (see [`SETTINGS.md`](./SETTINGS.md) → `financial` group)
+6. **Optional (only if `ollmh-payments` is active and approved):**
+   Configure M-Pesa (see [`SETTINGS.md`](./SETTINGS.md) → `financial` group)
    - Start with sandbox environment
    - Test STK Push flow end-to-end
    - Switch to production when ready
+   Skip this step entirely if online payment is not yet approved.
 7. Configure Cloudflare Turnstile (see [`SETTINGS.md`](./SETTINGS.md) → `security` group)
 8. Configure SMS gateway (if SMS notifications enabled)
 9. Set up cron jobs (see [`CRON-JOBS.md`](./CRON-JOBS.md))
 10. Set up email templates (see [`EMAIL-TEMPLATES.md`](./EMAIL-TEMPLATES.md))
 
-**Exit criteria:** All forms submit successfully, emails send, M-Pesa works in sandbox, Turnstile validates, cron jobs scheduled.
+**Exit criteria:** All forms submit successfully, emails send, Turnstile validates, cron jobs scheduled. (Additionally, if M-Pesa is approved and `ollmh-payments` is active: STK Push works in sandbox.)
 
 ---
 
@@ -195,7 +203,7 @@ The migration has 7 phases, each with clear entry/exit criteria. Phases
    - Generate XML sitemap
    - Submit sitemap to Google Search Console
 4. Performance optimization (see [`PERFORMANCE-BUDGET.md`](./PERFORMANCE-BUDGET.md))
-   - Configure WP Rocket (caching, minification, lazy loading)
+   - Configure W3 Total Cache (caching, minification, lazy loading)
    - Optimize images (convert to WebP)
    - Test Core Web Vitals
 5. Security hardening (see [`SECURITY-HARDENING.md`](./SECURITY-HARDENING.md))
@@ -207,10 +215,12 @@ The migration has 7 phases, each with clear entry/exit criteria. Phases
 7. Set up backup system (see [`BACKUP-RECOVERY.md`](./BACKUP-RECOVERY.md))
 8. Deploy to production (see [`DEPLOYMENT.md`](./DEPLOYMENT.md))
 9. Configure production DNS and SSL
-10. Switch M-Pesa from sandbox to production
+10. **Optional (only if `ollmh-payments` is active and was tested in
+    sandbox during Phase 6):** Switch M-Pesa from sandbox to production.
+    Skip this step if online payment is not yet approved/activated.
 11. Post-launch monitoring (24–48 hours of active monitoring)
 
-**Exit criteria:** Site is live at the production domain, all redirects work, SEO tools connected, backups running, monitoring active.
+**Exit criteria:** Site is live at the production domain, all redirects work, SEO tools connected, backups running, monitoring active. (Additionally, if M-Pesa is approved and active: production STK Push verified end-to-end.)
 
 ---
 

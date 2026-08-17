@@ -190,7 +190,7 @@ docker exec ollmh-wp wp plugin activate ollmh-payments --allow-root
 docker exec ollmh-wp wp plugin activate ollmh-notifications --allow-root
 
 # 9. Install third-party plugins
-docker exec ollmh-wp wp plugin install rank-math google-site-kit redirection wp-rocket broken-link-checker --activate --allow-root
+docker exec ollmh-wp wp plugin install rank-math google-site-kit redirection w3-total-cache broken-link-checker --activate --allow-root
 
 # 10. Verify the site loads
 curl -s http://localhost:8080 | head -20
